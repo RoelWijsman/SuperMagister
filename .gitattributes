@@ -1,0 +1,6 @@
+# Altijd LF-regeleindes, ook op Windows (Prettier verwacht LF).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

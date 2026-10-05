@@ -1,0 +1,634 @@
+@import "tailwindcss";
+
+/*
+ * SuperMagister design tokens.
+ *
+ * Laag 1  --t-*   themakleuren (preset of eigen kleur), gezet op <html> door
+ *                 lib/theme/script.ts en ThemeSync. Hieronder staat Aurora
+ *                 alleen als terugval voor als JavaScript nog niet gedraaid heeft.
+ * Laag 2  --sm-*  semantische tokens per modus (donker / licht).
+ * Laag 3  Tailwind-utilities (bg-glass, text-ink-2, …) via @theme inline.
+ */
+
+@custom-variant light (&:where([data-mode="light"], [data-mode="light"] *));
+@custom-variant privacy (&:where([data-privacy="on"], [data-privacy="on"] *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-unbounded), var(--font-inter), ui-sans-serif, sans-serif;
+
+  --color-bg: var(--sm-bg);
+  --color-ink: var(--sm-ink);
+  --color-ink-2: var(--sm-ink-2);
+  --color-ink-3: var(--sm-ink-3);
+  --color-accent: var(--sm-accent);
+  --color-accent-2: var(--sm-accent-2);
+  --color-accent-ink: var(--sm-accent-ink);
+  --color-on-accent: var(--sm-on-accent);
+  --color-glass: var(--sm-glass);
+  --color-glass-strong: var(--sm-glass-strong);
+  --color-glass-hover: var(--sm-glass-hover);
+  --color-line: var(--sm-line);
+  --color-line-strong: var(--sm-line-strong);
+  --color-good: var(--sm-good);
+  --color-warn: var(--sm-warn);
+  --color-bad: var(--sm-bad);
+
+  --radius-panel: 1.75rem;
+  --radius-card: 1.25rem;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  /* Terugval: Aurora */
+  --t-accent: #9b7bff;
+  --t-accent-2: #46f0c8;
+  --t-a1: #7c5cff;
+  --t-a2: #2ee6b0;
+  --t-a3: #ff6fb5;
+  --t-a4: #3d8bff;
+  --t-bg-dark: #070816;
+  --t-bg-light: #f3f2fb;
+  --t-on-accent: #0b0a1a;
+
+  --glass-blur: 18px;
+  /* Breedte van de zwevende sidebar: smal met alleen iconen, breed vanaf lg. */
+  --sidebar-w: 5.25rem;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --sidebar-w: 15.5rem;
+  }
+}
+
+/* ---------- Modus: donker (standaard) ---------- */
+:root,
+[data-mode="dark"] {
+  color-scheme: dark;
+  --sm-bg: var(--t-bg-dark);
+  --sm-ink: #f4f3ff;
+  --sm-ink-2: rgb(228 229 255 / 0.7);
+  --sm-ink-3: rgb(228 229 255 / 0.44);
+  --sm-glass: rgb(255 255 255 / 0.055);
+  --sm-glass-strong: rgb(255 255 255 / 0.09);
+  --sm-glass-hover: rgb(255 255 255 / 0.085);
+  --sm-line: rgb(255 255 255 / 0.1);
+  --sm-line-strong: rgb(255 255 255 / 0.2);
+  --sm-highlight: rgb(255 255 255 / 0.09);
+  --sm-shadow: 0 24px 60px -28px rgb(0 0 0 / 0.75);
+  --sm-accent: var(--t-accent);
+  --sm-accent-2: var(--t-accent-2);
+  --sm-accent-ink: color-mix(in oklab, var(--t-accent) 78%, white);
+  --sm-on-accent: var(--t-on-accent);
+  --sm-good: #4fe3a3;
+  --sm-warn: #ffb547;
+  --sm-bad: #ff6b81;
+  --aurora-opacity: 0.5;
+  --sky-opacity: 1;
+  --noise-opacity: 0.07;
+}
+
+/* ---------- Modus: licht ---------- */
+[data-mode="light"] {
+  color-scheme: light;
+  --sm-bg: var(--t-bg-light);
+  --sm-ink: #16142e;
+  --sm-ink-2: rgb(22 20 46 / 0.68);
+  --sm-ink-3: rgb(22 20 46 / 0.45);
+  --sm-glass: rgb(255 255 255 / 0.52);
+  --sm-glass-strong: rgb(255 255 255 / 0.72);
+  --sm-glass-hover: rgb(255 255 255 / 0.7);
+  --sm-line: rgb(22 20 46 / 0.09);
+  --sm-line-strong: rgb(22 20 46 / 0.18);
+  --sm-highlight: rgb(255 255 255 / 0.7);
+  --sm-shadow: 0 20px 44px -26px rgb(46 32 110 / 0.35);
+  --sm-accent-ink: color-mix(in oklab, var(--t-accent) 58%, black);
+  --sm-good: #0f9a62;
+  --sm-warn: #c26f00;
+  --sm-bad: #d92d4b;
+  --aurora-opacity: 0.32;
+  --sky-opacity: 0.55;
+  --noise-opacity: 0.045;
+}
+
+@layer base {
+  html {
+    background: var(--sm-bg);
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-color: var(--sm-line-strong) transparent;
+  }
+
+  /* Geen eigen achtergrond: dan zou de hemel (z-index -1) eronder verdwijnen. */
+  body {
+    min-height: 100dvh;
+    color: var(--sm-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss03";
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--sm-accent) 38%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--sm-accent);
+    outline-offset: 3px;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ---------- Glas ---------- */
+@utility glass {
+  background-color: var(--sm-glass);
+  background-image: linear-gradient(180deg, var(--sm-highlight), transparent 38%);
+  border: 1px solid var(--sm-line);
+  box-shadow:
+    inset 0 1px 0 0 var(--sm-highlight),
+    inset 0 0 28px -10px rgb(255 255 255 / 0.07),
+    var(--sm-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+}
+
+@utility glass-strong {
+  background-color: var(--sm-glass-strong);
+  background-image: linear-gradient(180deg, var(--sm-highlight), transparent 42%);
+  border: 1px solid var(--sm-line-strong);
+  box-shadow:
+    inset 0 1px 0 0 var(--sm-highlight),
+    inset 0 0 32px -10px rgb(255 255 255 / 0.09),
+    var(--sm-shadow);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(170%);
+  backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(170%);
+}
+
+@utility glass-subtle {
+  background-color: color-mix(in oklab, var(--sm-glass) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--sm-line) 70%, transparent);
+}
+
+/* Minder transparantie gevraagd: glas wordt een dichte kaart. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --sm-glass: color-mix(in oklab, var(--sm-bg) 88%, white 12%);
+    --sm-glass-strong: color-mix(in oklab, var(--sm-bg) 82%, white 18%);
+    --glass-blur: 0px;
+  }
+}
+
+/* Accentkleur als tekst-verloop, voor koppen en grote getallen. */
+@utility text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--sm-accent-ink),
+    color-mix(in oklab, var(--sm-accent-2) 85%, white)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-mode="light"] .text-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--sm-accent-ink),
+    color-mix(in oklab, var(--sm-accent-2) 55%, black)
+  );
+}
+
+/* ---------- Privacymodus: cijfers vervagen ---------- */
+.sensitive {
+  transition: filter 0.25s ease;
+}
+
+[data-privacy="on"] .sensitive {
+  filter: blur(0.42em);
+  user-select: none;
+}
+
+/* ---------- Skeleton ---------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: var(--sm-glass-strong);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.09), transparent);
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+[data-mode="light"] .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- De hemel: aurora, tijd van de dag, sterren, noise ---------- */
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--sm-bg);
+  transition: background-color 0.6s ease;
+}
+
+.sky__blob {
+  position: absolute;
+  width: 78vmax;
+  height: 78vmax;
+  border-radius: 9999px;
+  opacity: var(--aurora-opacity);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--blob) 80%, transparent),
+    color-mix(in oklab, var(--blob) 30%, transparent) 48%,
+    transparent 74%
+  );
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+[data-mode="light"] .sky__blob {
+  mix-blend-mode: normal;
+}
+
+.sky__blob--1 {
+  --blob: var(--t-a1);
+  top: -34vmax;
+  left: -24vmax;
+  animation: drift-1 46s ease-in-out infinite alternate;
+}
+
+.sky__blob--2 {
+  --blob: var(--t-a2);
+  top: -18vmax;
+  right: -34vmax;
+  animation: drift-2 58s ease-in-out infinite alternate;
+}
+
+.sky__blob--3 {
+  --blob: var(--t-a3);
+  bottom: -42vmax;
+  left: 4vmax;
+  animation: drift-3 64s ease-in-out infinite alternate;
+}
+
+.sky__blob--4 {
+  --blob: var(--t-a4);
+  width: 62vmax;
+  height: 62vmax;
+  right: -18vmax;
+  bottom: -30vmax;
+  opacity: calc(var(--aurora-opacity) * 0.75);
+  animation: drift-4 52s ease-in-out infinite alternate;
+}
+
+/* Het "gordijn" van het noorderlicht: een schuin, golvend lint. */
+.sky__ribbon {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: 6%;
+  height: 46vh;
+  opacity: calc(var(--aurora-opacity) * 0.9);
+  background: linear-gradient(
+    96deg,
+    transparent 8%,
+    color-mix(in oklab, var(--t-a2) 55%, transparent) 30%,
+    color-mix(in oklab, var(--t-a1) 50%, transparent) 52%,
+    color-mix(in oklab, var(--t-a3) 30%, transparent) 70%,
+    transparent 92%
+  );
+  -webkit-mask-image: linear-gradient(180deg, transparent, black 35%, black 55%, transparent);
+  mask-image: linear-gradient(180deg, transparent, black 35%, black 55%, transparent);
+  filter: saturate(140%);
+  mix-blend-mode: screen;
+  transform-origin: 50% 0;
+  animation: ribbon 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+[data-mode="light"] .sky__ribbon {
+  mix-blend-mode: normal;
+  opacity: calc(var(--aurora-opacity) * 0.7);
+}
+
+@keyframes drift-1 {
+  50% {
+    transform: translate3d(14vmax, 9vmax, 0) scale(1.14);
+  }
+  100% {
+    transform: translate3d(5vmax, 18vmax, 0) scale(0.94);
+  }
+}
+
+@keyframes drift-2 {
+  50% {
+    transform: translate3d(-12vmax, 12vmax, 0) scale(0.9);
+  }
+  100% {
+    transform: translate3d(-20vmax, 2vmax, 0) scale(1.1);
+  }
+}
+
+@keyframes drift-3 {
+  50% {
+    transform: translate3d(18vmax, -8vmax, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-6vmax, -14vmax, 0) scale(0.96);
+  }
+}
+
+@keyframes drift-4 {
+  50% {
+    transform: translate3d(-10vmax, -10vmax, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(-4vmax, 6vmax, 0) scale(0.9);
+  }
+}
+
+@keyframes ribbon {
+  0% {
+    transform: translate3d(-6%, 0, 0) skewY(-9deg) scaleY(0.85);
+  }
+  50% {
+    transform: translate3d(4%, 3vh, 0) skewY(-4deg) scaleY(1.1);
+  }
+  100% {
+    transform: translate3d(8%, -2vh, 0) skewY(-11deg) scaleY(0.95);
+  }
+}
+
+/* Tijd van de dag. Alle lagen bestaan; alleen de actieve is zichtbaar. */
+.sky__time {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 2.4s ease;
+}
+
+[data-tod="ochtend"] .sky__time--ochtend,
+[data-tod="dag"] .sky__time--dag,
+[data-tod="avond"] .sky__time--avond,
+[data-tod="nacht"] .sky__time--nacht {
+  opacity: var(--sky-opacity);
+}
+
+.sky__time--ochtend {
+  background:
+    radial-gradient(120% 70% at 12% 108%, rgb(255 138 76 / 0.55), transparent 62%),
+    radial-gradient(90% 60% at 92% 104%, rgb(255 92 150 / 0.42), transparent 60%),
+    linear-gradient(to top, rgb(255 150 100 / 0.16), transparent 58%);
+}
+
+.sky__time--dag {
+  background:
+    radial-gradient(130% 80% at 50% -18%, rgb(64 160 255 / 0.5), transparent 60%),
+    radial-gradient(70% 50% at 100% 0%, rgb(56 220 255 / 0.28), transparent 62%);
+}
+
+.sky__time--avond {
+  background:
+    radial-gradient(120% 72% at 82% 110%, rgb(146 82 255 / 0.56), transparent 62%),
+    radial-gradient(80% 60% at 0% 104%, rgb(228 76 210 / 0.36), transparent 60%),
+    linear-gradient(to top, rgb(118 58 220 / 0.16), transparent 52%);
+}
+
+.sky__time--nacht {
+  background:
+    radial-gradient(110% 58% at 50% 118%, rgb(36 56 168 / 0.38), transparent 62%),
+    linear-gradient(to bottom, rgb(0 0 10 / 0.38), rgb(0 0 10 / 0.12));
+}
+
+.sky__stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 3s ease;
+}
+
+[data-mode="dark"][data-tod="nacht"] .sky__stars {
+  opacity: 1;
+}
+
+.sky__star {
+  position: absolute;
+  border-radius: 9999px;
+  background: white;
+  box-shadow: 0 0 6px rgb(255 255 255 / 0.7);
+  animation: twinkle var(--twinkle-duration) ease-in-out var(--twinkle-delay) infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: var(--star-min);
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* Af en toe een vallende ster. Wie hem ziet, mag iets wensen. */
+.sky__meteor {
+  position: absolute;
+  top: 12%;
+  left: 68%;
+  width: 140px;
+  height: 1.5px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, white, transparent);
+  opacity: 0;
+  transform: rotate(-24deg);
+  animation: meteor 23s linear 6s infinite;
+}
+
+@keyframes meteor {
+  0%,
+  94% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(-24deg);
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-340px, 150px, 0) rotate(-24deg);
+  }
+}
+
+.sky__noise {
+  position: absolute;
+  inset: 0;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  mix-blend-mode: overlay;
+}
+
+[data-mode="light"] .sky__noise {
+  mix-blend-mode: multiply;
+  filter: invert(1);
+}
+
+.sky__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(130% 95% at 50% 35%, transparent 55%, rgb(0 0 8 / 0.42));
+}
+
+[data-mode="light"] .sky__vignette {
+  display: none;
+}
+
+/* Beweging uit: alles staat stil, maar blijft mooi. */
+[data-ambient="off"] .sky *,
+[data-motion="reduced"] .sky * {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .sky * {
+    animation-play-state: paused !important;
+  }
+}
+
+/* Op kleine schermen: minder lagen, zodat het glas soepel blijft. */
+@media (max-width: 767px) {
+  .sky__blob--4 {
+    display: none;
+  }
+
+  :root {
+    --glass-blur: 14px;
+  }
+}
+
+/* ---------- Huiswerk-HTML uit Magister ---------- */
+.homework-html {
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+
+.homework-html > * + * {
+  margin-top: 0.5em;
+}
+
+.homework-html a {
+  color: var(--sm-accent-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.homework-html a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.homework-html strong,
+.homework-html b {
+  font-weight: 650;
+  color: var(--sm-ink);
+}
+
+.homework-html ul,
+.homework-html ol {
+  padding-left: 1.25em;
+}
+
+.homework-html ul {
+  list-style: disc;
+}
+
+.homework-html ol {
+  list-style: decimal;
+}
+
+@keyframes pack-glow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes foil {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------- Kleine hulpklassen ---------- */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
