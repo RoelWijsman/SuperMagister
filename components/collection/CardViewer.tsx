@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clapperboard,
+  Film,
   RotateCw,
   Share2,
   Smartphone,
@@ -14,10 +15,12 @@ import {
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
+import { VideoSheet, type VideoRequest } from "@/components/video/VideoSheet";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { CARD_RATIO } from "@/lib/cards/draw";
 import { cardTierLabel, type CardData } from "@/lib/cards/model";
 import { renderShareCard } from "@/lib/cards/share";
+import { useGuesses } from "@/lib/data/guesses";
 import { formatLongDate, parseISODate } from "@/lib/date";
 import { haptic } from "@/lib/haptics";
 import { useFocusTrap, useIsClient, useMediaQuery, useModalLock } from "@/lib/hooks";
@@ -80,6 +83,8 @@ function Viewer({
   const [flipped, setFlipped] = useState(false);
   const [direction, setDirection] = useState(0);
   const [share, setShare] = useState<ShareRequest | null>(null);
+  const [video, setVideo] = useState<VideoRequest | null>(null);
+  const { guesses } = useGuesses();
   const [gyroAllowed, setGyroAllowed] = useState<boolean | null>(null);
   const swipe = useRef<{ x: number; y: number; moved: boolean } | null>(null);
 
@@ -109,7 +114,7 @@ function Viewer({
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       // Een sheet of walkout erbovenop handelt zijn eigen toetsen af.
-      if (share || useWalkout.getState().session) return;
+      if (share || video || useWalkout.getState().session) return;
       if (event.key === "Escape") close();
       else if (event.key === "ArrowLeft") go(-1);
       else if (event.key === "ArrowRight") go(1);
@@ -117,7 +122,7 @@ function Viewer({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [share, close, go]);
+  }, [share, video, close, go]);
 
   const onPointerDown = (event: PointerEvent) => {
     if (event.pointerType === "mouse") return;
@@ -280,6 +285,20 @@ function Viewer({
           <Button
             variant="glass"
             size="sm"
+            icon={Film}
+            onClick={() =>
+              setVideo({
+                card,
+                guess: card.isPractice ? null : (guesses?.[card.gradeId]?.gok ?? null),
+              })
+            }
+            className="text-white"
+          >
+            Video
+          </Button>
+          <Button
+            variant="glass"
+            size="sm"
             icon={Share2}
             onClick={() =>
               setShare({
@@ -296,6 +315,7 @@ function Viewer({
       </footer>
 
       <ShareSheet request={share} onClose={() => setShare(null)} />
+      <VideoSheet request={video} onClose={() => setVideo(null)} />
     </div>
   );
 }

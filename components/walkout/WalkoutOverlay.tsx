@@ -13,6 +13,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
+import { VideoSheet, type VideoRequest } from "@/components/video/VideoSheet";
 import { playLiveCue, startLiveTension } from "@/lib/audio/engine";
 import type { SoundHandle } from "@/lib/audio/synth";
 import { bestTier, TIER_LABELS } from "@/lib/calc/tiers";
@@ -133,6 +134,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   const [announcement, setAnnouncement] = useState("");
   /** Gokken van deze sessie per kaart; null = zonder gok omgedraaid. */
   const [sessionGuesses, setSessionGuesses] = useState<Record<string, number | null>>({});
+  /** Feature B: de video die je vanaf het eindscherm maakt. */
+  const [video, setVideo] = useState<VideoRequest | null>(null);
 
   // Feature A: het gokmoment.
   const [guessOpen, setGuessOpen] = useState(false);
@@ -517,6 +520,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   // ——— Bediening ———————————————————————————————————————————————————————————
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // Het videopaneel ligt erbovenop en handelt zijn eigen toetsen af.
+      if (video) return;
       if (event.key === "Escape") {
         close();
         return;
@@ -546,8 +551,12 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     return () => window.removeEventListener("keydown", onKey);
   });
 
+  /** Komt dit event uit de walkout zelf (en niet uit een paneel erbovenop)? */
+  const fromStage = (event: { target: EventTarget }) =>
+    container.current?.contains(event.target as Node) ?? false;
+
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest("button, a")) return;
+    if (!fromStage(event) || (event.target as HTMLElement).closest("button, a")) return;
     if (guessOpen && entry) {
       dragRef.current = {
         pointerId: event.pointerId,
@@ -566,6 +575,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!fromStage(event)) return;
     const drag = dragRef.current;
     if (!guessOpen || !drag || drag.pointerId !== event.pointerId) return;
     const dy = drag.y - event.clientY;
@@ -575,7 +585,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   };
 
   const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest("button, a")) return;
+    if (!fromStage(event) || (event.target as HTMLElement).closest("button, a")) return;
     const drag = dragRef.current;
     if (guessOpen && drag && drag.pointerId === event.pointerId) {
       // Loslaten = vastzetten. Een tik zonder getal slaat niets over (dat kan
@@ -591,7 +601,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   };
 
   const onWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (!guessOpen || !entry) return;
+    if (!fromStage(event) || !guessOpen || !entry) return;
     const { steps, rest } = wheelSteps(wheelRest.current, event.deltaY);
     wheelRest.current = rest;
     if (steps === 0) return;
@@ -763,7 +773,9 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
               close();
               router.push(card.isPractice ? "/cijfers" : `/cijfers?vak=${card.subjectId}`);
             }}
+            onMakeVideo={() => setVideo({ card: entry.card, guess: currentGuess })}
             autoAdvance={autoAdvance && !isLast && resting}
+            hold={video !== null}
           />
         </div>
       )}
@@ -795,6 +807,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
           />
         </motion.div>
       )}
+
+      <VideoSheet request={video} onClose={() => setVideo(null)} layer="boven" />
     </div>
   );
 }

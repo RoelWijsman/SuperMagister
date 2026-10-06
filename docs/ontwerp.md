@@ -208,9 +208,47 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   hydratie nog geen data terug, ook als een ander component (zoals de doelen- of
   prestatiewachter) die al heeft opgehaald. Zo tekenen server en browser de eerste keer hetzelfde.
 
+## Walkout als video (feature B)
+
+- **Precies de walkout.** De video gebruikt dezelfde pure tekenfunctie als het scherm
+  (`renderWalkoutFrame`), beeld voor beeld op tijd t, met alleen het watermerk en de
+  mysterietekst erover. De kaart blijft in beeld staan (geen eindscherm ernaast).
+- **Het gokmoment is de cliffhanger** (op verzoek). Mysterie-modus (standaard aan) stopt precies
+  op het "?" van het gokmoment: het silhouet hangt, de hartslag versnelt, de camera zoomt en na een
+  seconde verschijnt "Raad mijn cijfer." met daaronder klein een inzet ("Fout = jij haalt
+  tosti's.", vijf varianten). De video eindigt daar, abrupt, zonder flip. In de normale video rolt
+  de teller onder "MIJN GOK" naar je gok, klik, flip, en je gok klapt als spookcijfer tegen de
+  rating. Zonder gok (of bij V, G en O) is het gewoon de walkout. Pijltjes, uitleg en schaal van
+  het live gokken staan niet in de video.
+- **Opties.** 9:16 (1080 × 1920) of 1:1 (1080 × 1080); mysterie aan of uit; cijfer verbergen met
+  een sticker ("Nee.", "Staatsgeheim", "Vraag mijn advocaat", "Niet vandaag", "Boeieuh"); naam wel
+  of niet tonen. In de privacymodus staat de sticker standaard aan. Met een sticker valt
+  HELDERZIENDE weg (dat zou het cijfer verraden) en landt het spookcijfer naast de sticker.
+  In mysterie-modus zijn sticker en naam niet nodig: je ziet alleen het silhouet.
+- **Watermerk:** het logo met "SUPERMAGISTER" en klein "ONOFFICIEEL · NIET VAN MAGISTER" onderaan.
+  Het beeldmerk staat als vorm in `lib/brand.ts`, gedeeld met het logo in de app.
+- **Engine** (`lib/video`), herbruikbaar voor Wrapped: hij krijgt een tekenfunctie van t, een
+  lengte en het geluid, en weet niets van walkouts. Volgorde van voorkeur: WebCodecs + Mediabunny
+  naar mp4 (frame-exact, sneller dan realtime, metadata vooraan zodat de video meteen speelt),
+  dan MediaRecorder naar mp4 (realtime), dan WebCodecs naar webm, dan MediaRecorder naar webm, en
+  als laatste een stille video. Mediabunny wordt pas geladen als je echt een video maakt.
+- **Geluid** wordt apart offline gerenderd met dezelfde recepten (OfflineAudioContext, 48 kHz) en
+  in de video gemuxt (aac, anders opus). Geluiden die over het einde heen lopen worden afgekapt; in
+  mysterie speelt de spanningsloop door tot het laatste beeld en stopt het geluid kort, anders
+  sterft het rustig uit. Het geluid zit er ook in als je het in de app hebt uitgezet.
+- **Flow.** "Maak video" op het eindscherm van de walkout (het paneel ligt dan boven de walkout,
+  en die gaat zolang niet vanzelf door) en "Video" in de kaartviewer van de collectie. Eerst de
+  opties met een voorproefje van het laatste beeld, dan de voortgang met procent en wisselende
+  teksten (annuleren kan), dan een speler met "Delen" (Web Share API, alleen als het apparaat een
+  video kan delen) en "Downloaden".
+- **Voor de CSP in fase 5:** de preview speelt een `blob:`-adres af, dus `media-src` moet `blob:`
+  toestaan. Mediabunny gebruikt geen workers of externe bestanden.
+- **Getest:** een mp4 van 1080 × 1920 en ~11 seconden is in de app-browser in ongeveer 12 seconden
+  klaar (3,8 MB), met geluid. De terugval via MediaRecorder levert in realtime ook een mp4.
+
 ## Bewust nog niet in fase 2
 
-Walkout als video (feature B) · versleepbare widgets, rooster-weergaven,
+Versleepbare widgets, rooster-weergaven,
 afvinken en focus (fase 3) · vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) ·
 koppelen, proxy en CSP (fase 5) · XP, achievements, profiel en recaps (fase 6) · PWA, offline,
 meldingen, seizoensthema's en easter eggs (fase 7).

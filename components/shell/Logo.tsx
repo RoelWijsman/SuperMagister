@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { LOGO_DOT, LOGO_RADIUS, LOGO_SIZE, LOGO_SPARK_PATH } from "@/lib/brand";
 import { cn } from "@/lib/cn";
 
 /** Het beeldmerk: een fonkelende ster op een aurora-tegel. */
@@ -16,13 +17,10 @@ export function LogoMark({ className }: { className?: string }) {
           <stop offset="1" stopColor="white" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="40" height="40" rx="12" fill={`url(#${id}-bg)`} />
-      <rect width="40" height="40" rx="12" fill={`url(#${id}-shine)`} />
-      <path
-        d="M20 7.5c1.5 7.6 4.9 11 12.5 12.5-7.6 1.5-11 4.9-12.5 12.5C18.5 24.9 15.1 21.5 7.5 20c7.6-1.5 11-4.9 12.5-12.5z"
-        fill="var(--sm-on-accent)"
-      />
-      <circle cx="30.5" cy="9.5" r="2" fill="var(--sm-on-accent)" opacity="0.85" />
+      <rect width={LOGO_SIZE} height={LOGO_SIZE} rx={LOGO_RADIUS} fill={`url(#${id}-bg)`} />
+      <rect width={LOGO_SIZE} height={LOGO_SIZE} rx={LOGO_RADIUS} fill={`url(#${id}-shine)`} />
+      <path d={LOGO_SPARK_PATH} fill="var(--sm-on-accent)" />
+      <circle {...LOGO_DOT} fill="var(--sm-on-accent)" opacity="0.85" />
     </svg>
   );
 }

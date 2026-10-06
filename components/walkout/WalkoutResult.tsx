@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Calculator, Check, RotateCcw } from "lucide-react";
+import { ArrowRight, Calculator, Check, Clapperboard, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { VARIANT_LABELS } from "@/lib/calc/cards";
@@ -25,8 +25,12 @@ interface WalkoutResultProps {
   onNext: () => void;
   onReplay: () => void;
   onWhatToGet: (card: CardData) => void;
+  /** Feature B: deze walkout als video. */
+  onMakeVideo: () => void;
   /** Automatisch door na een paar seconden. */
   autoAdvance: boolean;
+  /** Even niet automatisch door (bijv. terwijl je een video maakt). */
+  hold?: boolean;
 }
 
 const AUTO_MS = 4200;
@@ -41,7 +45,9 @@ export function WalkoutResult({
   onNext,
   onReplay,
   onWhatToGet,
+  onMakeVideo,
   autoAdvance,
+  hold = false,
 }: WalkoutResultProps) {
   const { card } = entry;
   const lines = useMemo(
@@ -56,11 +62,12 @@ export function WalkoutResult({
   const showWhatToGet = card.isFail || Boolean(guessed?.showWhatToGet);
   const [paused, setPaused] = useState(false);
 
+  const waiting = autoAdvance && !paused && !hold;
   useEffect(() => {
-    if (!autoAdvance || paused) return;
+    if (!waiting) return;
     const id = setTimeout(onNext, AUTO_MS);
     return () => clearTimeout(id);
-  }, [autoAdvance, paused, onNext]);
+  }, [waiting, onNext]);
 
   return (
     <motion.section
@@ -141,12 +148,23 @@ export function WalkoutResult({
           Nog een keer
         </Button>
         <Button
+          variant="ghost"
+          icon={Clapperboard}
+          onClick={() => {
+            setPaused(true);
+            onMakeVideo();
+          }}
+          className="text-white/70 hover:text-white"
+        >
+          Maak video
+        </Button>
+        <Button
           variant={showWhatToGet ? "glass" : "primary"}
           iconRight={nextLabel === "Klaar" ? Check : ArrowRight}
           onClick={onNext}
           className={cn("relative ml-auto overflow-hidden")}
         >
-          {autoAdvance && !paused && (
+          {waiting && (
             <span
               aria-hidden
               className="absolute inset-y-0 left-0 animate-[autoadvance_4.2s_linear_forwards] bg-white/25"

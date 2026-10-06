@@ -15,7 +15,7 @@ export const COPY = {
     "Magister wakker maken. Die is 's ochtends ook niet zo snel.",
     "De conciërge zoekt de juiste sleutel.",
     "Laden. Net als jij om 08:29.",
-    "Even geduld. Deze clanker doet zijn best.",
+    "Even geduld. De beamer moet ook nog opwarmen.",
     "Verbinding maken. Niet met de schoolwifi, gelukkig.",
   ],
   "laden.cijfers": [
@@ -342,6 +342,13 @@ export const COPY = {
     "Vol.\nZelfs een vitrine heeft grenzen.",
     "Het past niet.\nVijf plekken, vijf kaarten. Wiskunde.",
     "Vitrine zit vol.\nWie mag eruit? Moeilijk, hè.",
+  ],
+  "toast.video": [
+    "Video klaar.\nVijftien seconden roem, frame voor frame.",
+    "Klaar.\nJe groepsapp weet nog van niks.",
+    "Video gemaakt.\nRegie: jij. Vuurwerk: wij. Popcorn: zelf meenemen.",
+    "Klaar voor de première.\nRode loper niet inbegrepen.",
+    "Video staat klaar.\nNiemand hoeft te weten hoe vaak je hem terugkijkt.",
   ],
   "toast.afbeelding": [
     "Afbeelding klaar.\nDelen is opscheppen met extra stappen.",
@@ -756,6 +763,39 @@ export const COPY = {
     "{aantal} {kaarten}. Allemaal eerlijk verdiend.",
     "{aantal} {kaarten} in je album. Plakken hoeft niet.",
   ],
+  // ——— Video (feature B) ——————————————————————————————————————————————
+  "video.voortgang": [
+    "Pixels in de goede volgorde zetten…",
+    "Flares aansteken. Binnen. Niet thuis proberen.",
+    "Deze clanker werkt zo hard als hij kan.",
+    "Renderen gaat sneller dan jij je huiswerk maakt.",
+    "Bijna klaar. (Dat zeggen we altijd.)",
+  ],
+  /** Klein onder "Raad mijn cijfer." aan het eind van een mysterie-video. */
+  "video.inzet": [
+    "Fout = jij haalt tosti's.",
+    "Fout = jij haalt tosti's. Twee.",
+    "Antwoord in de comments. Fout = trakteren.",
+    "Goed geraden = eeuwige roem. Fout = tosti's halen.",
+    "Wie fout zit, staat morgen in de rij bij de aula.",
+  ],
 } as const satisfies Record<string, readonly string[]>;
+
+/** Feature B: de vaste teksten van de video (geen grappen die moeten wisselen). */
+export const VIDEO_TEXT = {
+  /** Groot onder het "?" aan het eind van een mysterie-video. */
+  raad: "Raad mijn cijfer.",
+  /** Boven de rollende teller in een normale video. */
+  gok: "Mijn gok",
+} as const;
+
+/** Feature B: kies wat er op de sticker over je cijfer staat. */
+export const VIDEO_STICKERS = [
+  "Nee.",
+  "Staatsgeheim",
+  "Vraag mijn advocaat",
+  "Niet vandaag",
+  "Boeieuh",
+] as const;
 
 export type CopyKey = keyof typeof COPY;

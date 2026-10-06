@@ -27,6 +27,8 @@ export interface SheetProps {
   children: ReactNode;
   footer?: ReactNode;
   className?: string;
+  /** "boven": ook boven de fullscreen walkout (bijv. de video vanaf het eindscherm). */
+  layer?: "app" | "boven";
 }
 
 /**
@@ -43,6 +45,7 @@ export function Sheet({
   children,
   footer,
   className,
+  layer = "app",
 }: SheetProps) {
   const isClient = useIsClient();
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -81,7 +84,12 @@ export function Sheet({
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center md:p-6">
+        <div
+          className={cn(
+            "fixed inset-0 flex items-end justify-center md:items-center md:p-6",
+            layer === "boven" ? "z-[90]" : "z-50",
+          )}
+        >
           <motion.div
             className="absolute inset-0 bg-[rgb(4_4_14/0.55)] backdrop-blur-[3px]"
             initial={{ opacity: 0 }}

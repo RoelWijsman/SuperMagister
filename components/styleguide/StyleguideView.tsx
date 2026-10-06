@@ -6,6 +6,7 @@ import { CardCanvas } from "@/components/cards/CardCanvas";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { CollectionSamples } from "./CollectionSamples";
 import { GuessSamples } from "./GuessSamples";
+import { VideoSamples } from "./VideoSamples";
 import { WalkoutScrubber } from "./WalkoutScrubber";
 import { GradeValue } from "@/components/grades/GradeValue";
 import { SubjectBadge } from "@/components/subjects/SubjectBadge";
@@ -122,6 +123,13 @@ export function StyleguideView() {
           note="Feature A: de strook onder de kaart, gok tegenover echt en de prestaties."
         >
           <GuessSamples />
+        </Block>
+
+        <Block
+          title="Walkout als video"
+          note="Feature B: het laatste beeld per stand, met dezelfde tekencode als de walkout. Of maak er echt een."
+        >
+          <VideoSamples deck={deck} />
         </Block>
       </div>
 

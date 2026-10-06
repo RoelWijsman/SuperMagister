@@ -34,6 +34,11 @@ export interface WalkoutAssets {
   silhouette: HTMLCanvasElement;
   /** Font-familie van de kaarten (Bebas Neue). */
   family: string;
+  /**
+   * Feature B: breedte van wat linksboven op de kaart staat (kaarteenheden), als
+   * dat geen rating is maar een sticker. Het spookcijfer landt ernaast.
+   */
+  ratingWidth?: number;
 }
 
 /** Feature A: wat de gokteller live laat zien. */
@@ -46,6 +51,8 @@ export interface GuessView {
   hints?: boolean;
   /** Sinds wanneer de pijltjes een duwtje krijgen (tik of Enter zonder getal). */
   nudgeSince?: number | null;
+  /** Tekst boven het getal: standaard "WAT HEB JE?", null = geen tekst (video). */
+  label?: string | null;
 }
 
 export interface PackAssets {
@@ -845,9 +852,12 @@ function drawGuessCounter(
   ctx.globalAlpha = clamp((t - gokStart) / 0.35) * pose.alpha;
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = "rgba(255,255,255,0.78)";
-  ctx.font = `${28 * k}px ${assets.family}`;
-  ctx.fillText(spaced("WAT HEB JE?"), cx, spot.label);
+  const label = view?.label === undefined ? "WAT HEB JE?" : view.label;
+  if (label) {
+    ctx.fillStyle = "rgba(255,255,255,0.78)";
+    ctx.font = `${28 * k}px ${assets.family}`;
+    ctx.fillText(spaced(label), cx, spot.label);
+  }
 
   if (view?.hints && !locked) {
     drawGuessArrows(ctx, spot, t, unit, plan.reduced, value, view.nudgeSince ?? null);
@@ -904,7 +914,10 @@ function drawGuessFlight(
 
   ctx.save();
   ctx.font = `${rating.size}px ${assets.family}`;
-  const realWidth = ctx.measureText(card.ratingLabel).width;
+  const realWidth =
+    assets.ratingWidth === undefined
+      ? ctx.measureText(card.ratingLabel).width
+      : assets.ratingWidth * k;
   const waitLeft = rating.x + realWidth + 80 * k;
   const finalLeft = exact ? rating.x : rating.x + realWidth + 10 * k;
 

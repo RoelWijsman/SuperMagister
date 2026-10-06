@@ -14,7 +14,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 1    | Fundament: design system, thema's, demo-data, app-shell, paginatransities, command palette | ✅ Klaar |
 | 2    | Cijferonthulling: walkout, pack-opening, kaarten, geluid, oefenmodus, collectie            | ✅ Klaar |
 | A    | Gok je cijfer: het gokmoment midden in de walkout                                          | ✅ Klaar |
-| B    | Walkout als video delen                                                                    | Gepland  |
+| B    | Walkout als video delen                                                                    | ✅ Klaar |
 | 3    | Dagelijks gebruik: widgets op Vandaag, rooster, huiswerk, focusmodus, studieplan           | Gepland  |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
 | 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | Gepland  |
@@ -64,6 +64,10 @@ kunt veilig rondklikken.
   HELDERZIENDE. Bij **Cijfers** zie je wat
   voor gokker je bent, bij **Prestaties** wat je ermee verdiende. Liever alleen bij de laatste
   kaart, of helemaal niet? **Instellingen → Walkout → Gokken.**
+- **Walkout als video:** tik op het eindscherm van een walkout op **Maak video**, of in de
+  collectie op **Video**. Standaard in mysterie-modus: de video stopt op het vraagteken en vraagt
+  "Raad mijn cijfer.". Zonder mysterie zie je je gok rollen en daarna de flip. Kies 9:16 of 1:1,
+  een sticker over je cijfer en of je naam erop staat; daarna delen of downloaden.
 - Alle soorten kaarten bekijken? Kies **Oefen een walkout** in Instellingen of via Ctrl/⌘ K.
 - Het startpack van de demo nog een keer openen? **Instellingen → Walkout → Pack opnieuw
   dichtplakken.**
@@ -101,6 +105,7 @@ op een server opgeslagen.
 - Next.js (App Router) met TypeScript in strict-modus
 - Tailwind CSS voor styling, Framer Motion voor animaties
 - Canvas 2D voor de walkout en de kaarten, Web Audio voor alle geluiden
+- Video's met WebCodecs en Mediabunny (mp4), met MediaRecorder als terugval
 - TanStack Query voor data, Zustand voor instellingen en UI-state, IndexedDB via idb-keyval
 - Vitest voor alle rekenlogica, ESLint en Prettier voor de codekwaliteit
 
