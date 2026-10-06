@@ -39,7 +39,6 @@ export function ShortcutsSheet() {
         <Row keys={["?"]} label="Dit overzicht" />
         <Row keys={["Esc"]} label="Sluiten" />
         <Row keys={["←", "→"]} label="Vorige / volgende dag" soon="fase 3" />
-        <Row keys={["F"]} label="Focusmodus" soon="fase 3" />
       </ul>
     </Sheet>
   );

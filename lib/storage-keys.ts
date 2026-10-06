@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   settings: "sm-instellingen",
   collection: "sm-collectie",
   achievements: "sm-prestaties",
+  today: "sm-vandaag",
 } as const;
 
 /** Prefix voor alles wat in IndexedDB staat (via idb-keyval). */

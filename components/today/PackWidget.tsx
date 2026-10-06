@@ -49,7 +49,7 @@ export function PackWidget() {
 
   if (isLoading) {
     return (
-      <Widget title="Nieuwe cijfers" icon={Gift} size="md">
+      <Widget title="Nieuwe cijfers" icon={Gift}>
         <div className="flex items-center gap-5">
           <Skeleton className="h-32 w-24 rounded-2xl" />
           <div className="flex-1 space-y-2.5">
@@ -63,7 +63,7 @@ export function PackWidget() {
 
   if (packCount === 0) {
     return (
-      <Widget title="Nieuwe cijfers" icon={Gift} size="md">
+      <Widget title="Nieuwe cijfers" icon={Gift}>
         <div className="flex items-center gap-4">
           <span className="grid size-12 place-items-center rounded-2xl bg-glass-strong text-2xl">
             ✨
@@ -78,7 +78,7 @@ export function PackWidget() {
   }
 
   return (
-    <Widget title="Nieuwe cijfers" icon={Gift} size="md">
+    <Widget title="Nieuwe cijfers" icon={Gift}>
       <div className="flex items-center gap-6">
         <FloatingPack
           glow={TIER_GLOW[privacy ? "zilver" : (packTier ?? "zilver")]}

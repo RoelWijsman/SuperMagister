@@ -4,11 +4,22 @@ import { normalizeHex } from "@/lib/color";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { SubjectIconName } from "@/lib/subjects/icons";
 import type { GuessMode } from "@/lib/guess/input";
+import type { HolidayRegion } from "@/lib/school/holidays";
+import type { Compass } from "@/lib/weather/advice";
 import { customThemeVars, DEFAULT_THEME, type ThemeId } from "@/lib/theme/themes";
 
 export type ColorMode = "dark" | "light" | "system";
 export type MotionPreference = "system" | "reduced" | "full";
 export type WalkoutSpeed = "normaal" | "snel" | "direct";
+
+/** Een plaats voor het fietsweer (via de geocoder van Open-Meteo). */
+export interface WeatherPlace {
+  name: string;
+  /** Bijv. de provincie, om dubbele plaatsnamen uit elkaar te houden. */
+  region: string;
+  latitude: number;
+  longitude: number;
+}
 
 export interface SettingsValues {
   theme: ThemeId;
@@ -36,6 +47,14 @@ export interface SettingsValues {
   /** Eigen vakkleur (paletindex) per vak-id. */
   subjectColors: Record<string, number>;
   subjectIcons: Record<string, SubjectIconName>;
+  /** Fase 3a, fietsweer: waar je woont. */
+  weatherPlace: WeatherPlace;
+  /** In welke richting je naar school fietst (voor tegenwind). */
+  bikeHeading: Compass;
+  /** Hoe lang je fietst, om je vertrektijd te weten. */
+  bikeMinutes: number;
+  /** Fase 3a: regio voor de schoolvakanties. */
+  holidayRegion: HolidayRegion;
 }
 
 interface SettingsActions {
@@ -67,6 +86,10 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   guessMode: "elke",
   subjectColors: {},
   subjectIcons: {},
+  weatherPlace: { name: "Utrecht", region: "Utrecht", latitude: 52.0908, longitude: 5.1222 },
+  bikeHeading: "O",
+  bikeMinutes: 15,
+  holidayRegion: "midden",
 };
 
 const SETTINGS_VERSION = 2;

@@ -1,5 +1,9 @@
 # SuperMagister: bouwopdracht
 
+> **Let op (6 oktober 2026):** wekkeradvies, tas-inpaklijst, planner, studieplan-generator,
+> focusmodus en streak zijn geschrapt, nu en in latere fases. Zie "Geschrapt" in
+> `docs/ontwerp.md`. De opdracht hieronder is verder ongewijzigd.
+
 Bouw "SuperMagister": een webapp die de Magister-leerlingomgeving vervangt door iets dat mooi, supersnel en vooral leuk is. Speels, vol kleine verrassingen en beloningsmomenten, maar nooit in de weg: het is een tool die je elke dag gebruikt.
 
 Het grote paradepaardje: nieuwe cijfers onthul je met een walkout in FIFA/EA FC Ultimate Team-stijl, en elk cijfer wordt een verzamelkaart. Dat FIFA-thema geldt alleen voor de cijferonthulling, de kaarten en de collectie. De rest van de app heeft géén voetbalthema, maar een eigen frisse, speelse stijl.

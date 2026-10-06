@@ -637,6 +637,30 @@
   }
 }
 
+/* Fase 3a: de laadbalk "downloadt" en de toets-radar veegt rond. */
+@keyframes download-stripes {
+  to {
+    background-position: 17px 0;
+  }
+}
+
+@keyframes radar-sweep {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes radar-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
 /* Fullscreen-lagen (kaartviewer, walkout) hebben hun knoppen onderin: meldingen dan bovenin. */
 body:has([data-fullscreen]) [data-toaster] {
   top: calc(0.75rem + env(safe-area-inset-top));

@@ -3,46 +3,27 @@ import { useId, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { GlassPanel } from "./GlassPanel";
 
-export type WidgetSize = "sm" | "md" | "lg" | "full";
-
-/** Kolombreedte in het 12-koloms raster van Vandaag. */
-const spans: Record<WidgetSize, string> = {
-  sm: "md:col-span-6 xl:col-span-4",
-  md: "md:col-span-6",
-  lg: "md:col-span-12 xl:col-span-8",
-  full: "md:col-span-12",
-};
-
 interface WidgetProps {
   title: string;
   icon?: LucideIcon;
   /** Kleur van het icoonbolletje, standaard het accent. */
   color?: string;
   action?: ReactNode;
-  size?: WidgetSize;
   className?: string;
   children: ReactNode;
 }
 
 /**
- * Een blok op Vandaag. In fase 3 krijgen widgets een bewerkmodus
- * (verslepen, aan/uit, groter/kleiner).
+ * Een blok op Vandaag. De breedte en plek regelt het widgetbord
+ * (components/today/WidgetBoard): verslepen, aan/uit, groter/kleiner.
  */
-export function Widget({
-  title,
-  icon: Icon,
-  color,
-  action,
-  size = "sm",
-  className,
-  children,
-}: WidgetProps) {
+export function Widget({ title, icon: Icon, color, action, className, children }: WidgetProps) {
   const titleId = useId();
   return (
     <GlassPanel
       as="section"
       aria-labelledby={titleId}
-      className={cn("col-span-12 flex flex-col", spans[size], className)}
+      className={cn("flex h-full flex-col", className)}
       style={color ? ({ "--widget": color } as React.CSSProperties) : undefined}
     >
       <header className="mb-3.5 flex items-center gap-2.5">

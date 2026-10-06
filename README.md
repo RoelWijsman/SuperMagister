@@ -15,7 +15,9 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 2    | Cijferonthulling: walkout, pack-opening, kaarten, geluid, oefenmodus, collectie            | ✅ Klaar |
 | A    | Gok je cijfer: het gokmoment midden in de walkout                                          | ✅ Klaar |
 | B    | Walkout als video delen                                                                    | ✅ Klaar |
-| 3    | Dagelijks gebruik: widgets op Vandaag, rooster, huiswerk, focusmodus, studieplan           | Gepland  |
+| 3a   | Vandaag: widgets, laadbalk, dagtijdlijn, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
+| 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | Gepland  |
+| 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | Gepland  |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
 | 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | Gepland  |
 | 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
@@ -51,6 +53,17 @@ kunt veilig rondklikken.
 | `npm run typecheck` | TypeScript-controle                         |
 | `npm run format`    | Code opmaken met Prettier                   |
 | `npm run check`     | Lint, typecheck, tests en build in één keer |
+
+## Vandaag
+
+- Alles op **Vandaag** is een widget. Tik op **Indelen** om ze te verslepen, uit of aan te zetten
+  of breder en smaller te maken. Met het toetsenbord: Tab naar de greep, spatie om op te pakken,
+  pijltjes om te verplaatsen, spatie om neer te zetten.
+- De **laadbalk** laat zien hoeveel van je schooldag erop zit, de **dagtijdlijn** je lessen met
+  uitval en tussenuren, en de **toets-radar** je toetsen van de komende twee weken (tik op een
+  stip voor de stof).
+- **Fietsweer** en **vakanties**: stel je woonplaats, je richting naar school, je fietstijd en je
+  vakantieregio in bij **Instellingen → Vandaag**.
 
 ## Walkout en collectie
 

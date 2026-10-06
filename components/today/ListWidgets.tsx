@@ -1,15 +1,12 @@
 "use client";
 
-import { CalendarDays, ListChecks, NotebookPen } from "lucide-react";
+import { ListChecks } from "lucide-react";
 import Link from "next/link";
-import { LessonRow } from "@/components/schedule/LessonRow";
-import { SubjectBadge, SubjectDot } from "@/components/subjects/SubjectBadge";
-import { Chip } from "@/components/ui/Chip";
+import { SubjectDot } from "@/components/subjects/SubjectBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Widget } from "@/components/ui/Widget";
 import type { SubjectAppearance } from "@/lib/data/hooks";
-import { diffInCalendarDays, formatRelativeDay, parseISODate } from "@/lib/date";
-import type { Homework, Lesson, Test, TestKind } from "@/lib/types";
+import type { Homework } from "@/lib/types";
 import { useCopy } from "@/lib/use-copy";
 
 type SubjectLookup = (id: string | null) => SubjectAppearance;
@@ -36,47 +33,6 @@ const MoreLink = ({ href, children }: { href: string; children: string }) => (
   </Link>
 );
 
-/** De lessen van vandaag, met de huidige les gemarkeerd. */
-export function TodayLessonsWidget({
-  lessons,
-  currentId,
-  subject,
-  isLoading,
-}: {
-  lessons: Lesson[];
-  currentId: string | null;
-  subject: SubjectLookup;
-  isLoading: boolean;
-}) {
-  const empty = useCopy(!isLoading && lessons.length === 0 ? "leeg.lessenVandaag" : null);
-  return (
-    <Widget
-      title="Vandaag"
-      icon={CalendarDays}
-      size="lg"
-      className="xl:row-span-2"
-      action={<MoreLink href="/rooster">Rooster</MoreLink>}
-    >
-      {isLoading ? (
-        <RowsSkeleton rows={6} />
-      ) : lessons.length === 0 ? (
-        <p className="py-6 text-center text-ink-2">{empty}</p>
-      ) : (
-        <ul className="-mx-2 space-y-0.5">
-          {lessons.map((lesson) => (
-            <LessonRow
-              key={lesson.id}
-              lesson={lesson}
-              subject={subject(lesson.subjectId)}
-              isNow={lesson.id === currentId}
-            />
-          ))}
-        </ul>
-      )}
-    </Widget>
-  );
-}
-
 /** Huiswerk voor de volgende schooldag. */
 export function HomeworkTomorrowWidget({
   items,
@@ -94,7 +50,6 @@ export function HomeworkTomorrowWidget({
     <Widget
       title={`Huiswerk voor ${dayLabel}`}
       icon={ListChecks}
-      size="sm"
       action={<MoreLink href="/huiswerk">Alles</MoreLink>}
     >
       {isLoading ? (
@@ -117,59 +72,6 @@ export function HomeworkTomorrowWidget({
                   </p>
                   <p className="line-clamp-2 text-sm text-ink-2">{item.text}</p>
                 </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </Widget>
-  );
-}
-
-const KIND_LABELS: Record<TestKind, string> = {
-  toets: "Toets",
-  tentamen: "Tentamen",
-  schriftelijk: "SO",
-  mondeling: "Mondeling",
-};
-
-/** Toetsen in de komende twee weken, met aftelling. */
-export function TestsWidget({
-  tests,
-  now,
-  subject,
-  isLoading,
-}: {
-  tests: Test[];
-  now: Date | null;
-  subject: SubjectLookup;
-  isLoading: boolean;
-}) {
-  const empty = useCopy(!isLoading && tests.length === 0 ? "leeg.toetsen" : null);
-  return (
-    <Widget title="Toetsen" icon={NotebookPen} size="sm">
-      {isLoading || !now ? (
-        <RowsSkeleton rows={3} />
-      ) : tests.length === 0 ? (
-        <p className="py-4 text-ink-2">{empty}</p>
-      ) : (
-        <ul className="space-y-3">
-          {tests.map((test) => {
-            const look = subject(test.subjectId);
-            const date = parseISODate(test.date);
-            const days = diffInCalendarDays(date, now);
-            return (
-              <li key={test.id} className="flex items-center gap-3">
-                <SubjectBadge subject={look} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-ink">{look.name}</p>
-                  <p className="truncate text-xs text-ink-3">
-                    {KIND_LABELS[test.kind]} · {formatRelativeDay(date, now)}
-                  </p>
-                </div>
-                <Chip tone={days <= 1 ? "warn" : "neutral"}>
-                  {days <= 0 ? "vandaag" : days === 1 ? "morgen" : `${days} dagen`}
-                </Chip>
               </li>
             );
           })}

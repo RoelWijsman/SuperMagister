@@ -27,6 +27,7 @@ import {
 import { useUi } from "@/stores/ui";
 import { SubjectSettings } from "./SubjectSettings";
 import { ThemePicker } from "./ThemePicker";
+import { TodaySettings } from "./TodaySettings";
 
 function Section({
   id,
@@ -250,6 +251,14 @@ export function SettingsView() {
         </Section>
 
         <Section
+          id="vandaag"
+          title="Vandaag"
+          description="Voor het fietsweer en het aftellen naar de vakantie. Je woonplaats gaat alleen als coördinaten naar Open-Meteo, voor de weersverwachting."
+        >
+          <TodaySettings />
+        </Section>
+
+        <Section
           id="walkout"
           title="Walkout"
           description="Elk nieuw cijfer komt binnen als verzamelkaart, met een eigen walkout."
@@ -329,7 +338,7 @@ export function SettingsView() {
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
             eigen account.
           </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.2 · fase 2: de cijferonthulling</p>
+          <p className="mt-3 text-xs text-ink-3">Versie 0.3 · fase 3a: Vandaag</p>
         </Section>
       </div>
     </>

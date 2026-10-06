@@ -83,7 +83,7 @@ function NextUp({
   const day = formatRelativeDay(start, now);
   return (
     <div className="mt-4 flex items-center gap-3 rounded-2xl border border-line px-3 py-2.5">
-      <SubjectBadge subject={subject} size="sm" />
+      <SubjectBadge subject={subject} />
       <p className="min-w-0 flex-1 truncate text-sm text-ink-2">
         <span className="text-ink-3 first-letter:uppercase">
           {day === "vandaag" ? "Hierna" : day} ·{" "}
@@ -121,7 +121,7 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
 
   if (!status || !now) {
     return (
-      <Widget title="Nu bezig" icon={Clock} size="md">
+      <Widget title="Nu bezig" icon={Clock}>
         <div className="flex items-center gap-5">
           <Skeleton className="size-28 rounded-full" />
           <div className="flex-1 space-y-2.5">
@@ -138,7 +138,7 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
   if (kind === "les" && current) {
     const look = subject(current.subjectId);
     return (
-      <Widget title="Nu bezig" icon={Clock} size="md" color={look.color}>
+      <Widget title="Nu bezig" icon={Clock} color={look.color}>
         <div className="flex items-center gap-5">
           <Ring progress={progress ?? 0} label={`${minutesLeft}`} sublabel="min tot de bel" />
           <div className="min-w-0">
@@ -159,7 +159,7 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
   if ((kind === "pauze" || kind === "tussenuur" || kind === "voor-school") && next) {
     const minutes = minutesLeft ?? 0;
     return (
-      <Widget title="Nu bezig" icon={Clock} size="md">
+      <Widget title="Nu bezig" icon={Clock}>
         <div className="flex items-center gap-5">
           <Ring
             progress={kind === "voor-school" ? 0 : (progress ?? 0)}
@@ -183,7 +183,7 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
   }
 
   return (
-    <Widget title="Nu bezig" icon={Clock} size="md">
+    <Widget title="Nu bezig" icon={Clock}>
       <p className="font-display text-2xl font-semibold tracking-tight">{flavor}</p>
       <p className="mt-1.5 text-ink-2">
         {upcoming

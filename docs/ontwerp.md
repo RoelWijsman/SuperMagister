@@ -246,9 +246,71 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Getest:** een mp4 van 1080 × 1920 en ~11 seconden is in de app-browser in ongeveer 12 seconden
   klaar (3,8 MB), met geluid. De terugval via MediaRecorder levert in realtime ook een mp4.
 
-## Bewust nog niet in fase 2
+## Vandaag (fase 3a)
 
-Versleepbare widgets, rooster-weergaven,
-afvinken en focus (fase 3) · vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) ·
-koppelen, proxy en CSP (fase 5) · XP, achievements, profiel en recaps (fase 6) · PWA, offline,
-meldingen, seizoensthema's en easter eggs (fase 7).
+- **Widgetbord.** Alle blokken op Vandaag zijn widgets. Via "Indelen" versleep je ze (muis,
+  touch en toetsenbord met dnd-kit: spatie oppakken, pijltjes, spatie neerzetten, met
+  Nederlandse meldingen voor schermlezers), zet je ze uit (en via de balk bovenaan weer aan) en
+  kies je per widget een breedte: smal, half, breed of de hele rij, voor zover hij dat aankan
+  (de laadbalk is altijd de hele rij). De indeling staat lokaal (`sm-vandaag`); de pure logica in
+  `lib/today/layout.ts` vult nieuwe widgets uit latere versies vanzelf aan. In de bewerkmodus
+  doet de inhoud van de widgets even niet mee (`inert`), zodat je niets per ongeluk aantikt.
+- **Schooldag-laadbalk:** van de eerste tot de laatste les die doorgaat (valt het eerste uur
+  uit, dan begint je dag later). Lessen zijn stukken van de balk die vollopen, met bewegende
+  downloadstreepjes; pauzes en tussenuren zijn gestreept. "Schooldag 64% geladen · nog 2u 14m",
+  voor schooltijd "Schooldag 0% · start om 08:30", daarna "Download voltooid ✅" met één keer per
+  dag een klein feestje, en zonder school "Volgende schooldag start morgen 08:30".
+- **Nu bezig** (al uit fase 1): vak, lokaal, docentcode, een ring met de minuten tot de bel, en de
+  volgende les met een knipperend bolletje bij een lokaalwijziging.
+- **Dagtijdlijn** vervangt het lijstje lessen: blokken in vakkleur op een tijdas, uitval
+  doorgestreept en gearceerd, tussenuren als gestippeld gat, een "nu"-streep. Op een telefoon
+  scrolt hij opzij. Een blok opent die dag in het rooster.
+- **Toets-radar** vervangt het lijstje toetsen: toetsen in de komende 14 dagen als stipjes,
+  dichterbij in tijd is dichter bij het midden, verspreid met de gulden hoek (nooit op elkaar).
+  Een stip opent de stof, de datum en een aftelzin. Het studieplan is geschrapt (zie onder).
+- **Trend:** je laatste vijf cijfers als bolletjes in de cijferkleuren, met een pijltje op basis
+  van de lijn door de punten (vanaf 0,12 per cijfer). Alleen onthulde cijfers: wat nog in je pack
+  zit, verklapt de trend niet. De bolletjes vervagen in de privacymodus.
+- **Fietsweer** via Open-Meteo (gratis, zonder sleutel, met CORS): het weer op je vertrektijd
+  (eerste les min je fietstijd) en je eindtijd, van vandaag of anders de volgende schooldag. Eén
+  advies, belangrijkste eerst: storm, regen (vanaf 0,3 mm of 60% kans), tegenwind (vanaf 15 km/u
+  recht tegen, berekend met je richting naar school), kou, hitte, rugwind, of gewoon prima. In de
+  instellingen kies je je woonplaats (zoeken via de geocoder van Open-Meteo), je richting op een
+  kompasroos en je fietstijd. Standaard: Utrecht, oost, 15 minuten. Alleen de coördinaten van die
+  plaats gaan naar Open-Meteo.
+- **Aftellen:** weekend (op vrijdag tot de laatste bel), de volgende vakantie in jouw regio
+  (Noord, Midden of Zuid in de instellingen) en, in een examenklas, het eerste centraal examen
+  (woensdag 12 mei 2027, bron: DUO-examenrooster 2027 havo en vwo; elk jaar bijwerken in
+  `lib/today/countdowns.ts`). De vakanties komen uit de open data van Rijksoverheid. Die stuurt
+  geen CORS-header mee, dus de app haalt ze via de eigen route `/api/schoolvakanties` (een dag
+  gecachet, met een ingebouwde reserve tot en met de zomer van 2028).
+- **Begroeting:** al uit fase 1, met tijd en context.
+- **Nog niet op Vandaag:** de profielkaart en de dagelijkse quest horen bij de gamification en
+  komen in fase 6. Afvinken met beloning en de tijdsschatting komen in fase 3c.
+- **Voor de CSP in fase 5:** `connect-src` moet `https://api.open-meteo.com` en
+  `https://geocoding-api.open-meteo.com` toestaan.
+
+## Geschrapt (besluit 6 oktober 2026)
+
+Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar
+verwees, laten we het weg of vervangen we het door iets wat nog wel bestaat.
+
+- **Wekkeradvies.**
+- **Tas-inpaklijst**, ook de herinnering in fase 7.
+- **Planner** (huiswerk naar dagen slepen).
+- **Studieplan-generator**, ook de knoppen ernaar bij de toets-radar en bij toetsen in het rooster.
+- **Focusmodus**, ook "start focus" bij tussenuren en in de command palette (verwijderd), de
+  sneltoets F (verwijderd), focusminuten voor XP, focusuren in Wrapped en de achievements en
+  jaartitels daarover (zoals "Focusmonster" en "Gevaarlijk Gefocust").
+- **Streak** (huiswerk op tijd), ook de streak-bevriezer, streak-achievements, de streak-slide in
+  Wrapped, de streak in XP en quests, en de "Op tijd-streak" bij aanwezigheid.
+
+Blijft wel: de **reeks** (RKS) op de kaarten uit fase 2. Dat is een reeks voldoendes per vak, geen
+app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5-minutentimer.
+
+## Nog niet gebouwd
+
+Rooster met alle weergaven (fase 3b) · huiswerk afvinken met beloning, tijdsschatting en "ik heb
+geen zin" (fase 3c) · vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) ·
+koppelen, proxy en CSP (fase 5) · XP, achievements, profiel, quests en recaps (fase 6) · PWA,
+offline, meldingen, seizoensthema's en easter eggs (fase 7).

@@ -10,7 +10,6 @@ import {
   Plug,
   Shield,
   Sun,
-  Timer,
   type LucideIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -64,10 +63,6 @@ function ThemeSwatch({ from, to }: { from: string; to: string }) {
       style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
     />
   );
-}
-
-function soonToast(what: string, phase: string): void {
-  notify("toast.binnenkort", { wat: what, fase: phase }, { emoji: "🚧" });
 }
 
 interface Options {
@@ -265,16 +260,6 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
           togglePrivacyWithFeedback();
           close();
         },
-      },
-      {
-        id: "actie-focus",
-        group: "Acties",
-        title: "Start focus",
-        subtitle: "Pomodoro met een groeiend plantje",
-        icon: <IconBox icon={Timer} />,
-        shortcut: ["F"],
-        soon: "fase 3",
-        run: () => soonToast("De focusmodus", "fase 3"),
       },
       {
         id: "actie-pack",

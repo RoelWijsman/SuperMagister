@@ -6,6 +6,7 @@ import { CardCanvas } from "@/components/cards/CardCanvas";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { CollectionSamples } from "./CollectionSamples";
 import { GuessSamples } from "./GuessSamples";
+import { TodaySamples } from "./TodaySamples";
 import { VideoSamples } from "./VideoSamples";
 import { WalkoutScrubber } from "./WalkoutScrubber";
 import { GradeValue } from "@/components/grades/GradeValue";
@@ -104,6 +105,13 @@ export function StyleguideView() {
       </div>
 
       <div className="mb-5 space-y-5">
+        <Block
+          title="Vandaag"
+          note="Fase 3a: de widgets met een vaste, verzonnen dinsdag (met pauze, tussenuur, uitval en een lokaalwijziging). Op Vandaag zelf versleep je ze via Indelen."
+        >
+          <TodaySamples />
+        </Block>
+
         <Block
           title="Walkout"
           note="Spoel door de tijdlijn. Elk tijdstip geeft altijd precies hetzelfde frame, ook het gokmoment."

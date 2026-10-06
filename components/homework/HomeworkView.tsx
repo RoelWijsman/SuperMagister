@@ -43,7 +43,7 @@ function groupOf(item: Homework, today: Date): GroupKey {
 
 /**
  * Huiswerk in overzichten: vandaag, morgen, komende dagen en later. Afvinken
- * met veer, plop en +XP, de kanban en de planner komen in fase 3.
+ * met beloning, de tijdsschatting en de "ik heb geen zin"-knop komen in fase 3c.
  */
 export function HomeworkView() {
   const params = useSearchParams();
