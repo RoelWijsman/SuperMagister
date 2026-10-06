@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Switch } from "@/components/ui/Switch";
 import { Tabs } from "@/components/ui/Tabs";
 import { ensureCardFont, renderCardCanvas } from "@/lib/cards/draw";
 import { buildWalkoutPlan, phaseAt } from "@/lib/walkout/plan";
@@ -24,13 +25,18 @@ export function WalkoutScrubber({ deck }: { deck: readonly PracticeEntry[] }) {
   const [id, setId] = useState(deck[deck.length - 1]?.id ?? "");
   const [format, setFormat] = useState<Format>("liggend");
   const [t, setT] = useState(3);
+  /** Feature A: alsof je precies goed gokte. */
+  const [helderziende, setHelderziende] = useState(false);
   const canvas = useRef<HTMLCanvasElement>(null);
   const prepared = useRef<{ key: string; draw: (t: number) => void } | null>(null);
 
   const entry = deck.find((e) => e.id === id) ?? deck[0];
   const plan = useMemo(
-    () => (entry ? buildWalkoutPlan({ tier: entry.card.tier, fail: entry.card.isFail }) : null),
-    [entry],
+    () =>
+      entry
+        ? buildWalkoutPlan({ tier: entry.card.tier, fail: entry.card.isFail }, { helderziende })
+        : null,
+    [entry, helderziende],
   );
   const end = plan ? plan.restAt + 1.5 : 1;
   const time = Math.min(t, end);
@@ -39,7 +45,7 @@ export function WalkoutScrubber({ deck }: { deck: readonly PracticeEntry[] }) {
   useEffect(() => {
     const element = canvas.current;
     if (!element || !entry || !plan) return;
-    const key = `${entry.id}-${format}`;
+    const key = `${entry.id}-${format}-${helderziende}`;
     let cancelled = false;
     void ensureCardFont().then((family) => {
       if (cancelled) return;
@@ -70,7 +76,7 @@ export function WalkoutScrubber({ deck }: { deck: readonly PracticeEntry[] }) {
     return () => {
       cancelled = true;
     };
-  }, [entry, plan, format, time]);
+  }, [entry, plan, format, time, helderziende]);
 
   if (!entry || !plan) return null;
 
@@ -100,6 +106,14 @@ export function WalkoutScrubber({ deck }: { deck: readonly PracticeEntry[] }) {
           ]}
         />
       </div>
+
+      <Switch
+        className="mt-3 max-w-md"
+        label="Precies goed gegokt"
+        description="Feature A: paarse flits, sterren en HELDERZIENDE na de onthulling."
+        checked={helderziende}
+        onCheckedChange={setHelderziende}
+      />
 
       <div className="mt-4 flex justify-center">
         <canvas

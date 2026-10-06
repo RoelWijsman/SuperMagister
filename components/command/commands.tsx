@@ -192,26 +192,15 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
         run: () => go(item.href),
       });
     }
-    commands.push(
-      {
-        id: "pagina-koppelen",
-        group: "Pagina's",
-        title: "Koppelen met Magister",
-        subtitle: "Veilig je eigen account koppelen",
-        keywords: ["account", "inloggen", "token"],
-        icon: <IconBox icon={Plug} />,
-        run: () => go("/koppelen"),
-      },
-      {
-        id: "pagina-stijlgids",
-        group: "Pagina's",
-        title: "Stijlgids",
-        subtitle: "Alle bouwstenen van het design system",
-        keywords: ["design", "componenten"],
-        icon: <IconBox icon={Palette} />,
-        run: () => go("/stijlgids"),
-      },
-    );
+    commands.push({
+      id: "pagina-koppelen",
+      group: "Pagina's",
+      title: "Koppelen met Magister",
+      subtitle: "Veilig je eigen account koppelen",
+      keywords: ["account", "inloggen", "token"],
+      icon: <IconBox icon={Plug} />,
+      run: () => go("/koppelen"),
+    });
 
     if (query.trim()) {
       for (const subject of subjects) {

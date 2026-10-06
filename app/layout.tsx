@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter, Unbounded } from "next/font/google";
 import { Sky } from "@/components/background/Sky";
+import { AchievementWatcher } from "@/components/achievements/AchievementWatcher";
 import { GoalWatcher } from "@/components/collection/GoalWatcher";
 import { CommandPalette } from "@/components/command/CommandPalette";
 import { Providers } from "@/components/providers/Providers";
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <MoreSheet />
           <WalkoutOverlay />
           <GoalWatcher />
+          <AchievementWatcher />
           <Toaster />
         </Providers>
       </body>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Monitor, PackageOpen, Plug, Sparkles, Sun } from "lucide-react";
+import { Moon, Monitor, PackageOpen, Palette, Plug, Sparkles, Sun } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -10,10 +10,12 @@ import { Switch } from "@/components/ui/Switch";
 import { Tabs } from "@/components/ui/Tabs";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { useDataSource } from "@/lib/data/context";
+import { useGuesses } from "@/lib/data/guesses";
 import { useRevealState } from "@/lib/data/hooks";
 import { useIsClient } from "@/lib/hooks";
 import { notify } from "@/lib/notify";
 import type { TimeOfDay } from "@/lib/theme/time-of-day";
+import { useAchievementStore } from "@/stores/achievements";
 import { useCollectionStore } from "@/stores/collection";
 import {
   useSettings,
@@ -83,6 +85,7 @@ function WalkoutSettings() {
   const source = useDataSource();
   const { startPractice } = useWalkoutActions();
   const { resetPack } = useRevealState();
+  const { resetGuesses } = useGuesses();
 
   return (
     <>
@@ -107,6 +110,12 @@ function WalkoutSettings() {
         checked={settings.walkoutAuto}
         onCheckedChange={(value) => settings.set("walkoutAuto", value)}
       />
+      <Switch
+        label="Gok eerst je cijfer"
+        description="Vóór elke kaart gok je wat je hebt. Bij V, G en O slaan we het over."
+        checked={settings.guessEnabled}
+        onCheckedChange={(value) => settings.set("guessEnabled", value)}
+      />
       <div className="mt-4 flex flex-wrap gap-3">
         <Button variant="glass" icon={Sparkles} onClick={() => startPractice()}>
           Oefen een walkout
@@ -117,8 +126,10 @@ function WalkoutSettings() {
             icon={PackageOpen}
             onClick={() => {
               if (!resetPack()) return;
-              // Dan mag ook het verzameldoel uit het startpack opnieuw gevierd worden.
+              // Alles terug naar vóór het startpack: gokken, doelen en prestaties mogen opnieuw.
+              resetGuesses();
               useCollectionStore.getState().resetAnnounced(source.id);
+              useAchievementStore.getState().resetAnnounced(source.id);
               notify("toast.packGereset", {}, { emoji: "🎁" });
             }}
           >
@@ -277,6 +288,21 @@ export function SettingsView() {
             </p>
             <LinkButton href="/koppelen" variant="glass" icon={Plug}>
               Koppelen met Magister
+            </LinkButton>
+          </div>
+        </Section>
+
+        <Section
+          id="ontwikkelaar"
+          title="Ontwikkelaar"
+          description="Voor wie wil zien hoe de app in elkaar zit."
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="min-w-0 flex-1 text-ink-2">
+              Alle bouwstenen van het design system op één pagina, met de walkout-schuif.
+            </p>
+            <LinkButton href="/stijlgids" variant="glass" icon={Palette}>
+              Stijlgids
             </LinkButton>
           </div>
         </Section>

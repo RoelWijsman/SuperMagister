@@ -1,5 +1,6 @@
 import { CARD_RATIO, cardGlow, drawSubjectIcon, rgba } from "@/lib/cards/draw";
 import {
+  type Stage,
   confettoAt,
   puffAt,
   shellParticleAt,
@@ -539,7 +540,102 @@ function drawVignette(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillRect(0, 0, w, h);
 }
 
+/**
+ * Feature A: precies goed gegokt. Paarse flits, een sterrenburst rond de
+ * kaart en "HELDERZIENDE" als een schuine stempel. Weg vóór het eindscherm.
+ */
+function drawHelderziende(
+  ctx: CanvasRenderingContext2D,
+  scene: WalkoutScene,
+  assets: WalkoutAssets,
+  t: number,
+  unit: number,
+) {
+  const { plan, stage } = scene;
+  const start = plan.revealAt + 0.3;
+  if (!plan.helderziende || t < start) return;
+  const since = t - start;
+  const fadeOut = 1 - clamp((t - (plan.restAt - 0.45)) / 0.45);
+  if (fadeOut <= 0) return;
+
+  const flash = 0.5 * decay(t, start, 0.28);
+  if (flash > 0.005) {
+    ctx.globalAlpha = flash;
+    ctx.fillStyle = "#a855f7";
+    ctx.fillRect(0, 0, stage.w, stage.h);
+    ctx.globalAlpha = 1;
+  }
+
+  const center = cardCenter(scene, t);
+  if (!plan.reduced) {
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const burst = easeOutCubic(clamp(since / 1.1));
+    for (let i = 0; i < 26; i++) {
+      // Gulden hoek: mooi verdeeld, zonder toeval.
+      const angle = i * 2.399963;
+      const reach = (220 + (i % 5) * 70) * burst + 40;
+      const alpha = (1 - clamp((since - 0.5 - (i % 4) * 0.12) / 0.8)) * fadeOut;
+      if (alpha <= 0.01) continue;
+      const size = (26 + (i % 3) * 14) * (0.6 + 0.4 * Math.sin(since * 9 + i));
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(
+        sparkleSprite(i % 3 === 0 ? "#ffffff" : "#c084fc"),
+        center.x + Math.cos(angle) * reach * 1.15 - size,
+        center.y + Math.sin(angle) * reach - size,
+        size * 2,
+        size * 2,
+      );
+    }
+    ctx.restore();
+  }
+
+  const appear = plan.reduced ? clamp(since / 0.2) : easeOutBack(clamp((since - 0.05) / 0.35));
+  if (appear <= 0) return;
+  const scale = plan.reduced ? 1 : 1.5 - 0.5 * appear;
+  const word = "HELDERZIENDE";
+  ctx.save();
+  ctx.globalAlpha = clamp(appear) * fadeOut;
+  ctx.translate(stage.w / 2, center.y);
+  ctx.rotate(-0.1);
+  ctx.scale(scale, scale);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  let size = 190;
+  ctx.font = `${size}px ${assets.family}`;
+  while (ctx.measureText(word).width > stage.w * 0.9 && size > 70) {
+    size -= 6;
+    ctx.font = `${size}px ${assets.family}`;
+  }
+  ctx.lineJoin = "round";
+  ctx.lineWidth = size * 0.08;
+  ctx.strokeStyle = "#3b0764";
+  ctx.shadowColor = "#a855f7";
+  ctx.shadowBlur = 50 * unit;
+  ctx.strokeText(word, 0, 0);
+  ctx.shadowBlur = 0;
+  const fill = ctx.createLinearGradient(0, -size / 2, 0, size / 2);
+  fill.addColorStop(0, "#ffffff");
+  fill.addColorStop(1, "#e9d5ff");
+  ctx.fillStyle = fill;
+  ctx.fillText(word, 0, 0);
+  ctx.restore();
+}
+
 // ——— Frames ——————————————————————————————————————————————————————————————
+
+/**
+ * Feature A: het podium terwijl je gokt. Neutraal licht en geen flares, zodat
+ * niets al verraadt welke kaart eraan komt.
+ */
+export function renderIdleFrame({ ctx, unit }: RenderTarget, stage: Stage, t: number) {
+  ctx.setTransform(unit, 0, 0, unit, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
+  drawBackground(ctx, stage.w, stage.h, "#cfd6e6", 0.06);
+  drawSpotlights(ctx, stage.w, stage.h, t, 0.2 * clamp(t / 0.8), null, 0, "#fff6e0", true);
+  drawVignette(ctx, stage.w, stage.h);
+}
 
 export function renderWalkoutFrame(
   { ctx, unit }: RenderTarget,
@@ -594,6 +690,7 @@ export function renderWalkoutFrame(
     ctx.globalAlpha = 1;
   }
   drawVignette(ctx, stage.w, stage.h);
+  drawHelderziende(ctx, scene, assets, t, unit);
 
   // Intro: uit het zwart.
   const black = 1 - clamp(t / 0.45);

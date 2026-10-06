@@ -2,6 +2,7 @@ import type { CopyKey } from "@/content/copy";
 import { formatGrade, roundHalfUp } from "@/lib/calc/average";
 import type { CardCore, CardVariant } from "@/lib/calc/cards";
 import { averageWith, requiredGrade } from "@/lib/calc/whatif";
+import { guessOutcome, type GuessOutcome, type GuessOutcomeKind } from "@/lib/guess/outcome";
 import type { CopyLine } from "@/lib/greeting";
 import type { Grade } from "@/lib/types";
 
@@ -29,6 +30,15 @@ const VARIANT_REACTION: Readonly<Record<NonNullable<CardCore["primaryVariant"]>,
  * is zwart met goud, maar als het ook een comeback is, zeggen we dat.
  */
 const STORY_ORDER: readonly CardVariant[] = ["comeback", "record", "reeks", "inform"];
+
+const GUESS_REACTION: Readonly<Record<GuessOutcomeKind, CopyKey>> = {
+  exact: "gok.uitslag.exact",
+  dichtbij: "gok.uitslag.dichtbij",
+  netjes: "gok.uitslag.netjes",
+  ernaast: "gok.uitslag.ernaast",
+  veelHoger: "gok.uitslag.veelHoger",
+  veelLager: "gok.uitslag.veelLager",
+};
 
 /** Cijfers van hetzelfde vak tot en met dit cijfer. */
 function historyUpTo(grade: Grade, grades: readonly Grade[]): Grade[] {
@@ -112,4 +122,33 @@ export function reactionLines(
     });
   }
   return lines;
+}
+
+export interface GuessReaction {
+  outcome: GuessOutcome;
+  /** De kop van het eindscherm: wat we van je gok vinden. */
+  line: CopyLine;
+  /** Na een veel te hoge gok bij een voldoende: één zin steun. */
+  support: CopyLine | null;
+  /** Bij een onvoldoende of een veel te hoge gok: de knop "Wat moet ik halen?". */
+  showWhatToGet: boolean;
+}
+
+/** Feature A: de reactie op je gok, met de echte getallen. Alleen voor cijfers, niet voor V/G/O. */
+export function guessReaction(card: CardCore, guess: number): GuessReaction {
+  const actual = card.grade.kind === "numeric" ? card.grade.value : guess;
+  const outcome = guessOutcome(guess, actual);
+  return {
+    outcome,
+    line: {
+      key: GUESS_REACTION[outcome.kind],
+      vars: {
+        gok: formatGrade(guess),
+        cijfer: formatGrade(actual),
+        verschil: formatGrade(Math.abs(outcome.diff)),
+      },
+    },
+    support: outcome.kind === "veelLager" && !card.isFail ? { key: "gok.steun", vars: {} } : null,
+    showWhatToGet: card.isFail || outcome.kind === "veelLager",
+  };
 }

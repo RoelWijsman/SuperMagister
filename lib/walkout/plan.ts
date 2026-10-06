@@ -33,7 +33,13 @@ export type SoundCue =
   | "finale"
   | "zacht"
   | "scheur"
-  | "glans";
+  | "glans"
+  /** Feature A: precies goed gegokt. */
+  | "helderziende"
+  /** Feature A: het tikje van de gokslider. */
+  | "tik"
+  /** Feature A: je gok vastzetten. */
+  | "vastzetten";
 
 export interface SoundEvent {
   at: number;
@@ -44,6 +50,8 @@ export interface SoundEvent {
   pan?: number;
   /** Voor lange geluiden (stadion, flares, juichen). */
   duration?: number;
+  /** Toonhoogte in Hz (het tikje van de gokslider). */
+  pitch?: number;
 }
 
 export type FireworkKind = "pioen" | "palm" | "regen";
@@ -91,6 +99,8 @@ export interface WalkoutPlan {
   restAt: number;
   /** Totale lengte inclusief naklinkend vuurwerk (voor de video). */
   duration: number;
+  /** Feature A: precies goed gegokt, dus paarse flits, sterren en "HELDERZIENDE". */
+  helderziende: boolean;
   events: SoundEvent[];
   fireworks: FireworkCue[];
   fx: TierFx;
@@ -264,16 +274,19 @@ function fireworksFor(tier: CardTier, fx: TierFx, revealAt: number): FireworkCue
 
 export function buildWalkoutPlan(
   card: { tier: CardTier; fail: boolean },
-  options: { reduced?: boolean } = {},
+  options: { reduced?: boolean; helderziende?: boolean } = {},
 ): WalkoutPlan {
   const reduced = options.reduced ?? false;
+  const helderziende = options.helderziende ?? false;
   const { tier, fail } = card;
   const base = fail ? FAIL_FX : FX[tier];
   const fx: TierFx = reduced
     ? { ...base, flares: 0, shake: 0, confetti: 0, fireworks: 0, rays: false, glitter: false }
     : base;
 
-  const lengths = durationsFor(tier, fail, reduced);
+  const lengths = { ...durationsFor(tier, fail, reduced) };
+  // Na een precies goede gok moet "HELDERZIENDE" even te lezen zijn.
+  if (helderziende) lengths.feest = Math.max(lengths.feest, 2 - lengths.flip * 0.5);
   const phases = {} as WalkoutPlan["phases"];
   let cursor = 0;
   for (const phase of WALKOUT_PHASES) {
@@ -330,9 +343,22 @@ export function buildWalkoutPlan(
       strength: firework.size,
     });
   }
+  if (helderziende) events.push({ at: revealAt + 0.3, cue: "helderziende" });
   events.sort((a, b) => a.at - b.at);
 
-  return { tier, fail, reduced, phases, revealAt, restAt, duration, events, fireworks, fx };
+  return {
+    tier,
+    fail,
+    reduced,
+    phases,
+    revealAt,
+    restAt,
+    duration,
+    events,
+    fireworks,
+    fx,
+    helderziende,
+  };
 }
 
 /** In welke fase zitten we op tijd t, en hoe ver (0–1)? */

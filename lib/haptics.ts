@@ -13,6 +13,8 @@ export type HapticKind = keyof typeof PATTERNS;
 export function haptic(kind: HapticKind) {
   if (typeof navigator === "undefined" || !("vibrate" in navigator)) return;
   if (!useSettings.getState().haptics) return;
+  // Zonder eerdere tik of klik weigert de browser het (en klaagt hij in de console).
+  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
   try {
     navigator.vibrate(PATTERNS[kind] as number | number[]);
   } catch {

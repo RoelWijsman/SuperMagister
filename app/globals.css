@@ -773,3 +773,82 @@ body:has([data-fullscreen]) [data-toaster] {
   mix-blend-mode: color-dodge;
   opacity: 0.32;
 }
+
+/* ---------- Gokslider (feature A) ----------
+ * Native range-input (toegankelijk, toetsenbord werkt), opgemaakt als een
+ * groot verloop van rood (1,0) via geel (5,5, precies in het midden) naar
+ * groen (10,0). --gok-color is de kleur van de huidige gok.
+ */
+.gok-slider {
+  --gok-color: hsl(50 92% 62%);
+  --gok-track: linear-gradient(
+    90deg,
+    hsl(0 92% 62%),
+    hsl(25 92% 62%) 25%,
+    hsl(50 92% 62%) 50%,
+    hsl(92 85% 58%) 75%,
+    hsl(135 80% 55%)
+  );
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2.75rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gok-slider::-webkit-slider-runnable-track {
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--gok-track);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+.gok-slider::-moz-range-track {
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--gok-track);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+.gok-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: -0.75rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 5px solid var(--gok-color);
+  box-shadow:
+    0 0 0 6px rgb(255 255 255 / 0.1),
+    0 0 26px var(--gok-color);
+  transition: box-shadow 0.2s ease;
+}
+
+.gok-slider::-moz-range-thumb {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 5px solid var(--gok-color);
+  box-shadow:
+    0 0 0 6px rgb(255 255 255 / 0.1),
+    0 0 26px var(--gok-color);
+}
+
+.gok-slider:focus-visible {
+  outline: none;
+}
+
+.gok-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 7px rgb(255 255 255 / 0.5),
+    0 0 26px var(--gok-color);
+}
+
+.gok-slider:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 7px rgb(255 255 255 / 0.5),
+    0 0 26px var(--gok-color);
+}

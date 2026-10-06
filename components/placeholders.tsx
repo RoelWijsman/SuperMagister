@@ -11,15 +11,6 @@ import { useCopyParts } from "@/lib/use-copy";
  * client-componenten omdat de knoppen een icoon-component meekrijgen.
  */
 
-export function AchievementsPlaceholder() {
-  const copy = useCopyParts("leeg.prestaties");
-  return (
-    <GlassPanel padding="lg">
-      <EmptyState illustration="trofee" title={copy?.title ?? ""} description={copy?.body} />
-    </GlassPanel>
-  );
-}
-
 const PROMISES = [
   {
     icon: KeyRound,

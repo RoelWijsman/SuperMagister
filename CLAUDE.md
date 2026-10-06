@@ -18,5 +18,8 @@
 - De walkout is een pure functie van tijd t (`lib/walkout/plan.ts` + `render.ts`). Controleer
   visuele wijzigingen met de walkout-schuif op `/stijlgids`: elk tijdstip geeft hetzelfde frame.
 - Kaartuiterlijk altijd via `cardLook`/`cardTierLabel` (`lib/cards/model.ts`), niet zelf afleiden.
+- Elk nieuw component komt ook in de stijlgids (`components/styleguide/StyleguideView.tsx`). De
+  stijlgids blijft buiten navigatie en command palette: alleen `/stijlgids` en Instellingen >
+  Ontwikkelaar.
 - Let op bij tool-invoer: `\u…`-escapes in geschreven bestanden worden echte tekens. Gebruik
   daarom geen `\u`-escapes in regexen of strings, of controleer het bestand na het schrijven.

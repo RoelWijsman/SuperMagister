@@ -1,3 +1,4 @@
+import type { GuessRecord } from "@/lib/guess/outcome";
 import type { Absence, Account, DateRange, Grade, Lesson, Period, Subject } from "@/lib/types";
 
 /**
@@ -19,4 +20,6 @@ export interface SchoolDataSource {
   getAbsences(range: DateRange): Promise<Absence[]>;
   /** Cijfers die bij de eerste keer openen nog in een pack zitten. */
   getInitialPackIds(): Promise<string[]>;
+  /** Gokken van vóór de eerste keer openen (alleen de demo heeft er een paar). */
+  getInitialGuesses(): Promise<Record<string, GuessRecord>>;
 }

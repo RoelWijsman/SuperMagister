@@ -500,6 +500,80 @@ function glans(ctx: Ctx, out: AudioNode, when: number, strength = 1): SoundHandl
   return noop;
 }
 
+/** Feature A: het tikje van de gokslider. Kort en droog; de toonhoogte loopt mee met je gok. */
+function tik(ctx: Ctx, out: AudioNode, when: number, pitch = 660): SoundHandle {
+  const osc = ctx.createOscillator();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(pitch, when);
+  osc.frequency.exponentialRampToValueAtTime(pitch * 0.9, when + 0.05);
+  const gain = envelope(ctx, when, [
+    [0, 0.0001],
+    [0.003, 0.08],
+    [0.06, 0.0001],
+  ]);
+  osc.connect(gain).connect(out);
+  osc.start(when);
+  osc.stop(when + 0.07);
+  return noop;
+}
+
+/** Feature A: je gok vastzetten. Een klik met een lage plof eronder. */
+function vastzetten(ctx: Ctx, out: AudioNode, when: number): SoundHandle {
+  const click = noiseSource(ctx, "wit", when, 0.06, false);
+  const high = filter(ctx, "highpass", 2500);
+  const clickGain = envelope(ctx, when, [
+    [0, 0.0001],
+    [0.002, 0.28],
+    [0.05, 0.0001],
+  ]);
+  click.connect(high).connect(clickGain).connect(out);
+
+  const thump = ctx.createOscillator();
+  thump.type = "sine";
+  thump.frequency.setValueAtTime(190, when);
+  thump.frequency.exponentialRampToValueAtTime(70, when + 0.18);
+  const thumpGain = envelope(ctx, when, [
+    [0, 0.0001],
+    [0.01, 0.34],
+    [0.26, 0.0001],
+  ]);
+  thump.connect(thumpGain).connect(out);
+  thump.start(when);
+  thump.stop(when + 0.3);
+  return noop;
+}
+
+/** Feature A: precies goed gegokt. Een paars, magisch arpeggio met een glinstering. */
+function helderziende(ctx: Ctx, out: AudioNode, when: number): SoundHandle {
+  [12, 16, 19, 23, 26, 28, 31].forEach((semitones, i) => {
+    const at = when + i * 0.07;
+    for (const detune of [-7, 7]) {
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.value = NOTE(semitones);
+      osc.detune.value = detune;
+      const gain = envelope(ctx, at, [
+        [0, 0.0001],
+        [0.012, 0.045],
+        [1.4, 0.0001],
+      ]);
+      osc.connect(gain).connect(out);
+      osc.start(at);
+      osc.stop(at + 1.5);
+    }
+  });
+  const shimmer = noiseSource(ctx, "wit", when, 1.6, false);
+  const band = filter(ctx, "bandpass", 6500, 2);
+  const shimmerGain = envelope(ctx, when, [
+    [0, 0.0001],
+    [0.3, 0.07],
+    [1.5, 0.0001],
+  ]);
+  shimmer.connect(band).connect(shimmerGain).connect(out);
+  boem(ctx, out, when, 0.45);
+  return noop;
+}
+
 /** Speelt één geluid uit de walkout-tijdlijn op `when` (in de tijd van de context). */
 export function playCue(
   ctx: BaseAudioContext,
@@ -534,6 +608,12 @@ export function playCue(
       return scheur(ctx, out, when);
     case "glans":
       return glans(ctx, out, when, strength);
+    case "helderziende":
+      return helderziende(ctx, out, when);
+    case "tik":
+      return tik(ctx, out, when, event.pitch);
+    case "vastzetten":
+      return vastzetten(ctx, out, when);
   }
 }
 

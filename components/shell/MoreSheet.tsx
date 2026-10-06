@@ -1,6 +1,6 @@
 "use client";
 
-import { Palette, Plug, type LucideIcon } from "lucide-react";
+import { Plug, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Sheet } from "@/components/ui/Sheet";
 import { Switch } from "@/components/ui/Switch";
@@ -17,7 +17,6 @@ interface Tile {
 
 const EXTRA_TILES: readonly Tile[] = [
   { href: "/koppelen", label: "Koppelen", description: "Je eigen Magister", icon: Plug },
-  { href: "/stijlgids", label: "Stijlgids", description: "Alle bouwstenen", icon: Palette },
 ];
 
 /** "Meer"-menu op mobiel: de pagina's die niet in de bottom-nav passen. */

@@ -105,3 +105,30 @@ describe("buildPackPlan", () => {
     expect(plan.events.map((e) => e.cue)).toContain("scheur");
   });
 });
+
+describe("buildWalkoutPlan: helderziende (precies goed gegokt)", () => {
+  const plain = buildWalkoutPlan({ tier: "goud", fail: false });
+  const exact = buildWalkoutPlan({ tier: "goud", fail: false }, { helderziende: true });
+
+  it("doet niets extra's zonder precies goede gok", () => {
+    expect(plain.helderziende).toBe(false);
+    expect(plain.events.some((e) => e.cue === "helderziende")).toBe(false);
+  });
+
+  it("speelt na de onthulling een eigen geluid", () => {
+    expect(exact.helderziende).toBe(true);
+    const event = exact.events.find((e) => e.cue === "helderziende");
+    expect(event?.at).toBeGreaterThan(exact.revealAt);
+    expect(event!.at).toBeLessThan(exact.restAt);
+  });
+
+  it("geeft het moment altijd genoeg tijd, ook bij een onvoldoende of minder beweging", () => {
+    for (const plan of [
+      exact,
+      buildWalkoutPlan({ tier: "brons", fail: true }, { helderziende: true }),
+      buildWalkoutPlan({ tier: "icon", fail: false }, { helderziende: true, reduced: true }),
+    ]) {
+      expect(plan.restAt - plan.revealAt).toBeGreaterThanOrEqual(2);
+    }
+  });
+});

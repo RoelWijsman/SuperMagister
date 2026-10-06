@@ -30,6 +30,8 @@ export interface SettingsValues {
   walkoutSpeed: WalkoutSpeed;
   /** Na een kaart vanzelf door naar de volgende. */
   walkoutAuto: boolean;
+  /** Feature A: vóór elke kaart eerst je cijfer gokken. */
+  guessEnabled: boolean;
   /** Eigen vakkleur (paletindex) per vak-id. */
   subjectColors: Record<string, number>;
   subjectIcons: Record<string, SubjectIconName>;
@@ -61,6 +63,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   haptics: true,
   walkoutSpeed: "normaal",
   walkoutAuto: false,
+  guessEnabled: true,
   subjectColors: {},
   subjectIcons: {},
 };

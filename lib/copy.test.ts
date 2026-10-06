@@ -9,7 +9,10 @@ const allVariants = keys.flatMap((key) => COPY[key].map((text) => ({ key, text }
 const emojiCount = (text: string) => (text.match(/\p{Extended_Pictographic}/gu) ?? []).length;
 
 describe("humorbijbel: regels voor alle teksten", () => {
-  it.each(keys)("%s heeft minstens 5 varianten", (key) => {
+  // De 6,7-grap is één vaste zin, precies zoals de aanvulling hem voorschrijft.
+  const ONE_LINERS: ReadonlySet<string> = new Set(["gok.commentaar.67"]);
+
+  it.each(keys.filter((key) => !ONE_LINERS.has(key)))("%s heeft minstens 5 varianten", (key) => {
     expect(COPY[key].length).toBeGreaterThanOrEqual(5);
   });
 
@@ -62,6 +65,8 @@ describe("humorbijbel: regels voor alle teksten", () => {
   it("gebruikt alleen bekende variabelen", () => {
     const known = new Set([
       "naam",
+      "vak2",
+      "xp",
       "cijfer",
       "gok",
       "verschil",

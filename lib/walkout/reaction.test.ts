@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { computeCards } from "@/lib/calc/cards";
 import type { Grade, TextGradeValue } from "@/lib/types";
-import { reactionLines } from "./reaction";
+import { guessReaction, reactionLines } from "./reaction";
 
 let n = 0;
 function g(value: number | TextGradeValue, weight: number, date: string): Grade {
@@ -99,5 +99,44 @@ describe("reactionLines bij een onvoldoende", () => {
   it("geeft geen rekenactie bij een O", () => {
     const keys = linesFor([g("O", 1, "2026-09-01")], 0).map((l) => l.key);
     expect(keys).toEqual(["walkout.onvoldoende.grap", "walkout.onvoldoende.steun"]);
+  });
+});
+
+describe("guessReaction", () => {
+  const cardFor = (value: number) => {
+    const grades = [g(value, 1, "2026-09-01")];
+    return computeCards(grades).get(grades[0]!.id)!;
+  };
+
+  it("noemt de echte getallen als je cijfer veel hoger is dan je dacht", () => {
+    const reaction = guessReaction(cardFor(7.4), 5.8);
+    expect(reaction.outcome.kind).toBe("veelHoger");
+    expect(reaction.line).toEqual({
+      key: "gok.uitslag.veelHoger",
+      vars: { gok: "5,8", cijfer: "7,4", verschil: "1,6" },
+    });
+    expect(reaction.support).toBeNull();
+    expect(reaction.showWhatToGet).toBe(false);
+  });
+
+  it("steunt je na een veel te hoge gok, ook bij een voldoende, met de knop erbij", () => {
+    const reaction = guessReaction(cardFor(6.8), 8.5);
+    expect(reaction.outcome.kind).toBe("veelLager");
+    expect(reaction.support?.key).toBe("gok.steun");
+    expect(reaction.showWhatToGet).toBe(true);
+  });
+
+  it("laat de steun bij een onvoldoende over aan de gewone reactie", () => {
+    const reaction = guessReaction(cardFor(4.2), 6.5);
+    expect(reaction.support).toBeNull();
+    expect(reaction.showWhatToGet).toBe(true);
+  });
+
+  it("geeft het verschil zonder min-teken in de tekst", () => {
+    expect(guessReaction(cardFor(7), 7.2).line).toEqual({
+      key: "gok.uitslag.dichtbij",
+      vars: { gok: "7,2", cijfer: "7,0", verschil: "0,2" },
+    });
+    expect(guessReaction(cardFor(7.2), 7.2).line.key).toBe("gok.uitslag.exact");
   });
 });

@@ -27,7 +27,9 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 
 - Desktop: zwevende glazen sidebar (smal met alleen iconen op tablet, breed vanaf 1024 px).
 - Mobiel: bottom-nav met Vandaag, Rooster, Huiswerk, Cijfers en **Meer**. Onder Meer zitten
-  Collectie, Prestaties, Instellingen, Koppelen en de stijlgids.
+  Collectie, Prestaties, Instellingen en Koppelen.
+- De stijlgids staat bewust niet in de navigatie of de command palette: alleen via `/stijlgids` of
+  Instellingen > Ontwikkelaar. Nieuwe componenten komen er altijd bij.
 - Paginatransities met Framer Motion via `app/template.tsx`: verderop in het menu schuift de pagina
   van rechts in, terug van links. Bij de allereerste paint wordt niet geanimeerd, zodat de
   server-HTML meteen zichtbaar is.
@@ -119,9 +121,48 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - Let op voor de CSP in fase 5: het kaartmasker is een `data:`-SVG en de deelvoorbeelden zijn
   `blob:`-adressen, dus `img-src` moet `data:` en `blob:` toestaan.
 
+## Gok je cijfer (feature A)
+
+- **Wanneer.** Vóór elke kaart met een cijfer, in het pack en in de oefenmodus (oefengokken worden
+  niet bewaard). Niet bij een herhaling uit de collectie en niet bij V, G of O. Aan of uit via
+  Instellingen > Walkout. Of er gegokt moet worden, wordt afgeleid uit de staat (kaart, instelling,
+  al gegokt?) in plaats van een aparte stap; zo kan geen enkele overgang het gokken overslaan.
+- **Eén gok per cijfer**, per databron in IndexedDB: de gok, het moment, het verschil (echt min
+  gok) en de XP. Sluit je de walkout vóór de onthulling, dan blijft je gok staan.
+- **Het gokscherm** staat op een neutraal podium: geen flares en geen tierkleur, zodat niets je
+  kaart verraadt. De slider begint bij je gemiddelde voor dat vak en rekent in tienden (geen
+  afrondingsfouten). Tussen 5,6 en 5,9 heeft een eigen commentaarbereik; de opdracht sloeg dat
+  over. Bij 6,7 wiebelt de slider en staat er "…nee. We doen dit niet.": de enige 6-7-grap, als
+  één vaste zin (een bewuste uitzondering op "minstens 5 varianten").
+- **Uitkomst.** Precies goed, binnen 0,3, binnen 0,5, ernaast, of echt veel hoger of lager (vanaf
+  1,5 verschil). XP: 50, 30, 20, 10 en 5 voor de moeite. De XP wordt bewaard en telt mee zodra er
+  levels zijn (fase 6). Bij een veel te hoge gok volgt steun en de knop "Wat moet ik halen?", ook
+  bij een voldoende.
+- **HELDERZIENDE** (precies goed) zit in de pure tijdlijn van de walkout: eigen geluid, paarse
+  flits, sterren en een schuine stempel. Daardoor komt het straks ook vanzelf in de video
+  (feature B). Het feest duurt dan minstens twee seconden, zodat je het kunt lezen.
+- **Gokkerstype** vanaf 5 gokken: orakel (gemiddeld hooguit 0,4 ernaast), bescheiden pessimist
+  of hoofdpersonage (gemiddeld minstens 0,3 te laag of te hoog, in minstens 65% van de gokken),
+  anders chaosgokker. Het staat bij Cijfers; in het profiel komt het in fase 6. Per vak noemen we
+  je beste en slechtste vak (minstens 2 gokken per vak en 0,3 verschil).
+- **Grafiek.** Een "dumbbell" per gok: de ring is je gok, de stip het echte cijfer, op één as van
+  1 tot 10. Eén kleur (het accent), vorm als tweede kenmerk, tooltip op hover en focus, en een
+  tabelweergave. Gecontroleerd met de dataviz-validator: in elk thema minstens 3:1 contrast.
+- **Prestaties** volgen uit de gokgeschiedenis (niets extra bewaard) en staan op de
+  Prestaties-pagina. Een nieuwe prestatie wordt na de walkout gemeld; wat bij het eerste bezoek
+  al behaald was, leggen we stil vast.
+- **Privacy.** Een gok op een cijfer dat je nog niet hebt onthuld, telt nergens mee; anders zou
+  de statistiek je pack verraden. De grafiek en de strook vervagen in de privacymodus.
+- **Demo.** Daan heeft 38 eerdere gokken: een bescheiden pessimist, een orakel bij wiskunde A en
+  een muntje bij Duits. Precies goed komt er niet in voor, zodat je "Verdacht" bij het eerste
+  pack zelf kunt halen. "Pack opnieuw dichtplakken" zet ook de gokken en meldingen terug.
+- **Hydratie.** Schooldata komt alleen in de browser binnen. De datahooks geven daarom tijdens de
+  hydratie nog geen data terug, ook als een ander component (zoals de doelen- of
+  prestatiewachter) die al heeft opgehaald. Zo tekenen server en browser de eerste keer hetzelfde.
+
 ## Bewust nog niet in fase 2
 
-Gok je cijfer (feature A) · walkout als video (feature B) · versleepbare widgets, rooster-weergaven,
+Walkout als video (feature B) · versleepbare widgets, rooster-weergaven,
 afvinken en focus (fase 3) · vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) ·
 koppelen, proxy en CSP (fase 5) · XP, achievements, profiel en recaps (fase 6) · PWA, offline,
 meldingen, seizoensthema's en easter eggs (fase 7).

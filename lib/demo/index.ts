@@ -1,6 +1,8 @@
+import type { GuessRecord } from "@/lib/guess/outcome";
 import type { Absence, Account, Grade, Lesson, Period, Subject } from "@/lib/types";
 import { buildDemoAbsences } from "./absences";
 import { buildDemoGrades, buildDemoPeriods } from "./grades";
+import { buildDemoGuesses } from "./guesses";
 import { buildDemoLessons } from "./lessons";
 import { DEMO_ACCOUNT, buildDemoSubjects } from "./school";
 
@@ -13,6 +15,8 @@ export interface DemoDataset {
   absences: Absence[];
   /** De nieuwste cijfers: bij de eerste keer openen nog niet onthuld. */
   packGradeIds: string[];
+  /** Daans eerdere gokken (feature A). */
+  guesses: Record<string, GuessRecord>;
 }
 
 /**
@@ -29,5 +33,6 @@ export function buildDemoDataset(now: Date): DemoDataset {
     lessons: buildDemoLessons(now),
     absences: buildDemoAbsences(now),
     packGradeIds,
+    guesses: buildDemoGuesses(grades, packGradeIds),
   };
 }

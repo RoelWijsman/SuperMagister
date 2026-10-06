@@ -20,6 +20,7 @@ import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import type { CopyKey } from "@/content/copy";
 import { useCopy, useCopyNodes } from "@/lib/use-copy";
 import { useUi } from "@/stores/ui";
+import { GuesserPanel } from "@/components/guess/GuesserPanel";
 import { GradeValue, TONE_TEXT } from "./GradeValue";
 
 const PILL_TONE = {
@@ -212,6 +213,12 @@ export function GradesView() {
             );
           })}
         </ul>
+      )}
+
+      {!loading && (
+        <div className="mt-6">
+          <GuesserPanel />
+        </div>
       )}
     </>
   );

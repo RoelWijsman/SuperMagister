@@ -7,12 +7,17 @@ import { Button } from "@/components/ui/Button";
 import { VARIANT_LABELS } from "@/lib/calc/cards";
 import { cardLook, cardTierLabel, type CardData } from "@/lib/cards/model";
 import { cn } from "@/lib/cn";
-import { reactionLines } from "@/lib/walkout/reaction";
+import { guessReaction, reactionLines } from "@/lib/walkout/reaction";
+import { GuessStrip } from "@/components/guess/GuessStrip";
 import type { WalkoutEntry } from "@/stores/walkout";
 import { CopyLineText } from "./CopyLineText";
 
 interface WalkoutResultProps {
   entry: WalkoutEntry;
+  /** Feature A: je gok, of null als je niet gokte. */
+  guess: number | null;
+  /** Verdiende XP met deze gok (niet bij oefenkaarten). */
+  guessXp: number | null;
   /** Onzichtbaar gemount om te meten; zichtbaar zodra de kaart stilligt. */
   visible: boolean;
   /** Knop rechts: "Volgende kaart", "Overzicht" of "Klaar". */
@@ -29,6 +34,8 @@ const AUTO_MS = 4200;
 /** Het eindscherm onder een kaart: de droge reactie, en bij een onvoldoende steun en een plan. */
 export function WalkoutResult({
   entry,
+  guess,
+  guessXp,
   visible,
   nextLabel,
   onNext,
@@ -41,7 +48,12 @@ export function WalkoutResult({
     () => reactionLines(card, entry.grades, { subjectName: card.subjectName }),
     [card, entry.grades],
   );
-  const [first, ...rest] = lines;
+  const guessed =
+    guess !== null && card.grade.kind === "numeric" ? guessReaction(card, guess) : null;
+  // Met een gok is de reactie op je gok de kop; anders de grap van de tier.
+  const [tierLine, ...rest] = lines;
+  const first = guessed?.line ?? tierLine;
+  const showWhatToGet = card.isFail || Boolean(guessed?.showWhatToGet);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
@@ -76,6 +88,10 @@ export function WalkoutResult({
         )}
       </div>
 
+      {guessed && guess !== null && card.grade.kind === "numeric" && (
+        <GuessStrip guess={guess} actual={card.grade.value} xp={guessXp} className="mb-3" />
+      )}
+
       {first && (
         <CopyLineText
           line={first}
@@ -100,13 +116,18 @@ export function WalkoutResult({
           </div>
         </div>
       ) : (
-        rest.map((line) => (
-          <CopyLineText key={line.key} line={line} className="mt-2 text-white/75" />
-        ))
+        <>
+          {rest.map((line) => (
+            <CopyLineText key={line.key} line={line} className="mt-2 text-white/75" />
+          ))}
+          {guessed?.support && (
+            <CopyLineText line={guessed.support} className="mt-2 text-white/80" />
+          )}
+        </>
       )}
 
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        {card.isFail && (
+        {showWhatToGet && (
           <Button variant="primary" icon={Calculator} onClick={() => onWhatToGet(card)}>
             Wat moet ik halen?
           </Button>
@@ -120,7 +141,7 @@ export function WalkoutResult({
           Nog een keer
         </Button>
         <Button
-          variant={card.isFail ? "glass" : "primary"}
+          variant={showWhatToGet ? "glass" : "primary"}
           iconRight={nextLabel === "Klaar" ? Check : ArrowRight}
           onClick={onNext}
           className={cn("relative ml-auto overflow-hidden")}

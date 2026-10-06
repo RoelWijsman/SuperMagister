@@ -32,5 +32,6 @@ export function createDemoSource(now: () => Date = () => new Date()): SchoolData
     getLessons: async (range) => (await dataset()).lessons.filter((l) => inRange(l.date, range)),
     getAbsences: async (range) => (await dataset()).absences.filter((a) => inRange(a.date, range)),
     getInitialPackIds: async () => (await dataset()).packGradeIds,
+    getInitialGuesses: async () => (await dataset()).guesses,
   };
 }

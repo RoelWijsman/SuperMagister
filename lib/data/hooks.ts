@@ -1,8 +1,9 @@
 "use client";
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
 import { addDays, startOfWeek, toISODate } from "@/lib/date";
+import { useIsClient } from "@/lib/hooks";
 import { unrevealedGrades } from "@/lib/reveal";
 import { homeworkFromLessons, testsFromLessons } from "@/lib/school/derive";
 import { assignSubjectColors, SUBJECT_PALETTE } from "@/lib/subjects/palette";
@@ -16,40 +17,67 @@ import { useDataSource } from "./context";
 /** Elke 15 minuten verversen zolang de app open is. */
 const REFRESH_MS = 15 * 60_000;
 
+/**
+ * Schooldata komt alleen in de browser binnen, dus de server tekent altijd
+ * "nog geen data". Tijdens de hydratie doen we daarom ook alsof er nog niets
+ * is, ook als een ander component de data al heeft opgehaald (bijvoorbeeld
+ * terwijl een Suspense-deel nog moest hydrateren). Zo tekenen server en
+ * browser de eerste keer precies hetzelfde.
+ */
+function useHydrated<TData>(query: UseQueryResult<TData>): UseQueryResult<TData> {
+  const isClient = useIsClient();
+  if (isClient) return query;
+  return {
+    ...query,
+    data: undefined,
+    status: "pending",
+    isPending: true,
+    isSuccess: false,
+  } as unknown as UseQueryResult<TData>;
+}
+
 export function useAccount() {
   const source = useDataSource();
-  return useQuery({
-    queryKey: [source.id, "account"],
-    queryFn: () => source.getAccount(),
-    staleTime: Infinity,
-  });
+  return useHydrated(
+    useQuery({
+      queryKey: [source.id, "account"],
+      queryFn: () => source.getAccount(),
+      staleTime: Infinity,
+    }),
+  );
 }
 
 export function useSubjects() {
   const source = useDataSource();
-  return useQuery({
-    queryKey: [source.id, "subjects"],
-    queryFn: () => source.getSubjects(),
-    staleTime: 60 * 60_000,
-  });
+  return useHydrated(
+    useQuery({
+      queryKey: [source.id, "subjects"],
+      queryFn: () => source.getSubjects(),
+      staleTime: 60 * 60_000,
+    }),
+  );
 }
 
 export function usePeriods() {
   const source = useDataSource();
-  return useQuery({
-    queryKey: [source.id, "periods"],
-    queryFn: () => source.getPeriods(),
-    staleTime: 60 * 60_000,
-  });
+  return useHydrated(
+    useQuery({
+      queryKey: [source.id, "periods"],
+      queryFn: () => source.getPeriods(),
+      staleTime: 60 * 60_000,
+    }),
+  );
 }
 
 export function useGrades() {
   const source = useDataSource();
-  return useQuery({
-    queryKey: [source.id, "grades"],
-    queryFn: () => source.getGrades(),
-    refetchInterval: REFRESH_MS,
-  });
+  return useHydrated(
+    useQuery({
+      queryKey: [source.id, "grades"],
+      queryFn: () => source.getGrades(),
+      refetchInterval: REFRESH_MS,
+    }),
+  );
 }
 
 function lessonsQuery(source: ReturnType<typeof useDataSource>, range: DateRange) {
@@ -63,25 +91,27 @@ function lessonsQuery(source: ReturnType<typeof useDataSource>, range: DateRange
 
 export function useLessons(range: DateRange) {
   const source = useDataSource();
-  return useQuery(lessonsQuery(source, range));
+  return useHydrated(useQuery(lessonsQuery(source, range)));
 }
 
 export function useHomework(range: DateRange) {
   const source = useDataSource();
-  return useQuery({ ...lessonsQuery(source, range), select: homeworkFromLessons });
+  return useHydrated(useQuery({ ...lessonsQuery(source, range), select: homeworkFromLessons }));
 }
 
 export function useTests(range: DateRange) {
   const source = useDataSource();
-  return useQuery({ ...lessonsQuery(source, range), select: testsFromLessons });
+  return useHydrated(useQuery({ ...lessonsQuery(source, range), select: testsFromLessons }));
 }
 
 export function useAbsences(range: DateRange) {
   const source = useDataSource();
-  return useQuery({
-    queryKey: [source.id, "absences", range.from, range.to],
-    queryFn: () => source.getAbsences(range),
-  });
+  return useHydrated(
+    useQuery({
+      queryKey: [source.id, "absences", range.from, range.to],
+      queryFn: () => source.getAbsences(range),
+    }),
+  );
 }
 
 /** Maandag t/m zondag van de week waarin `date` valt. */

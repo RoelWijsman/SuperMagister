@@ -1,19 +1,25 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { FastForward, Volume2, VolumeX, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { createPortal } from "react-dom";
+import { GuessScreen } from "@/components/guess/GuessScreen";
 import { Button } from "@/components/ui/Button";
 import { playLiveCue } from "@/lib/audio/engine";
 import type { SoundHandle } from "@/lib/audio/synth";
 import { bestTier, TIER_LABELS } from "@/lib/calc/tiers";
 import { ensureCardFont, renderCardCanvas } from "@/lib/cards/draw";
+import type { CardData } from "@/lib/cards/model";
+import { useGuesses } from "@/lib/data/guesses";
+import { formatGuess, toTenths } from "@/lib/guess/scale";
+import { guessOutcome, makeGuessRecord } from "@/lib/guess/outcome";
 import { haptic } from "@/lib/haptics";
 import { useFocusTrap, useIsClient, useModalLock } from "@/lib/hooks";
 import { buildPackPlan, buildWalkoutPlan, type SoundEvent } from "@/lib/walkout/plan";
 import {
+  renderIdleFrame,
   renderPackCanvas,
   renderPackFrame,
   renderWalkoutFrame,
@@ -28,6 +34,7 @@ import {
   stageFor,
   type WalkoutScene,
 } from "@/lib/walkout/scene";
+import { useGuessStore } from "@/stores/guesses";
 import { useReveal } from "@/stores/reveal";
 import { useSettings } from "@/stores/settings";
 import { useWalkout, type WalkoutEntry, type WalkoutSession } from "@/stores/walkout";
@@ -65,6 +72,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   const muted = useSettings((s) => s.soundMuted);
   const setSetting = useSettings((s) => s.set);
   const motionSetting = useSettings((s) => s.motion);
+  const guessEnabled = useSettings((s) => s.guessEnabled);
+  const { guesses: storedGuesses } = useGuesses();
   const prefersReduced = useReducedMotion();
   const reduced =
     motionSetting === "reduced" || (motionSetting === "system" && Boolean(prefersReduced));
@@ -78,6 +87,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   /** Telt op bij "Nog een keer": dezelfde kaart opnieuw afspelen. */
   const [run, setRun] = useState(0);
   const [announcement, setAnnouncement] = useState("");
+  /** Gokken van deze sessie per kaart; null = overgeslagen. */
+  const [sessionGuesses, setSessionGuesses] = useState<Record<string, number | null>>({});
 
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -99,6 +110,41 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   useFocusTrap(true, container);
 
   const entry: WalkoutEntry | undefined = step.kind === "card" ? entries[step.index] : undefined;
+
+  /** De gok bij een kaart: uit deze sessie, of eerder bewaard (nooit bij oefenkaarten). */
+  const guessFor = (card: CardData): number | null =>
+    card.id in sessionGuesses
+      ? (sessionGuesses[card.id] ?? null)
+      : card.isPractice
+        ? null
+        : (storedGuesses?.[card.gradeId]?.gok ?? null);
+
+  // Feature A: vóór een kaart eerst gokken. Afgeleid, dus geen enkele overgang kan het overslaan.
+  const asking =
+    entry !== undefined &&
+    guessEnabled &&
+    session.mode !== "opnieuw" &&
+    entry.card.grade.kind === "numeric" &&
+    !(entry.card.id in sessionGuesses) &&
+    (entry.card.isPractice || !storedGuesses?.[entry.card.gradeId]);
+  const currentGuess = entry ? guessFor(entry.card) : null;
+  const currentXp =
+    entry && !entry.card.isPractice ? (storedGuesses?.[entry.card.gradeId]?.xp ?? null) : null;
+
+  const lockGuess = (value: number) => {
+    if (!entry) return;
+    const { card } = entry;
+    setSessionGuesses((all) => ({ ...all, [card.id]: value }));
+    setAnnouncement(`Gok vastgezet: ${formatGuess(toTenths(value))}.`);
+    if (session.mode === "pack" && !card.isPractice && card.grade.kind === "numeric") {
+      useGuessStore
+        .getState()
+        .record(card.gradeId, makeGuessRecord(value, card.grade.value, new Date()));
+    }
+  };
+  const skipGuess = () => {
+    if (entry) setSessionGuesses((all) => ({ ...all, [entry.card.id]: null }));
+  };
 
   const goNext = useCallback(() => {
     if (step.kind !== "card") return;
@@ -183,10 +229,37 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     };
   }, [step.kind, entries, reduced]);
 
+  // ——— Gokken: neutraal podium ————————————————————————————————————————————
+  useEffect(() => {
+    if (!asking || !canvas.current) return;
+    const element = canvas.current;
+    const ctx = element.getContext("2d");
+    if (!ctx) return;
+    let disposed = false;
+    let frame = 0;
+    let { stage, unit } = sizeCanvas(element);
+    const onResize = () => {
+      ({ stage, unit } = sizeCanvas(element));
+    };
+    window.addEventListener("resize", onResize);
+    const start = performance.now();
+    const loop = (now: number) => {
+      if (disposed) return;
+      renderIdleFrame({ ctx, unit }, stage, (now - start) / 1000);
+      frame = requestAnimationFrame(loop);
+    };
+    frame = requestAnimationFrame(loop);
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [asking]);
+
   // ——— Eén kaart ——————————————————————————————————————————————————————————
   const cardIndex = step.kind === "card" ? step.index : -1;
   useEffect(() => {
-    if (cardIndex < 0 || !canvas.current) return;
+    if (cardIndex < 0 || asking || !canvas.current) return;
     const current = entries[cardIndex];
     if (!current) return;
     const element = canvas.current;
@@ -196,7 +269,14 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     let disposed = false;
     let frame = 0;
     const handles: SoundHandle[] = [];
-    const plan = buildWalkoutPlan({ tier: card.tier, fail: card.isFail }, { reduced });
+    const helderziende =
+      currentGuess !== null &&
+      card.grade.kind === "numeric" &&
+      guessOutcome(currentGuess, card.grade.value).kind === "exact";
+    const plan = buildWalkoutPlan(
+      { tier: card.tier, fail: card.isFail },
+      { reduced, helderziende },
+    );
     const peakAfter = plan.revealAt - plan.phases.flip.start;
     const baseSpeed = SPEED[speedSetting];
 
@@ -277,12 +357,13 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
       cancelAnimationFrame(frame);
       handles.forEach((handle) => handle.stop());
     };
-  }, [cardIndex, run, entries, reduced, speedSetting, session.mode, reveal]);
+  }, [cardIndex, run, entries, reduced, speedSetting, session.mode, reveal, asking, currentGuess]);
 
   // ——— Bediening ———————————————————————————————————————————————————————————
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
+      else if (asking) return;
       else if (event.key === "ArrowRight") {
         if (resting) goNext();
         else skipRef.current();
@@ -290,17 +371,17 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close, resting, goNext]);
+  }, [close, resting, goNext, asking]);
 
   const onPointerDown = (event: PointerEvent) => {
-    if ((event.target as HTMLElement).closest("button, a")) return;
+    if (asking || (event.target as HTMLElement).closest("button, a")) return;
     holdTimer.current = setTimeout(() => {
       holdRef.current = true;
       setHolding(true);
     }, HOLD_MS);
   };
   const onPointerUp = (event: PointerEvent) => {
-    if ((event.target as HTMLElement).closest("button, a")) return;
+    if (asking || (event.target as HTMLElement).closest("button, a")) return;
     if (holdTimer.current) clearTimeout(holdTimer.current);
     if (!holdRef.current && !resting && step.kind !== "summary") skipRef.current();
     holdRef.current = false;
@@ -333,6 +414,17 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         {announcement}
       </p>
 
+      <AnimatePresence>
+        {asking && entry && (
+          <GuessScreen
+            key={entry.card.id}
+            card={entry.card}
+            onLock={lockGuess}
+            onSkip={skipGuess}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="pt-safe absolute inset-x-0 top-0 flex items-center gap-2 p-3 sm:p-4">
         <span className="font-card text-lg tracking-[0.2em] text-white/55">
           {session.mode === "oefen"
@@ -364,7 +456,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         </div>
       </div>
 
-      {step.kind !== "summary" && !resting && (
+      {step.kind !== "summary" && !resting && !asking && (
         <div className="pb-safe pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
           <p className="text-sm text-white/45">
             {holding ? "Sneller…" : "Tik om over te slaan · houd ingedrukt voor sneller"}
@@ -394,6 +486,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         >
           <WalkoutResult
             entry={entry}
+            guess={currentGuess}
+            guessXp={currentXp}
             visible={resting}
             nextLabel={nextLabel}
             onNext={goNext}
@@ -415,6 +509,13 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         >
           <WalkoutSummary
             entries={entries}
+            guessXp={entries.reduce(
+              (sum, e) =>
+                sessionGuesses[e.card.id] != null && !e.card.isPractice
+                  ? sum + (storedGuesses?.[e.card.gradeId]?.xp ?? 0)
+                  : sum,
+              0,
+            )}
             onCollection={
               session.mode === "pack"
                 ? () => {

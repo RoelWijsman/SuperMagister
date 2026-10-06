@@ -4,6 +4,8 @@ import { ArrowRight, Bell, Heart, Plus, Sparkles } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
+import { CollectionSamples } from "./CollectionSamples";
+import { GuessSamples } from "./GuessSamples";
 import { WalkoutScrubber } from "./WalkoutScrubber";
 import { GradeValue } from "@/components/grades/GradeValue";
 import { SubjectBadge } from "@/components/subjects/SubjectBadge";
@@ -100,12 +102,26 @@ export function StyleguideView() {
         </Block>
       </div>
 
-      <div className="mb-5">
+      <div className="mb-5 space-y-5">
         <Block
           title="Walkout"
           note="Spoel door de tijdlijn. Elk tijdstip geeft altijd precies hetzelfde frame."
         >
           <WalkoutScrubber deck={deck} />
+        </Block>
+
+        <Block
+          title="Kaartviewer en folie"
+          note="De kaart uit de collectie: kantelen, omdraaien en zes folies. In de app speel je folies vrij met verzameldoelen."
+        >
+          <CollectionSamples deck={deck} />
+        </Block>
+
+        <Block
+          title="Gok je cijfer"
+          note="Feature A: de gokslider, de strook onder de kaart, gok tegenover echt en de prestaties."
+        >
+          <GuessSamples />
         </Block>
       </div>
 
