@@ -39,3 +39,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# back-ups van de projectmap
+*-backup-*/
+backup/
+
+# systeembestanden
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+._*
+*.swp
+*~
+
+# lokale instellingen (editor en Claude Code)
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.claude/settings.local.json
