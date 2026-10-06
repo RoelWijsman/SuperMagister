@@ -382,3 +382,50 @@ export function twinkleAlpha(twinkle: Twinkle, t: number): number {
   const phase = ((t + twinkle.offset) % twinkle.period) / twinkle.period;
   return Math.max(0, Math.sin(phase * Math.PI)) ** 3;
 }
+
+// ——— Rook tijdens het gokmoment (feature A) ————————————————————————————————
+
+const AMBIENT_INTERVAL = 0.16;
+const AMBIENT_LIFE = 3.2;
+
+/**
+ * Rook die blijft opstijgen zolang het gokmoment duurt. Geen vaste lijst
+ * (het gokmoment kan eindeloos duren): per tijdstip rekenen we uit welke
+ * pufjes er zijn. Pufje k ontstaat op start + k × interval; na `stop` (de
+ * flip) komen er geen nieuwe bij.
+ */
+export function ambientPuffs(
+  seed: number,
+  stage: Stage,
+  { count, colors }: { count: number; colors: readonly string[] },
+  start: number,
+  t: number,
+  stop: number,
+): Puff[] {
+  if (t < start || count === 0) return [];
+  const xs = flarePositions(stage, count);
+  const last = Math.floor((Math.min(t, stop) - start) / AMBIENT_INTERVAL);
+  const first = Math.max(0, Math.floor((t - start - AMBIENT_LIFE) / AMBIENT_INTERVAL));
+  const puffs: Puff[] = [];
+  for (let k = first; k <= last; k++) {
+    const random = createRandom(seed * 31 + k * 977);
+    const flare = k % xs.length;
+    const x = xs[flare]!;
+    const lean = (x - stage.w / 2) / stage.w;
+    puffs.push({
+      t0: start + k * AMBIENT_INTERVAL,
+      life: 2.4 + random.next() * 0.8,
+      x0: x + (random.next() - 0.5) * 30,
+      y0: stage.h + 30,
+      vx: -lean * 160 + (random.next() - 0.5) * 140,
+      vy: -(380 + random.next() * 240),
+      drag: 1.2 + random.next() * 0.5,
+      lift: 50 + random.next() * 40,
+      size0: 70 + random.next() * 40,
+      size1: 260 + random.next() * 180,
+      alpha: 0.14 + random.next() * 0.1,
+      color: colors[flare % colors.length] ?? "#ffffff",
+    });
+  }
+  return puffs;
+}

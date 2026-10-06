@@ -123,23 +123,51 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 
 ## Gok je cijfer (feature A)
 
-- **Wanneer.** Vóór elke kaart met een cijfer, in het pack en in de oefenmodus (oefengokken worden
-  niet bewaard). Niet bij een herhaling uit de collectie en niet bij V, G of O. Aan of uit via
-  Instellingen > Walkout. Of er gegokt moet worden, wordt afgeleid uit de staat (kaart, instelling,
-  al gegokt?) in plaats van een aparte stap; zo kan geen enkele overgang het gokken overslaan.
+- **Wanneer.** Bij elke kaart met een cijfer, in het pack en in de oefenmodus (oefengokken worden
+  niet bewaard). Niet bij een herhaling uit de collectie en niet bij V, G of O. Instellingen >
+  Walkout > Gokken: elke kaart (standaard), alleen de laatste kaart van een pack, of uit. Of er
+  gegokt moet worden, wordt afgeleid uit de staat (kaart, instelling, al gegokt?) in plaats van
+  een aparte stap; zo kan geen enkele overgang het gokken overslaan.
 - **Eén gok per cijfer**, per databron in IndexedDB: de gok, het moment, het verschil (echt min
   gok) en de XP. Sluit je de walkout vóór de onthulling, dan blijft je gok staan.
-- **Het gokscherm** staat op een neutraal podium: geen flares en geen tierkleur, zodat niets je
-  kaart verraadt. De slider begint bij je gemiddelde voor dat vak en rekent in tienden (geen
-  afrondingsfouten). Tussen 5,6 en 5,9 heeft een eigen commentaarbereik; de opdracht sloeg dat
-  over. Bij 6,7 wiebelt de slider en staat er "…nee. We doen dit niet.": de enige 6-7-grap, als
-  één vaste zin (een bewuste uitzondering op "minstens 5 varianten").
+- **Het gokmoment zit in de walkout**, er is geen apart gokscherm. Na de drie onthullingen draait
+  het silhouet in beeld en blijft gloeiend hangen: dat is de fase `gok` in de tijdlijn, tussen
+  silhouet en flip. De show loopt door: de flares bewegen, de camera zoomt heel langzaam in (tot
+  9%) en het stadiongeluid maakt plaats voor een spanningsloop (hartslag van 64 naar 110 slagen
+  per minuut, een aanzwellende drone) die steeds feller wordt. Het silhouet pulseert op dezelfde
+  hartslag. Op de plek van de rating staat een groot "?" met "Wat heb je?" erboven.
+- **Eén gebaar.** Slepen (waar dan ook) rolt de teller als een gokkast-teller van 1,0 tot 10,0,
+  6 px per tiende, met oplopende tikjes en een lichte trilling. Op een computer ook het scrollwiel
+  of ↑/↓ (Page Up/Down per hele punt, Home/End naar 1,0/10,0). Je eerste beweging begint bij je
+  gemiddelde voor dat vak; alles rekent in tienden (geen afrondingsfouten). Loslaten of Enter zet
+  de gok vast: klik, het getal bevriest, een halve seconde stilte, dan meteen de flip. Tik je op
+  de kaart zonder te slepen, dan draait hij meteen om zonder gok (heb je met het wiel of de
+  pijltjes al een getal gekozen, dan zet de tik dat vast). Na 8 seconden zonder actie verschijnt
+  rustig "Sleep omhoog of omlaag". Nooit een automatische skip of tijdsdruk: "Overslaan" springt
+  hooguit naar het gokmoment, nooit eroverheen.
+- **Commentaar** staat klein onder de kaart en wisselt mee met je teller. Tussen 5,6 en 5,9 heeft
+  een eigen bereik; de opdracht sloeg dat over. Bij 6,7 wiebelt de teller en staat er "…nee. We
+  doen dit niet.": de enige 6-7-grap, als één vaste zin (een bewuste uitzondering op "minstens 5
+  varianten").
+- **Een open einde in een pure tijdlijn.** Zolang je nog niet gegokt hebt, duurt de fase `gok`
+  oneindig lang (de tijdlijn stopt daar netjes). Bij het vastzetten bouwen we de tijdlijn opnieuw,
+  met de gokduur ingevuld; alles daarvóór blijft gelijk, dus het beeld loopt naadloos door. De
+  spanningsloop wordt in blokken van 12 seconden ingepland en loopt in elk blok precies door.
+- **Na de flip** verschijnt je gok als doorschijnend "spookcijfer" (in de inktkleur van de kaart,
+  met een paarse rand) naast de echte rating en schuift er met een klap tegenaan: lichtflits,
+  "boem" en een kleine terugvering. Daarna de strook "Gegokt 7,2 · Echt 7,8 · +0,6" met een
+  reactie.
+- **Herhalingen en video.** Heb je een kaart al gegokt (eerder in deze sessie of bewaard), dan
+  speelt het gokmoment zich vanzelf af: na het "?" rolt de teller in 1,6 seconde naar je gok, klik,
+  flip. Dat is een vaste, pure tijdlijn (`SCRIPTED_LOCK_AFTER`), dus de video van feature B kan
+  hem frame voor frame renderen.
 - **Uitkomst.** Precies goed, binnen 0,3, binnen 0,5, ernaast, of echt veel hoger of lager (vanaf
   1,5 verschil). XP: 50, 30, 20, 10 en 5 voor de moeite. De XP wordt bewaard en telt mee zodra er
   levels zijn (fase 6). Bij een veel te hoge gok volgt steun en de knop "Wat moet ik halen?", ook
   bij een voldoende.
-- **HELDERZIENDE** (precies goed) zit in de pure tijdlijn van de walkout: eigen geluid, paarse
-  flits, sterren en een schuine stempel. Daardoor komt het straks ook vanzelf in de video
+- **HELDERZIENDE** (precies goed) zit in de pure tijdlijn van de walkout: het spookcijfer schuift
+  óp de rating en smelt erin, en op dat moment volgen eigen geluid, paarse flits, sterren en een
+  schuine stempel, bovenop het tierfeest. Daardoor komt het straks ook vanzelf in de video
   (feature B). Het feest duurt dan minstens twee seconden, zodat je het kunt lezen.
 - **Gokkerstype** vanaf 5 gokken: orakel (gemiddeld hooguit 0,4 ernaast), bescheiden pessimist
   of hoofdpersonage (gemiddeld minstens 0,3 te laag of te hoog, in minstens 65% van de gokken),

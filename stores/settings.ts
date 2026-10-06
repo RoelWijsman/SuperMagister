@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { normalizeHex } from "@/lib/color";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { SubjectIconName } from "@/lib/subjects/icons";
+import type { GuessMode } from "@/lib/guess/input";
 import { customThemeVars, DEFAULT_THEME, type ThemeId } from "@/lib/theme/themes";
 
 export type ColorMode = "dark" | "light" | "system";
@@ -30,8 +31,8 @@ export interface SettingsValues {
   walkoutSpeed: WalkoutSpeed;
   /** Na een kaart vanzelf door naar de volgende. */
   walkoutAuto: boolean;
-  /** Feature A: vóór elke kaart eerst je cijfer gokken. */
-  guessEnabled: boolean;
+  /** Feature A: bij welke kaarten je gokt (elke, alleen de laatste, of uit). */
+  guessMode: GuessMode;
   /** Eigen vakkleur (paletindex) per vak-id. */
   subjectColors: Record<string, number>;
   subjectIcons: Record<string, SubjectIconName>;
@@ -63,10 +64,26 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   haptics: true,
   walkoutSpeed: "normaal",
   walkoutAuto: false,
-  guessEnabled: true,
+  guessMode: "elke",
   subjectColors: {},
   subjectIcons: {},
 };
+
+const SETTINGS_VERSION = 2;
+
+/**
+ * Oude opslag bijwerken. Versie 2: "gokken aan/uit" werd "bij welke kaarten"; wie het
+ * had uitgezet, houdt het uit.
+ */
+export function migrateSettings(persisted: unknown, version: number): Partial<SettingsValues> {
+  if (typeof persisted !== "object" || persisted === null) return {};
+  const values = { ...(persisted as Record<string, unknown>) };
+  if (version < 2 && "guessEnabled" in values) {
+    values.guessMode = values.guessEnabled === false ? "uit" : "elke";
+    delete values.guessEnabled;
+  }
+  return values as Partial<SettingsValues>;
+}
 
 export const useSettings = create<SettingsValues & SettingsActions>()(
   persist(
@@ -113,7 +130,8 @@ export const useSettings = create<SettingsValues & SettingsActions>()(
     }),
     {
       name: STORAGE_KEYS.settings,
-      version: 1,
+      version: SETTINGS_VERSION,
+      migrate: (persisted, version) => migrateSettings(persisted, version) as SettingsValues,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => {
         const values: Partial<SettingsValues> = {};

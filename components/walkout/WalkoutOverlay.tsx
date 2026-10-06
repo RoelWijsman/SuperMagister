@@ -1,32 +1,53 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { FastForward, Volume2, VolumeX, X } from "lucide-react";
+import { ChevronsUpDown, FastForward, Volume2, VolumeX, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+  type WheelEvent,
+} from "react";
 import { createPortal } from "react-dom";
-import { GuessScreen } from "@/components/guess/GuessScreen";
 import { Button } from "@/components/ui/Button";
-import { playLiveCue } from "@/lib/audio/engine";
+import { playLiveCue, startLiveTension } from "@/lib/audio/engine";
 import type { SoundHandle } from "@/lib/audio/synth";
 import { bestTier, TIER_LABELS } from "@/lib/calc/tiers";
 import { ensureCardFont, renderCardCanvas } from "@/lib/cards/draw";
 import type { CardData } from "@/lib/cards/model";
+import { cn } from "@/lib/cn";
 import { useGuesses } from "@/lib/data/guesses";
-import { formatGuess, toTenths } from "@/lib/guess/scale";
-import { guessOutcome, makeGuessRecord } from "@/lib/guess/outcome";
+import { dragToGuess, keyToGuess, lockValue, shouldGuess, wheelSteps } from "@/lib/guess/input";
+import { guessOutcome, makeGuessRecord, type GuessRecord } from "@/lib/guess/outcome";
+import {
+  clampGuess,
+  formatGuess,
+  guessCommentKey,
+  tickFrequency,
+  toTenths,
+} from "@/lib/guess/scale";
 import { haptic } from "@/lib/haptics";
 import { useFocusTrap, useIsClient, useModalLock } from "@/lib/hooks";
-import { buildPackPlan, buildWalkoutPlan, type SoundEvent } from "@/lib/walkout/plan";
+import { useCopy } from "@/lib/use-copy";
+import type { Stage } from "@/lib/walkout/particles";
 import {
-  renderIdleFrame,
+  buildPackPlan,
+  buildWalkoutPlan,
+  SCRIPTED_LOCK_AFTER,
+  scriptedGuessView,
+  type SoundEvent,
+  type WalkoutPlanOptions,
+} from "@/lib/walkout/plan";
+import {
   renderPackCanvas,
   renderPackFrame,
   renderWalkoutFrame,
+  type GuessView,
   type WalkoutAssets,
 } from "@/lib/walkout/render";
-import { cn } from "@/lib/cn";
-import type { Stage } from "@/lib/walkout/particles";
 import {
   cardLayout,
   createPackScene,
@@ -46,6 +67,10 @@ type Step = { kind: "pack" } | { kind: "card"; index: number } | { kind: "summar
 const SPEED = { normaal: 1, snel: 1.8, direct: 1 } as const;
 const HOLD_MS = 180;
 const HOLD_SPEED = 3;
+/** Zo ver moet je slepen voordat het telt als gokken (en niet als tikken). */
+const DRAG_THRESHOLD = 6;
+/** Na zoveel milliseconden zonder actie verschijnt de hint, nooit eerder. */
+const HINT_AFTER = 8000;
 
 /** Maakt het canvas scherp (max. 2× pixels) en geeft stage en eenheid terug. */
 function sizeCanvas(canvas: HTMLCanvasElement) {
@@ -55,12 +80,23 @@ function sizeCanvas(canvas: HTMLCanvasElement) {
   return stageFor(canvas.width, canvas.height);
 }
 
+/** Startpunt van de teller: je gemiddelde voor dit vak. */
+const anchorFor = (card: CardData) => clampGuess(toTenths(card.avgBefore ?? 6));
+
 /** De walkout: fullscreen, overslaanbaar met een tik, sneller door ingedrukt te houden. */
 export function WalkoutOverlay() {
   const session = useWalkout((s) => s.session);
   const isClient = useIsClient();
   if (!isClient || !session) return null;
   return createPortal(<WalkoutStage key={session.id} session={session} />, document.body);
+}
+
+interface DragState {
+  pointerId: number;
+  x: number;
+  y: number;
+  start: number;
+  moved: boolean;
 }
 
 function WalkoutStage({ session }: { session: WalkoutSession }) {
@@ -72,7 +108,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   const muted = useSettings((s) => s.soundMuted);
   const setSetting = useSettings((s) => s.set);
   const motionSetting = useSettings((s) => s.motion);
-  const guessEnabled = useSettings((s) => s.guessEnabled);
+  const guessMode = useSettings((s) => s.guessMode);
   const { guesses: storedGuesses } = useGuesses();
   const prefersReduced = useReducedMotion();
   const reduced =
@@ -87,14 +123,34 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   /** Telt op bij "Nog een keer": dezelfde kaart opnieuw afspelen. */
   const [run, setRun] = useState(0);
   const [announcement, setAnnouncement] = useState("");
-  /** Gokken van deze sessie per kaart; null = overgeslagen. */
+  /** Gokken van deze sessie per kaart; null = zonder gok omgedraaid. */
   const [sessionGuesses, setSessionGuesses] = useState<Record<string, number | null>>({});
+
+  // Feature A: het gokmoment.
+  const [guessOpen, setGuessOpen] = useState(false);
+  /** Huidige gok in hele tienden (voor commentaar en schermlezer); null = "?". */
+  const [guessValue, setGuessValue] = useState<number | null>(null);
+  const [hint, setHint] = useState(false);
+  const [actions, setActions] = useState(0);
+  /** Waar de onderkant van de kaart zit (procent van de hoogte), voor het commentaar. */
+  const [commentTop, setCommentTop] = useState(78);
 
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   const holdRef = useRef(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipRef = useRef<() => void>(() => {});
+  /** Zet de gok vast (of draai zonder gok om); geeft false als het nu niet kan. */
+  const lockRef = useRef<(value: number | null) => boolean>(() => false);
+  const viewRef = useRef<GuessView>({ value: null, wobbleSince: null });
+  const timeRef = useRef(0);
+  const dragRef = useRef<DragState | null>(null);
+  const wheelRest = useRef(0);
+  const lastTick = useRef(0);
+  const cardRect = useRef<DOMRect | null>(null);
+  const sessionGuessesRef = useRef(sessionGuesses);
+  const storedGuessesRef = useRef<Readonly<Record<string, GuessRecord>> | null>(storedGuesses);
   /** Hoeveel van de hoogte het eindscherm onderaan inneemt (gemeten). */
   const reserveRef = useRef<number | undefined>(undefined);
   const measureResult = useCallback((node: HTMLDivElement | null) => {
@@ -105,6 +161,11 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    sessionGuessesRef.current = sessionGuesses;
+    storedGuessesRef.current = storedGuesses;
+  }, [sessionGuesses, storedGuesses]);
 
   useModalLock(true);
   useFocusTrap(true, container);
@@ -118,38 +179,15 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
       : card.isPractice
         ? null
         : (storedGuesses?.[card.gradeId]?.gok ?? null);
-
-  // Feature A: vóór een kaart eerst gokken. Afgeleid, dus geen enkele overgang kan het overslaan.
-  const asking =
-    entry !== undefined &&
-    guessEnabled &&
-    session.mode !== "opnieuw" &&
-    entry.card.grade.kind === "numeric" &&
-    !(entry.card.id in sessionGuesses) &&
-    (entry.card.isPractice || !storedGuesses?.[entry.card.gradeId]);
   const currentGuess = entry ? guessFor(entry.card) : null;
   const currentXp =
     entry && !entry.card.isPractice ? (storedGuesses?.[entry.card.gradeId]?.xp ?? null) : null;
-
-  const lockGuess = (value: number) => {
-    if (!entry) return;
-    const { card } = entry;
-    setSessionGuesses((all) => ({ ...all, [card.id]: value }));
-    setAnnouncement(`Gok vastgezet: ${formatGuess(toTenths(value))}.`);
-    if (session.mode === "pack" && !card.isPractice && card.grade.kind === "numeric") {
-      useGuessStore
-        .getState()
-        .record(card.gradeId, makeGuessRecord(value, card.grade.value, new Date()));
-    }
-  };
-  const skipGuess = () => {
-    if (entry) setSessionGuesses((all) => ({ ...all, [entry.card.id]: null }));
-  };
 
   const goNext = useCallback(() => {
     if (step.kind !== "card") return;
     if (step.index + 1 < entries.length) {
       setResting(false);
+      setGuessValue(null);
       setStep({ kind: "card", index: step.index + 1 });
     } else if (session.mode === "pack" && entries.length > 1) {
       setResting(false);
@@ -161,6 +199,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
 
   const replay = useCallback(() => {
     setResting(false);
+    setGuessValue(null);
     setRun((r) => r + 1);
   }, []);
 
@@ -229,60 +268,64 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     };
   }, [step.kind, entries, reduced]);
 
-  // ——— Gokken: neutraal podium ————————————————————————————————————————————
-  useEffect(() => {
-    if (!asking || !canvas.current) return;
-    const element = canvas.current;
-    const ctx = element.getContext("2d");
-    if (!ctx) return;
-    let disposed = false;
-    let frame = 0;
-    let { stage, unit } = sizeCanvas(element);
-    const onResize = () => {
-      ({ stage, unit } = sizeCanvas(element));
-    };
-    window.addEventListener("resize", onResize);
-    const start = performance.now();
-    const loop = (now: number) => {
-      if (disposed) return;
-      renderIdleFrame({ ctx, unit }, stage, (now - start) / 1000);
-      frame = requestAnimationFrame(loop);
-    };
-    frame = requestAnimationFrame(loop);
-    return () => {
-      disposed = true;
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", onResize);
-    };
-  }, [asking]);
-
   // ——— Eén kaart ——————————————————————————————————————————————————————————
   const cardIndex = step.kind === "card" ? step.index : -1;
   useEffect(() => {
-    if (cardIndex < 0 || asking || !canvas.current) return;
+    if (cardIndex < 0 || !canvas.current) return;
     const current = entries[cardIndex];
     if (!current) return;
     const element = canvas.current;
     const ctx = element.getContext("2d");
     if (!ctx) return;
     const { card } = current;
+    const actual = card.grade.kind === "numeric" ? card.grade.value : null;
     let disposed = false;
     let frame = 0;
     const handles: SoundHandle[] = [];
-    const helderziende =
-      currentGuess !== null &&
-      card.grade.kind === "numeric" &&
-      guessOutcome(currentGuess, card.grade.value).kind === "exact";
-    const plan = buildWalkoutPlan(
+    let tension: SoundHandle | null = null;
+    let crowd: SoundHandle | null = null;
+
+    // Wat weten we al van deze kaart? Een gok uit deze sessie, of een bewaarde gok.
+    const sessionKnown = sessionGuessesRef.current;
+    const known: number | null | undefined =
+      card.id in sessionKnown
+        ? sessionKnown[card.id]
+        : card.isPractice
+          ? undefined
+          : storedGuessesRef.current?.[card.gradeId]?.gok;
+    const live =
+      known === undefined &&
+      shouldGuess({
+        mode: guessMode,
+        session: session.mode,
+        index: cardIndex,
+        count: entries.length,
+        numeric: actual !== null,
+      });
+    const scripted = typeof known === "number" && actual !== null;
+    const exact = (value: number | null) =>
+      value !== null && actual !== null && guessOutcome(value, actual).kind === "exact";
+
+    const optionsFor = (gok: WalkoutPlanOptions["gok"], helderziende = false) => ({
+      reduced,
+      helderziende,
+      gok,
+    });
+    let plan = buildWalkoutPlan(
       { tier: card.tier, fail: card.isFail },
-      { reduced, helderziende },
+      live
+        ? optionsFor({ lockedAfter: null, guess: null })
+        : scripted
+          ? optionsFor({ lockedAfter: SCRIPTED_LOCK_AFTER, guess: known }, exact(known))
+          : optionsFor(undefined),
     );
-    const peakAfter = plan.revealAt - plan.phases.flip.start;
+    let peakAfter = plan.revealAt - plan.phases.flip.start;
     const baseSpeed = SPEED[speedSetting];
 
     const play = (event: SoundEvent) => {
       const handle = playLiveCue(event, { tier: card.tier, peakAfter });
       if (handle && event.duration) handles.push(handle);
+      if (handle && event.cue === "stadion") crowd = handle;
     };
 
     void ensureCardFont().then((family) => {
@@ -304,29 +347,83 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
           silhouette: renderCardCanvas(card, faceWidth, { pixelRatio: 1, side: "silhouette" }),
           family,
         };
+        // Waar de kaart in beeld staat (CSS-pixels): voor "tik op de kaart" en het commentaar.
+        const box = element.getBoundingClientRect();
+        const { cx, cy, w, h } = scene.layout;
+        const sx = box.width / stage.w;
+        const sy = box.height / stage.h;
+        cardRect.current = new DOMRect(
+          box.left + (cx - w * 0.55) * sx,
+          box.top + (cy - h * 0.55) * sy,
+          w * 1.1 * sx,
+          h * 1.1 * sy,
+        );
+        // Iets ruimer dan de kaart: hij zoomt tijdens het gokmoment langzaam in.
+        setCommentTop(Math.min(92, ((cy + h * 0.62) / stage.h) * 100));
       };
       build();
       window.addEventListener("resize", build);
 
-      // "Direct": meteen naar het moment van de onthulling.
-      let t = speedSetting === "direct" ? plan.revealAt - 0.03 : 0;
+      const gokStart = plan.phases.gok.start;
+      // "Direct": meteen naar het gokmoment, of anders naar de onthulling.
+      let t = speedSetting === "direct" ? (plan.gok ? gokStart : plan.revealAt - 0.03) : 0;
       let previous = t - 1e-6;
       let revealed = false;
       let rested = false;
+      let opened = false;
+      let locked = !live;
       let last = performance.now();
+
       skipRef.current = () => {
+        if (live && !locked) {
+          // Overslaan brengt je naar het gokmoment, nooit eroverheen.
+          if (t < gokStart) {
+            t = gokStart;
+            previous = t - 1e-6;
+          }
+          return;
+        }
         if (t < plan.revealAt - 0.03) {
           t = plan.revealAt - 0.03;
           previous = t;
         }
       };
 
+      lockRef.current = (value) => {
+        if (!live || locked || t < gokStart) return false;
+        locked = true;
+        tension?.stop();
+        tension = null;
+        plan = buildWalkoutPlan(
+          { tier: card.tier, fail: card.isFail },
+          optionsFor({ lockedAfter: t - gokStart, guess: value }, exact(value)),
+        );
+        peakAfter = plan.revealAt - plan.phases.flip.start;
+        scene = createWalkoutScene(card, plan, stage, { reserveBottom: reserve });
+        // De klik staat op dit moment in de nieuwe tijdlijn: volgende frame afspelen.
+        previous = t - 1e-6;
+        return true;
+      };
+
       const loop = (now: number) => {
         if (disposed) return window.removeEventListener("resize", build);
         const dt = Math.min(0.05, (now - last) / 1000);
         last = now;
-        const speed = t >= plan.restAt ? 1 : holdRef.current ? HOLD_SPEED : baseSpeed;
+        const waiting = live && !locked && t >= gokStart;
+        const speed = t >= plan.restAt || waiting ? 1 : holdRef.current ? HOLD_SPEED : baseSpeed;
         t += dt * speed;
+        timeRef.current = t;
+
+        if (live && !opened && t >= gokStart) {
+          // Het gokmoment begint: de spanningsloop neemt het over van het stadion.
+          opened = true;
+          crowd?.stop();
+          tension = startLiveTension();
+          setGuessOpen(true);
+          setAnnouncement(
+            "Wat heb je? Sleep omhoog of omlaag, of gebruik de pijltjes. Enter zet je gok vast. Tik op de kaart om niet te gokken.",
+          );
+        }
         for (const event of plan.events) if (event.at > previous && event.at <= t) play(event);
         if (!revealed && t >= plan.revealAt) {
           revealed = true;
@@ -346,7 +443,12 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
           setResting(true);
         }
         previous = t;
-        renderWalkoutFrame({ ctx, unit }, scene, assets, t);
+        const view: GuessView | undefined = live
+          ? viewRef.current
+          : scripted
+            ? { value: scriptedGuessView(plan, t) }
+            : undefined;
+        renderWalkoutFrame({ ctx, unit }, scene, assets, t, view);
         frame = requestAnimationFrame(loop);
       };
       frame = requestAnimationFrame(loop);
@@ -355,38 +457,178 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
+      tension?.stop();
       handles.forEach((handle) => handle.stop());
+      lockRef.current = () => false;
     };
-  }, [cardIndex, run, entries, reduced, speedSetting, session.mode, reveal, asking, currentGuess]);
+  }, [cardIndex, run, entries, reduced, speedSetting, session.mode, reveal, guessMode]);
+
+  // ——— Gokken ——————————————————————————————————————————————————————————————
+  /** Nieuwe stand van de teller (in tienden, mag een fractie zijn). */
+  const setLiveValue = (tenths: number) => {
+    const view = viewRef.current;
+    const rounded = Math.round(tenths);
+    const before = view.value === null ? null : Math.round(view.value);
+    view.value = tenths;
+    if (rounded === before) return;
+    view.wobbleSince = rounded === 67 ? timeRef.current : null;
+    setGuessValue(rounded);
+    const now = performance.now();
+    if (now - lastTick.current > 25) {
+      lastTick.current = now;
+      playLiveCue({ at: 0, cue: "tik", pitch: tickFrequency(rounded) }, { tier: "zilver" });
+      haptic("tap");
+    }
+  };
+
+  const markAction = () => {
+    setHint(false);
+    setActions((n) => n + 1);
+  };
+
+  /** Gok vastzetten (value) of zonder gok omdraaien (null). */
+  const lock = (value: number | null) => {
+    const card = entry?.card;
+    if (!card || !lockRef.current(value)) return;
+    setGuessOpen(false);
+    setHint(false);
+    dragRef.current = null;
+    setSessionGuesses((all) => ({ ...all, [card.id]: value }));
+    if (value === null) {
+      setAnnouncement("Zonder gok omgedraaid.");
+      return;
+    }
+    haptic("success");
+    setAnnouncement(`Gok vastgezet: ${formatGuess(Math.round(value * 10))}.`);
+    if (session.mode === "pack" && !card.isPractice && card.grade.kind === "numeric") {
+      useGuessStore
+        .getState()
+        .record(card.gradeId, makeGuessRecord(value, card.grade.value, new Date()));
+    }
+  };
+
+  // Elke nieuwe kaart begint met een "?".
+  useEffect(() => {
+    viewRef.current = { value: null, wobbleSince: null };
+    wheelRest.current = 0;
+  }, [cardIndex, run]);
+
+  // De hint verschijnt pas na 8 seconden zonder actie. Nooit een automatische skip.
+  useEffect(() => {
+    if (!guessOpen) return;
+    const id = setTimeout(() => setHint(true), HINT_AFTER);
+    return () => clearTimeout(id);
+  }, [guessOpen, actions]);
+
+  useEffect(() => {
+    if (guessOpen) sliderRef.current?.focus({ preventScroll: true });
+  }, [guessOpen]);
 
   // ——— Bediening ———————————————————————————————————————————————————————————
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-      else if (asking) return;
-      else if (event.key === "ArrowRight") {
+      if (event.key === "Escape") {
+        close();
+        return;
+      }
+      if (guessOpen && entry) {
+        // Enter op een knop (zoals geluid uit) is voor die knop, niet voor je gok.
+        if ((event.target as HTMLElement | null)?.closest?.("button")) return;
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const value = viewRef.current.value;
+          lock(value === null ? null : lockValue(value));
+          return;
+        }
+        const base = viewRef.current.value ?? anchorFor(entry.card);
+        const next = keyToGuess(Math.round(base), event.key);
+        if (next !== null) {
+          event.preventDefault();
+          markAction();
+          setLiveValue(next);
+        }
+        return;
+      }
+      if (event.key === "ArrowRight") {
         if (resting) goNext();
         else skipRef.current();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close, resting, goNext, asking]);
+  });
 
-  const onPointerDown = (event: PointerEvent) => {
-    if (asking || (event.target as HTMLElement).closest("button, a")) return;
+  const insideCard = (x: number, y: number) => {
+    const rect = cardRect.current;
+    return Boolean(rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
+  };
+
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest("button, a")) return;
+    if (guessOpen && entry) {
+      dragRef.current = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        start: viewRef.current.value ?? anchorFor(entry.card),
+        moved: false,
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+      markAction();
+      return;
+    }
     holdTimer.current = setTimeout(() => {
       holdRef.current = true;
       setHolding(true);
     }, HOLD_MS);
   };
-  const onPointerUp = (event: PointerEvent) => {
-    if (asking || (event.target as HTMLElement).closest("button, a")) return;
+
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!guessOpen || !drag || drag.pointerId !== event.pointerId) return;
+    const dy = drag.y - event.clientY;
+    if (!drag.moved && Math.abs(dy) < DRAG_THRESHOLD) return;
+    drag.moved = true;
+    setLiveValue(dragToGuess(drag.start, dy));
+  };
+
+  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest("button, a")) return;
+    const drag = dragRef.current;
+    if (guessOpen && drag && drag.pointerId === event.pointerId) {
+      dragRef.current = null;
+      const value = viewRef.current.value;
+      if (drag.moved && value !== null) {
+        // Loslaten = vastgezet.
+        lock(lockValue(value));
+      } else if (insideCard(event.clientX, event.clientY)) {
+        // Tik op de kaart: met een gekozen getal vastzetten, anders zonder gok omdraaien.
+        lock(value === null ? null : lockValue(value));
+      }
+      return;
+    }
     if (holdTimer.current) clearTimeout(holdTimer.current);
     if (!holdRef.current && !resting && step.kind !== "summary") skipRef.current();
     holdRef.current = false;
     setHolding(false);
   };
+
+  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (!guessOpen || !entry) return;
+    const { steps, rest } = wheelSteps(wheelRest.current, event.deltaY);
+    wheelRest.current = rest;
+    if (steps === 0) return;
+    markAction();
+    const base = viewRef.current.value ?? anchorFor(entry.card);
+    setLiveValue(clampGuess(Math.round(base) + steps));
+  };
+
+  const commentKey = guessOpen
+    ? guessValue === null
+      ? "gok.vraag"
+      : guessCommentKey(guessValue)
+    : null;
+  const comment = useCopy(commentKey);
 
   const isLast = step.kind === "card" && step.index === entries.length - 1;
   const nextLabel = !isLast
@@ -404,24 +646,70 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
       tabIndex={-1}
       data-mode="dark"
       data-fullscreen
-      className="fixed inset-0 z-[80] touch-none bg-black text-white outline-none select-none"
+      className={cn(
+        "fixed inset-0 z-[80] touch-none bg-black text-white outline-none select-none",
+        guessOpen && "cursor-ns-resize",
+      )}
       onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      onWheel={onWheel}
     >
       <canvas ref={canvas} aria-hidden className="absolute inset-0 size-full" />
       <p className="sr-only" aria-live="assertive">
         {announcement}
       </p>
 
+      {/* Het gokmoment: commentaar onder de kaart, de hint pas na 8 seconden stilte. */}
       <AnimatePresence>
-        {asking && entry && (
-          <GuessScreen
-            key={entry.card.id}
-            card={entry.card}
-            onLock={lockGuess}
-            onSkip={skipGuess}
-          />
+        {guessOpen && (
+          <motion.div
+            key="gok"
+            className="pointer-events-none absolute inset-x-0 px-6 text-center"
+            style={{ top: `${commentTop}%` }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.15 } }}
+          >
+            <div
+              ref={sliderRef}
+              role="slider"
+              tabIndex={0}
+              aria-label="Jouw gok"
+              aria-valuemin={1}
+              aria-valuemax={10}
+              aria-valuenow={guessValue === null ? undefined : guessValue / 10}
+              aria-valuetext={guessValue === null ? "Nog geen gok" : formatGuess(guessValue)}
+              className="sr-only"
+            />
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.p
+                key={commentKey ?? "leeg"}
+                className="mx-auto max-w-md text-[0.95rem] font-medium text-balance text-white/80"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.14 }}
+              >
+                {comment}
+              </motion.p>
+            </AnimatePresence>
+            <AnimatePresence>
+              {hint && (
+                <motion.p
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-white/55"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <ChevronsUpDown size={16} aria-hidden />
+                  Sleep omhoog of omlaag
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -456,7 +744,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         </div>
       </div>
 
-      {step.kind !== "summary" && !resting && !asking && (
+      {step.kind !== "summary" && !resting && !guessOpen && (
         <div className="pb-safe pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
           <p className="text-sm text-white/45">
             {holding ? "Sneller…" : "Tik om over te slaan · houd ingedrukt voor sneller"}

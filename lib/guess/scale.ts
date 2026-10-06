@@ -36,17 +36,7 @@ export function guessCommentKey(tenths: number): CopyKey {
   return "gok.commentaar.genie";
 }
 
-/** Kleurtint van rood (1,0) via geel bij de 5,5 naar groen (10,0). */
-export function guessHue(tenths: number): number {
-  const t = clampGuess(tenths);
-  return t <= 55 ? ((t - 10) / 45) * 50 : 50 + ((t - 55) / 45) * 85;
-}
-
-export function guessColor(tenths: number): string {
-  return `hsl(${guessHue(tenths).toFixed(1)} 92% 62%)`;
-}
-
-/** Toonhoogte van het tikje bij de slider: twee octaven omhoog over de hele schaal. */
+/** Toonhoogte van het tikje bij de gokteller: twee octaven omhoog over de hele schaal. */
 export function tickFrequency(tenths: number): number {
   return 330 * 2 ** (((clampGuess(tenths) - GUESS_MIN) / (GUESS_MAX - GUESS_MIN)) * 2);
 }

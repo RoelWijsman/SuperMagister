@@ -12,6 +12,7 @@ import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { useDataSource } from "@/lib/data/context";
 import { useGuesses } from "@/lib/data/guesses";
 import { useRevealState } from "@/lib/data/hooks";
+import type { GuessMode } from "@/lib/guess/input";
 import { useIsClient } from "@/lib/hooks";
 import { notify } from "@/lib/notify";
 import type { TimeOfDay } from "@/lib/theme/time-of-day";
@@ -73,6 +74,12 @@ const SKY_OPTIONS: { value: TimeOfDay | "auto"; label: string }[] = [
   { value: "nacht", label: "Nacht" },
 ];
 
+const GUESS_HINT: Record<GuessMode, string> = {
+  elke: "Vóór elke onthulling gok je wat je hebt. Bij V, G en O slaan we het over.",
+  laatste: "Alleen bij de laatste kaart, en dat is altijd de beste. Grote packs gaan zo sneller.",
+  uit: "Geen gokmoment: de kaarten draaien meteen om.",
+};
+
 const SPEED_HINT: Record<WalkoutSpeed, string> = {
   normaal: "De hele show, met alles erop en eraan.",
   snel: "Dezelfde show, bijna twee keer zo snel.",
@@ -110,12 +117,21 @@ function WalkoutSettings() {
         checked={settings.walkoutAuto}
         onCheckedChange={(value) => settings.set("walkoutAuto", value)}
       />
-      <Switch
-        label="Gok eerst je cijfer"
-        description="Vóór elke kaart gok je wat je hebt. Bij V, G en O slaan we het over."
-        checked={settings.guessEnabled}
-        onCheckedChange={(value) => settings.set("guessEnabled", value)}
-      />
+      <Field label="Gokken">
+        <Tabs<GuessMode>
+          id="gokken"
+          aria-label="Bij welke kaarten je gokt"
+          size="sm"
+          value={settings.guessMode}
+          onValueChange={(value) => settings.set("guessMode", value)}
+          items={[
+            { value: "elke", label: "Elke kaart" },
+            { value: "laatste", label: "Alleen de laatste" },
+            { value: "uit", label: "Uit" },
+          ]}
+        />
+      </Field>
+      <p className="-mt-1 mb-2 text-sm text-ink-3">{GUESS_HINT[settings.guessMode]}</p>
       <div className="mt-4 flex flex-wrap gap-3">
         <Button variant="glass" icon={Sparkles} onClick={() => startPractice()}>
           Oefen een walkout

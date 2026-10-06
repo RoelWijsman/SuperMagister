@@ -1,4 +1,5 @@
 import type { CardTier } from "@/lib/calc/tiers";
+import { tickFrequency } from "@/lib/guess/scale";
 
 /**
  * De walkout als tijdlijn (§11). Alles hier is een pure functie: dezelfde
@@ -7,7 +8,17 @@ import type { CardTier } from "@/lib/calc/tiers";
  * dezelfde tijdlijn.
  */
 export type WalkoutPhase =
-  "intro" | "flares" | "vak" | "weging" | "toets" | "silhouet" | "flip" | "feest" | "rust";
+  | "intro"
+  | "flares"
+  | "vak"
+  | "weging"
+  | "toets"
+  | "silhouet"
+  /** Feature A: het silhouet hangt stil en jij gokt. Live open tot je vastzet. */
+  | "gok"
+  | "flip"
+  | "feest"
+  | "rust";
 
 export const WALKOUT_PHASES: readonly WalkoutPhase[] = [
   "intro",
@@ -16,6 +27,7 @@ export const WALKOUT_PHASES: readonly WalkoutPhase[] = [
   "weging",
   "toets",
   "silhouet",
+  "gok",
   "flip",
   "feest",
   "rust",
@@ -36,8 +48,10 @@ export type SoundCue =
   | "glans"
   /** Feature A: precies goed gegokt. */
   | "helderziende"
-  /** Feature A: het tikje van de gokslider. */
+  /** Feature A: de gokteller rolt een tiende verder. */
   | "tik"
+  /** Feature A: de spanningsloop tijdens het gokmoment (hartslag en drone). */
+  | "spanning"
   /** Feature A: je gok vastzetten. */
   | "vastzetten";
 
@@ -50,8 +64,10 @@ export interface SoundEvent {
   pan?: number;
   /** Voor lange geluiden (stadion, flares, juichen). */
   duration?: number;
-  /** Toonhoogte in Hz (het tikje van de gokslider). */
+  /** Toonhoogte in Hz (het tikje van de gokteller). */
   pitch?: number;
+  /** Waar in een lang geluid we beginnen (de spanningsloop wordt live in stukken gespeeld). */
+  offset?: number;
 }
 
 export type FireworkKind = "pioen" | "palm" | "regen";
@@ -104,7 +120,31 @@ export interface WalkoutPlan {
   events: SoundEvent[];
   fireworks: FireworkCue[];
   fx: TierFx;
+  /** Feature A: het gokmoment, of null als er niet gegokt wordt. */
+  gok: GuessMoment | null;
 }
+
+export interface GuessMoment {
+  /** Live en nog niet vastgezet: het silhouet blijft hangen. */
+  open: boolean;
+  /** De vastgezette gok, of null als je zonder gok liet omdraaien. */
+  guess: number | null;
+  /** Moment van vastzetten (de klik). */
+  lockAt: number;
+  /** Het spookcijfer verschijnt naast de rating… */
+  ghostAt: number;
+  /** …en schuift er met een klap tegenaan. */
+  impactAt: number;
+}
+
+/** Na de klik: een halve seconde stilte, dan de flip. Zonder gok draait hij meteen om. */
+const LOCK_SILENCE = 0.5;
+const SKIP_DELAY = 0.05;
+/** Gescript gokmoment (herhaling, video): eerst "?", dan rolt de teller naar je gok. */
+const SCRIPT = { question: 0.7, roll: 1.6, settle: 0.25 } as const;
+export const SCRIPTED_LOCK_AFTER = SCRIPT.question + SCRIPT.roll + SCRIPT.settle;
+/** Na de flip: spookcijfer verschijnen, dan schuiven tot de klap. */
+const GHOST = { delay: 0.1, slide: 0.45 } as const;
 
 const RAINBOW = ["#ff4d6d", "#ffb347", "#ffe066", "#4ade80", "#38bdf8", "#a78bfa"] as const;
 
@@ -191,7 +231,7 @@ const FAIL_FX: TierFx = {
   boom: 0.35,
 };
 
-type Durations = Record<Exclude<WalkoutPhase, "rust">, number>;
+type Durations = Record<Exclude<WalkoutPhase, "rust" | "gok">, number>;
 
 const BASE: Durations = {
   intro: 1.1,
@@ -272,12 +312,25 @@ function fireworksFor(tier: CardTier, fx: TierFx, revealAt: number): FireworkCue
   });
 }
 
+export interface WalkoutPlanOptions {
+  reduced?: boolean;
+  /** Precies goed gegokt. */
+  helderziende?: boolean;
+  /**
+   * Feature A: het gokmoment. lockedAfter is hoe lang na het begin van het
+   * gokmoment de gok vastgezet werd; null = live en nog open.
+   */
+  gok?: { lockedAfter: number | null; guess: number | null };
+}
+
 export function buildWalkoutPlan(
   card: { tier: CardTier; fail: boolean },
-  options: { reduced?: boolean; helderziende?: boolean } = {},
+  options: WalkoutPlanOptions = {},
 ): WalkoutPlan {
   const reduced = options.reduced ?? false;
   const helderziende = options.helderziende ?? false;
+  const gokOption = options.gok;
+  const guess = gokOption?.guess ?? null;
   const { tier, fail } = card;
   const base = fail ? FAIL_FX : FX[tier];
   const fx: TierFx = reduced
@@ -285,26 +338,59 @@ export function buildWalkoutPlan(
     : base;
 
   const lengths = { ...durationsFor(tier, fail, reduced) };
-  // Na een precies goede gok moet "HELDERZIENDE" even te lezen zijn.
-  if (helderziende) lengths.feest = Math.max(lengths.feest, 2 - lengths.flip * 0.5);
+  const ghostSlide = reduced ? 0 : GHOST.slide;
+  if (gokOption && guess !== null) {
+    // Na de flip schuift het spookcijfer tegen de rating; daarna nog even kijken.
+    const afterFlip = GHOST.delay + ghostSlide + (helderziende ? 2 : 1.4);
+    lengths.feest = Math.max(lengths.feest, afterFlip);
+  } else if (helderziende) {
+    // Na een precies goede gok moet "HELDERZIENDE" even te lezen zijn.
+    // (met een piepkleine marge tegen afrondingsruis)
+    lengths.feest = Math.max(lengths.feest, 2 - lengths.flip * 0.5 + 1e-6);
+  }
+  const gokLength = !gokOption
+    ? 0
+    : gokOption.lockedAfter === null
+      ? Infinity
+      : gokOption.lockedAfter + (guess !== null ? LOCK_SILENCE : SKIP_DELAY);
+
   const phases = {} as WalkoutPlan["phases"];
   let cursor = 0;
   for (const phase of WALKOUT_PHASES) {
-    const length = phase === "rust" ? 600 : lengths[phase];
+    const length = phase === "rust" ? 600 : phase === "gok" ? gokLength : lengths[phase];
     phases[phase] = { start: cursor, end: cursor + length };
     cursor += length;
   }
 
-  const flipLength = phases.flip.end - phases.flip.start;
-  const revealAt = phases.flip.start + flipLength * 0.5;
+  // Met lengths en niet met phases rekenen: bij een open gokmoment is alles daarna oneindig.
+  const revealAt = phases.flip.start + lengths.flip * 0.5;
   const restAt = phases.rust.start;
+  const flipEnd = phases.flip.start + lengths.flip;
+  const lockAt = gokOption
+    ? gokOption.lockedAfter === null
+      ? Infinity
+      : phases.gok.start + gokOption.lockedAfter
+    : phases.gok.start;
+  const ghostAt = gokOption && guess !== null ? flipEnd + GHOST.delay : Infinity;
+  const impactAt = ghostAt + ghostSlide;
+  const gok: GuessMoment | null = gokOption
+    ? { open: gokOption.lockedAfter === null, guess, lockAt, ghostAt, impactAt }
+    : null;
   const fireworks = fireworksFor(tier, fx, revealAt);
   const lastBurst = fireworks.reduce((max, f) => Math.max(max, f.burstAt), 0);
   const duration = Math.max(restAt + 1.2, fireworks.length ? lastBurst + 2.2 : 0);
 
-  const events: SoundEvent[] = [
-    { at: 0, cue: "stadion", strength: fx.crowd, duration: restAt + 2 },
-  ];
+  const events: SoundEvent[] = [];
+  if (gok) {
+    // Het stadion zwijgt tijdens het gokmoment en komt terug bij de flip.
+    events.push({ at: 0, cue: "stadion", strength: fx.crowd, duration: phases.gok.start + 0.8 });
+    if (Number.isFinite(phases.flip.start)) {
+      const back = phases.flip.start - 0.3;
+      events.push({ at: back, cue: "stadion", strength: fx.crowd, duration: restAt + 2 - back });
+    }
+  } else {
+    events.push({ at: 0, cue: "stadion", strength: fx.crowd, duration: restAt + 2 });
+  }
   if (fx.flares > 0) {
     events.push({
       at: phases.flares.start,
@@ -343,7 +429,19 @@ export function buildWalkoutPlan(
       strength: firework.size,
     });
   }
-  if (helderziende) events.push({ at: revealAt + 0.3, cue: "helderziende" });
+  if (gok && Number.isFinite(lockAt)) {
+    // Live speelt de overlay de spanning zelf (de duur is dan nog onbekend).
+    events.push({ at: phases.gok.start, cue: "spanning", duration: lockAt - phases.gok.start });
+  }
+  if (gok && guess !== null) {
+    events.push(...scriptedTicks(phases.gok.start, lockAt, guess));
+    events.push({ at: lockAt, cue: "vastzetten" });
+    events.push({ at: ghostAt, cue: "whoosh", pan: 0.3 });
+    events.push({ at: impactAt, cue: "boem", strength: 0.6 });
+  }
+  if (helderziende) {
+    events.push({ at: gok && guess !== null ? impactAt : revealAt + 0.3, cue: "helderziende" });
+  }
   events.sort((a, b) => a.at - b.at);
 
   return {
@@ -358,7 +456,45 @@ export function buildWalkoutPlan(
     fireworks,
     fx,
     helderziende,
+    gok,
   };
+}
+
+const easeOutCubic = (x: number) => 1 - (1 - x) ** 3;
+
+/** De teller in tienden bij een gescript gokmoment (herhaling, video); null = nog "?". */
+function scriptedValue(start: number, lockAt: number, guess: number, t: number): number | null {
+  const rollEnd = lockAt - SCRIPT.settle;
+  const rollStart = rollEnd - SCRIPT.roll;
+  if (t < Math.max(start, rollStart)) return null;
+  const target = Math.round(guess * 10);
+  if (t >= rollEnd) return target;
+  const p = easeOutCubic((t - rollStart) / SCRIPT.roll);
+  return 10 + (target - 10) * p;
+}
+
+/** Wat de gokteller laat zien bij een gescript gokmoment, in tienden; null = "?". */
+export function scriptedGuessView(plan: WalkoutPlan, t: number): number | null {
+  const gok = plan.gok;
+  if (!gok || gok.guess === null || !Number.isFinite(gok.lockAt)) return null;
+  return scriptedValue(plan.phases.gok.start, gok.lockAt, gok.guess, t);
+}
+
+/** Een tikje bij elke tiende die de gescripte teller passeert. */
+function scriptedTicks(start: number, lockAt: number, guess: number): SoundEvent[] {
+  if (!Number.isFinite(lockAt)) return [];
+  const ticks: SoundEvent[] = [];
+  let last = -1;
+  for (let t = lockAt - SCRIPT.settle - SCRIPT.roll; t <= lockAt; t += 1 / 120) {
+    const value = scriptedValue(start, lockAt, guess, t);
+    if (value === null) continue;
+    const tenth = Math.floor(value + 1e-9);
+    if (tenth !== last) {
+      if (last !== -1) ticks.push({ at: t, cue: "tik", pitch: tickFrequency(tenth) });
+      last = tenth;
+    }
+  }
+  return ticks;
 }
 
 /** In welke fase zitten we op tijd t, en hoe ver (0–1)? */

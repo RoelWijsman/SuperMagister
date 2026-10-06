@@ -105,7 +105,7 @@ export function StyleguideView() {
       <div className="mb-5 space-y-5">
         <Block
           title="Walkout"
-          note="Spoel door de tijdlijn. Elk tijdstip geeft altijd precies hetzelfde frame."
+          note="Spoel door de tijdlijn. Elk tijdstip geeft altijd precies hetzelfde frame, ook het gokmoment."
         >
           <WalkoutScrubber deck={deck} />
         </Block>
@@ -119,7 +119,7 @@ export function StyleguideView() {
 
         <Block
           title="Gok je cijfer"
-          note="Feature A: de gokslider, de strook onder de kaart, gok tegenover echt en de prestaties."
+          note="Feature A: de strook onder de kaart, gok tegenover echt en de prestaties."
         >
           <GuessSamples />
         </Block>

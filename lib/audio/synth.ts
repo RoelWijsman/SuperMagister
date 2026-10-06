@@ -1,6 +1,7 @@
 import { createRandom } from "@/lib/random";
 import type { CardTier } from "@/lib/calc/tiers";
 import type { SoundEvent } from "@/lib/walkout/plan";
+import { dubAfter, heartbeats, intensityAt } from "@/lib/walkout/tension";
 
 /**
  * Alle geluiden van SuperMagister, gesynthetiseerd met Web Audio: geen
@@ -574,6 +575,105 @@ function helderziende(ctx: Ctx, out: AudioNode, when: number): SoundHandle {
   return noop;
 }
 
+/**
+ * Feature A: de spanningsloop tijdens het gokmoment. Een hartslag (lub-dub)
+ * die steeds sneller gaat en een drone die aanzwelt. `offset` is waar in de
+ * loop dit stuk begint; het ritme komt uit tension.ts, dus beeld en geluid
+ * lopen gelijk. Stukken sluiten met een korte overgang op elkaar aan.
+ */
+function spanning(
+  ctx: Ctx,
+  out: AudioNode,
+  when: number,
+  duration: number,
+  offset = 0,
+): SoundHandle {
+  const end = when + duration;
+  const sources: AudioScheduledSourceNode[] = [];
+  const gains: GainNode[] = [];
+  const fadeIn = offset === 0 ? 1.5 : 0.05;
+
+  const kickBus = filter(ctx, "lowpass", 320);
+  kickBus.connect(out);
+  const kick = (at: number, strength: number) => {
+    if (at >= end) return;
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(72, at);
+    osc.frequency.exponentialRampToValueAtTime(42, at + 0.14);
+    const gain = envelope(ctx, at, [
+      [0, 0.0001],
+      [0.006, strength],
+      [0.24, 0.0001],
+    ]);
+    osc.connect(gain).connect(kickBus);
+    osc.start(at);
+    osc.stop(at + 0.26);
+    sources.push(osc);
+    gains.push(gain);
+  };
+  // Ook slagen van net vóór dit stuk: hun "dub" kan er nog in vallen.
+  for (const beat of heartbeats(offset - 1.5, offset + duration)) {
+    const loud = 0.5 + 0.35 * intensityAt(beat);
+    const dub = dubAfter(beat);
+    if (beat >= offset) kick(when + (beat - offset), loud);
+    if (dub >= offset) kick(when + (dub - offset), loud * 0.55);
+  }
+
+  const from = intensityAt(offset);
+  const to = intensityAt(offset + duration);
+  const low = filter(ctx, "lowpass", 260 + 1100 * from, 0.9);
+  low.frequency.linearRampToValueAtTime(260 + 1100 * to, end);
+  const drone = ctx.createGain();
+  drone.gain.setValueAtTime(0.0001, when);
+  drone.gain.linearRampToValueAtTime(0.03 + 0.06 * from, when + fadeIn);
+  drone.gain.linearRampToValueAtTime(0.03 + 0.06 * to, Math.max(when + fadeIn, end - 0.05));
+  drone.gain.linearRampToValueAtTime(0.0001, end);
+  gains.push(drone);
+  for (const [semitones, detune] of [
+    [-36, -8],
+    [-36, 8],
+    [-29, 0],
+  ] as const) {
+    const osc = ctx.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.value = NOTE(semitones);
+    osc.detune.value = detune;
+    osc.connect(low);
+    osc.start(when);
+    osc.stop(end + 0.05);
+    sources.push(osc);
+  }
+  low.connect(drone).connect(out);
+
+  const air = noiseSource(ctx, "wit", when, duration, true);
+  const band = filter(ctx, "bandpass", 3200, 1.2);
+  const airGain = ctx.createGain();
+  airGain.gain.setValueAtTime(0.0001, when);
+  airGain.gain.linearRampToValueAtTime(0.004 + 0.022 * from, when + fadeIn);
+  airGain.gain.linearRampToValueAtTime(0.004 + 0.022 * to, Math.max(when + fadeIn, end - 0.05));
+  airGain.gain.linearRampToValueAtTime(0.0001, end);
+  air.connect(band).connect(airGain).connect(out);
+  sources.push(air);
+  gains.push(airGain);
+
+  return {
+    stop(at = ctx.currentTime) {
+      for (const gain of gains) {
+        gain.gain.cancelScheduledValues(at);
+        gain.gain.setTargetAtTime(0.0001, at, 0.015);
+      }
+      for (const source of sources) {
+        try {
+          source.stop(at + 0.12);
+        } catch {
+          // Al gestopt.
+        }
+      }
+    },
+  };
+}
+
 /** Speelt één geluid uit de walkout-tijdlijn op `when` (in de tijd van de context). */
 export function playCue(
   ctx: BaseAudioContext,
@@ -614,6 +714,8 @@ export function playCue(
       return tik(ctx, out, when, event.pitch);
     case "vastzetten":
       return vastzetten(ctx, out, when);
+    case "spanning":
+      return spanning(ctx, out, when, event.duration ?? 6, event.offset ?? 0);
   }
 }
 

@@ -5,7 +5,6 @@ import {
   GUESS_MAX,
   GUESS_MIN,
   guessCommentKey,
-  guessHue,
   isSixSeven,
   tickFrequency,
 } from "./scale";
@@ -59,15 +58,7 @@ describe("guessCommentKey", () => {
   });
 });
 
-describe("kleur en geluid", () => {
-  it("kleurt van rood via geel naar groen", () => {
-    expect(guessHue(10)).toBe(0);
-    expect(guessHue(55)).toBeGreaterThan(40);
-    expect(guessHue(55)).toBeLessThan(60);
-    expect(guessHue(100)).toBeGreaterThan(120);
-    for (let t = 11; t <= 100; t++) expect(guessHue(t)).toBeGreaterThan(guessHue(t - 1));
-  });
-
+describe("geluid", () => {
   it("tikt twee octaven omhoog van 1,0 naar 10,0", () => {
     expect(tickFrequency(100) / tickFrequency(10)).toBeCloseTo(4);
     for (let t = 11; t <= 100; t++) expect(tickFrequency(t)).toBeGreaterThan(tickFrequency(t - 1));

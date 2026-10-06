@@ -45,6 +45,45 @@ export function unlockAudio(): AudioContext | null {
   return context;
 }
 
+/**
+ * Feature A: de spanningsloop live, zolang het gokmoment duurt. In stukken van
+ * 12 seconden, zodat hij zo lang kan duren als jij nodig hebt. Altijd ingepland
+ * (ook als het geluid uit staat): de master-volumeknop regelt of je hem hoort.
+ */
+export function startLiveTension(): SoundHandle | null {
+  const ctx = context;
+  const out = master;
+  if (!ctx || !out) return null;
+  const chunk = 12;
+  const start = ctx.currentTime + 0.02;
+  const handles: SoundHandle[] = [];
+  let scheduled = 0;
+  const schedule = () => {
+    while (scheduled < ctx.currentTime - start + chunk) {
+      handles.push(
+        playCue(
+          ctx,
+          out,
+          { at: 0, cue: "spanning", duration: chunk, offset: scheduled },
+          start + scheduled,
+          {
+            tier: "zilver",
+          },
+        ),
+      );
+      scheduled += chunk;
+    }
+  };
+  schedule();
+  const timer = setInterval(schedule, 4000);
+  return {
+    stop(at = ctx.currentTime) {
+      clearInterval(timer);
+      handles.forEach((handle) => handle.stop(at));
+    },
+  };
+}
+
 /** Speelt een cue nu meteen (live walkout). Geeft null als geluid uit staat. */
 export function playLiveCue(
   event: SoundEvent,

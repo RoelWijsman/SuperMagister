@@ -13,7 +13,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | ---- | ------------------------------------------------------------------------------------------ | -------- |
 | 1    | Fundament: design system, thema's, demo-data, app-shell, paginatransities, command palette | ✅ Klaar |
 | 2    | Cijferonthulling: walkout, pack-opening, kaarten, geluid, oefenmodus, collectie            | ✅ Klaar |
-| A    | Gok je cijfer: eerst gokken, dan de walkout                                                | ✅ Klaar |
+| A    | Gok je cijfer: het gokmoment midden in de walkout                                          | ✅ Klaar |
 | B    | Walkout als video delen                                                                    | Gepland  |
 | 3    | Dagelijks gebruik: widgets op Vandaag, rooster, huiswerk, focusmodus, studieplan           | Gepland  |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
@@ -58,8 +58,11 @@ kunt veilig rondklikken.
   naar de onthulling te springen, houd ingedrukt om te versnellen.
 - In **Collectie** staan al je kaarten. Tik op een kaart om hem te kantelen, om te draaien, in je
   vitrine te zetten of als afbeelding te delen. Verzameldoelen spelen nieuwe folies vrij.
-- **Gok je cijfer:** vóór elke kaart gok je eerst wat je hebt. Precies goed? HELDERZIENDE. Bij
-  **Cijfers** zie je wat voor gokker je bent, bij **Prestaties** wat je ermee verdiende.
+- **Gok je cijfer:** vlak voor de flip hangt het silhouet gloeiend in beeld en vraagt de kaart
+  "Wat heb je?". Sleep omhoog of omlaag om de teller te laten rollen en laat los om vast te zetten;
+  tik op de kaart als je niet wilt gokken. Precies goed? HELDERZIENDE. Bij **Cijfers** zie je wat
+  voor gokker je bent, bij **Prestaties** wat je ermee verdiende. Liever alleen bij de laatste
+  kaart, of helemaal niet? **Instellingen → Walkout → Gokken.**
 - Alle soorten kaarten bekijken? Kies **Oefen een walkout** in Instellingen of via Ctrl/⌘ K.
 - Het startpack van de demo nog een keer openen? **Instellingen → Walkout → Pack opnieuw
   dichtplakken.**
@@ -73,8 +76,9 @@ kunt veilig rondklikken.
 | `P`         | Privacymodus aan/uit           |
 | `?`         | Overzicht van alle sneltoetsen |
 
-Op het gokscherm: `←` en `→` (of `Page Up`/`Page Down`) om te schuiven, `Enter` om vast te
-zetten. In de walkout: `→` om over te slaan of door te gaan, `Esc` om te sluiten. In de kaartviewer: `←`
+Bij het gokmoment: scrollwiel of `↑`/`↓` om de teller te laten rollen (`Page Up`/`Page Down` per
+hele punt), `Enter` om vast te zetten. In de walkout: `→` om over te slaan of door te gaan, `Esc`
+om te sluiten. In de kaartviewer: `←`
 en `→` om te bladeren, `F` om om te draaien, `Esc` om te sluiten.
 
 ## Koppelen met Magister

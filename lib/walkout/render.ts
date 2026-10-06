@@ -1,6 +1,14 @@
-import { CARD_RATIO, cardGlow, drawSubjectIcon, rgba } from "@/lib/cards/draw";
 import {
-  type Stage,
+  CARD_RATIO,
+  cardGlow,
+  drawSubjectIcon,
+  faceStyleFor,
+  rgba,
+  spaced,
+} from "@/lib/cards/draw";
+import { odometer } from "@/lib/guess/input";
+import {
+  ambientPuffs,
   confettoAt,
   puffAt,
   shellParticleAt,
@@ -11,6 +19,7 @@ import {
 import { phaseProgress, type WalkoutPlan } from "./plan";
 import type { PackScene, WalkoutScene } from "./scene";
 import { glowSprite, smokeSprite, sparkleSprite } from "./sprites";
+import { pulseAt, zoomAt } from "./tension";
 
 /**
  * Tekent één frame van de walkout. Puur een functie van tijd t: dezelfde t
@@ -22,6 +31,14 @@ export interface WalkoutAssets {
   silhouette: HTMLCanvasElement;
   /** Font-familie van de kaarten (Bebas Neue). */
   family: string;
+}
+
+/** Feature A: wat de gokteller live laat zien. */
+export interface GuessView {
+  /** Stand in tienden (mag een fractie zijn tijdens het rollen); null = "?". */
+  value: number | null;
+  /** Sinds wanneer (walkout-tijd) de teller op 6,7 staat: dan wiebelt hij even. */
+  wobbleSince?: number | null;
 }
 
 export interface PackAssets {
@@ -141,9 +158,21 @@ function drawSpotlights(
 
 function drawFlares(ctx: CanvasRenderingContext2D, scene: WalkoutScene, t: number) {
   if (scene.puffs.length === 0) return;
+  const { plan, stage } = scene;
+  // Tijdens het gokmoment blijft er rook opstijgen, zachter dan de flares.
+  const ambient = plan.gok
+    ? ambientPuffs(
+        scene.seed,
+        stage,
+        { count: plan.fx.flares, colors: plan.fx.flareColors },
+        plan.phases.gok.start,
+        t,
+        plan.phases.flip.start,
+      )
+    : [];
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
-  for (const puff of scene.puffs) {
+  for (const puff of [...scene.puffs, ...ambient]) {
     const state = puffAt(puff, t);
     if (!state || state.alpha <= 0.002) continue;
     ctx.globalAlpha = state.alpha;
@@ -410,25 +439,38 @@ function drawCardStrips(
   }
 }
 
-function drawCard(
-  ctx: CanvasRenderingContext2D,
-  scene: WalkoutScene,
-  assets: WalkoutAssets,
-  t: number,
-) {
+interface CardPose {
+  angle: number;
+  cx: number;
+  cy: number;
+  w: number;
+  h: number;
+  alpha: number;
+  /** De voorkant is te zien (na de onthulling). */
+  revealed: boolean;
+}
+
+/** Waar de kaart staat en hoe hij gedraaid is; null als hij (nog) niet te zien is. */
+function cardPose(scene: WalkoutScene, t: number): CardPose | null {
   const { plan, layout } = scene;
-  if (t < plan.phases.silhouet.start && !plan.reduced) return;
-  if (plan.reduced && t < plan.phases.flip.start) return;
+  const flipStart = plan.phases.flip.start;
+  const flipEnd = plan.phases.flip.end;
+  const gokStart = plan.phases.gok.start;
+  if (!plan.reduced && t < plan.phases.silhouet.start) return null;
+  if (plan.reduced && t < (plan.gok ? gokStart : flipStart)) return null;
 
   let angle = 360;
   let scale = 1;
   let dy = 0;
   let alpha = 1;
-  const flipStart = plan.phases.flip.start;
-  const flipEnd = plan.phases.flip.end;
 
   if (plan.reduced) {
-    alpha = clamp((t - flipStart) / Math.max(0.01, flipEnd - flipStart));
+    if (t < flipStart) {
+      angle = 180;
+      alpha = clamp((t - gokStart) / 0.3);
+    } else {
+      alpha = clamp((t - flipStart) / Math.max(0.01, flipEnd - flipStart));
+    }
   } else if (t < flipStart) {
     const p = phaseProgress(plan, "silhouet", t);
     const e = easeOutCubic(p);
@@ -436,6 +478,12 @@ function drawCard(
     scale = 0.45 + 0.55 * e;
     dy = 340 * (1 - e);
     alpha = clamp(p / 0.15);
+    if (plan.gok && t >= gokStart) {
+      // Het gokmoment: het silhouet hangt, deint zacht en klopt mee met de hartslag.
+      const tau = t - gokStart;
+      dy = Math.sin(tau * 1.4) * 7 * clamp(tau / 0.6);
+      scale = 1 + 0.014 * pulseAt(tau);
+    }
   } else if (t < flipEnd) {
     const p = phaseProgress(plan, "flip", t);
     angle = 180 + 180 * easeInOutCubic(p);
@@ -448,22 +496,54 @@ function drawCard(
   }
 
   const center = cardCenter(scene, t);
-  const cx = center.x;
-  const cy = center.y + dy;
-  scale *= center.scale;
-  const w = layout.w * scale;
-  const h = w * CARD_RATIO;
-  const revealed = t >= plan.revealAt || plan.reduced;
+  const w = layout.w * scale * center.scale;
+  return {
+    angle,
+    cx: center.x,
+    cy: center.y + dy,
+    w,
+    h: w * CARD_RATIO,
+    alpha,
+    revealed: t >= plan.revealAt || (plan.reduced && t >= flipStart),
+  };
+}
+
+function drawCard(
+  ctx: CanvasRenderingContext2D,
+  scene: WalkoutScene,
+  assets: WalkoutAssets,
+  t: number,
+  pose: CardPose | null,
+) {
+  if (!pose) return;
+  const { plan } = scene;
+  const { angle, cx, cy, w, h, alpha, revealed } = pose;
   const source =
     revealed && Math.cos((angle * Math.PI) / 180) > 0 ? assets.face : assets.silhouette;
+  const gokStart = plan.phases.gok.start;
+  const pulse =
+    plan.gok && !plan.reduced && t >= gokStart && t < plan.phases.flip.start
+      ? pulseAt(t - gokStart)
+      : 0;
 
   ctx.save();
-  ctx.globalAlpha = alpha;
   const glowColor = plan.fail ? "#9aa6bf" : cardGlow(scene.card);
-  ctx.globalAlpha = alpha * (revealed ? 0.85 : 0.45);
+  ctx.globalAlpha = alpha * (revealed ? 0.85 : 0.45 + 0.4 * pulse);
   ctx.globalCompositeOperation = "lighter";
-  ctx.drawImage(glowSprite(glowColor), cx - w * 1.15, cy - h * 0.85, w * 2.3, h * 1.7);
+  const glow = 1 + 0.15 * pulse;
+  ctx.drawImage(
+    glowSprite(glowColor),
+    cx - w * 1.15 * glow,
+    cy - h * 0.85 * glow,
+    w * 2.3 * glow,
+    h * 1.7 * glow,
+  );
   ctx.globalCompositeOperation = "source-over";
+  // Minder beweging: het silhouet vervaagt onder de voorkant in plaats van te draaien.
+  if (plan.reduced && plan.gok && revealed && alpha < 1) {
+    ctx.globalAlpha = 1 - alpha;
+    drawCardStrips(ctx, assets.silhouette, cx, cy, w, h, 180);
+  }
   ctx.globalAlpha = alpha;
   drawCardStrips(ctx, source, cx, cy, w, h, angle);
 
@@ -487,6 +567,196 @@ function drawCard(
     }
   }
   ctx.restore();
+}
+
+/** Plek van de rating op de kaart (kaarteenheden van 500 breed, zie drawCardFace). */
+function ratingSpot(pose: CardPose) {
+  const k = pose.w / 500;
+  const left = pose.cx - pose.w / 2;
+  const top = pose.cy - pose.h / 2;
+  return { k, x: left + 48 * k, baseline: top + 168 * k, size: 150 * k, top };
+}
+
+/** Een getal als gokkast-teller: de tienden rollen mee, de eenheden bij de overgang. */
+function drawOdometer(
+  ctx: CanvasRenderingContext2D,
+  tenths: number,
+  x: number,
+  baseline: number,
+  size: number,
+  family: string,
+) {
+  const reels = odometer(tenths);
+  ctx.font = `${size}px ${family}`;
+  const line = size * 0.95;
+  const reel = (left: number, width: number, current: string, next: string, roll: number) => {
+    ctx.save();
+    ctx.beginPath();
+    // Een smal venster, net zo hoog als de cijfers: wat eruit rolt, verdwijnt.
+    ctx.rect(left - size * 0.08, baseline - size * 0.74, width + size * 0.16, size * 0.8);
+    ctx.clip();
+    ctx.fillText(current, left, baseline - roll * line);
+    if (roll > 0.001) ctx.fillText(next, left, baseline + (1 - roll) * line);
+    ctx.restore();
+  };
+  const units = String(reels.units);
+  const unitsNext = String(Math.min(10, reels.units + 1));
+  // Rolt de 9 door naar 10, dan schuift de komma pas mee terwijl het rolt.
+  const unitsWidth =
+    ctx.measureText(units).width +
+    (ctx.measureText(unitsNext).width - ctx.measureText(units).width) * reels.unitsRoll;
+  reel(x, unitsWidth, units, unitsNext, reels.unitsRoll);
+  const commaX = x + unitsWidth + size * 0.02;
+  ctx.fillText(",", commaX, baseline);
+  const tenthsX = commaX + ctx.measureText(",").width + size * 0.02;
+  reel(
+    tenthsX,
+    ctx.measureText("0").width,
+    String(reels.tenths),
+    String((reels.tenths + 1) % 10),
+    reels.tenthsRoll,
+  );
+}
+
+/**
+ * Feature A: het gokmoment op de kaart. Op de plek van de rating een groot
+ * "?" met erboven "Wat heb je?"; tijdens het gokken rolt daar de teller.
+ * Na de klik bevriest het getal, bij de flip verdwijnt het.
+ */
+function drawGuessCounter(
+  ctx: CanvasRenderingContext2D,
+  scene: WalkoutScene,
+  assets: WalkoutAssets,
+  t: number,
+  unit: number,
+  pose: CardPose | null,
+  view: GuessView | undefined,
+) {
+  const { plan } = scene;
+  const gok = plan.gok;
+  const gokStart = plan.phases.gok.start;
+  if (!gok || !pose || t < gokStart || t >= plan.phases.flip.start) return;
+  const { k, x, baseline, size, top } = ratingSpot(pose);
+  const locked = t >= gok.lockAt;
+  const value = locked && gok.guess !== null ? Math.round(gok.guess * 10) : (view?.value ?? null);
+  const pulse = plan.reduced ? 0 : pulseAt(t - gokStart);
+  const glow = plan.fail ? "#c9d2e3" : cardGlow(scene.card);
+
+  ctx.save();
+  ctx.globalAlpha = clamp((t - gokStart) / 0.35) * pose.alpha;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "rgba(255,255,255,0.78)";
+  ctx.font = `${30 * k}px ${assets.family}`;
+  ctx.fillText(spaced("WAT HEB JE?"), x + 4 * k, top + 46 * k);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = rgba(glow, 0.95);
+  ctx.shadowBlur = (16 + 22 * pulse) * unit;
+  if (value === null) {
+    ctx.font = `${size * (1 + 0.06 * pulse)}px ${assets.family}`;
+    ctx.fillText("?", x + 10 * k, baseline);
+  } else {
+    let wobble = 0;
+    if (!plan.reduced && !locked && view?.wobbleSince != null && Math.round(value) === 67) {
+      const since = t - view.wobbleSince;
+      wobble = Math.sin(since * 26) * 16 * k * Math.exp(-since / 0.35);
+    }
+    const flash = locked ? decay(t, gok.lockAt, 0.18) : 0;
+    drawOdometer(ctx, value, x, baseline + wobble, size * (1 + 0.07 * flash), assets.family);
+    if (flash > 0.01) {
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = flash * 0.8;
+      const r = size * 1.3;
+      ctx.drawImage(glowSprite("#ffffff"), x - r * 0.2, baseline - size * 0.4 - r / 2, r * 1.4, r);
+    }
+  }
+  ctx.restore();
+}
+
+/**
+ * Feature A: na de flip staat je gok als spookcijfer naast de echte rating en
+ * schuift er met een klap tegenaan. Precies goed: hij valt er precies over.
+ */
+function drawGhost(
+  ctx: CanvasRenderingContext2D,
+  scene: WalkoutScene,
+  assets: WalkoutAssets,
+  t: number,
+  unit: number,
+  pose: CardPose | null,
+) {
+  const { plan, card } = scene;
+  const gok = plan.gok;
+  if (!gok || gok.guess === null || !pose || t < gok.ghostAt) return;
+  const { k, x: ratingX, baseline, size } = ratingSpot(pose);
+  ctx.save();
+  ctx.font = `${size}px ${assets.family}`;
+  const realWidth = ctx.measureText(card.ratingLabel).width;
+  const label = String(Math.round(gok.guess * 10));
+  const exact = plan.helderziende;
+  const final = exact ? ratingX : ratingX + realWidth + 10 * k;
+  const start = ratingX + realWidth + 150 * k;
+  const slide = gok.impactAt - gok.ghostAt;
+
+  let x: number;
+  let alpha: number;
+  if (t < gok.impactAt) {
+    const p = clamp((t - gok.ghostAt) / slide);
+    // Versnellen richting de klap.
+    x = start + (final - start) * p ** 3;
+    alpha = 0.8 * clamp(0.3 + (t - gok.ghostAt) / 0.12);
+  } else {
+    const since = t - gok.impactAt;
+    if (exact) {
+      x = final;
+      alpha = 0.8 * (1 - clamp(since / 0.35));
+    } else {
+      const bounce = plan.reduced ? 0 : 22 * k * Math.sin(clamp(since / 0.22) * Math.PI);
+      x = final + bounce;
+      alpha = 0.8 - 0.35 * clamp(since / 0.5);
+    }
+  }
+
+  if (alpha > 0.01) {
+    ctx.globalAlpha = alpha * pose.alpha;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    // Een doorschijnende echo van de rating, in de inktkleur van de kaart
+    // (leesbaar op lichte en donkere kaarten), met een paarse gokrand.
+    ctx.shadowColor = "#a855f7";
+    ctx.shadowBlur = 22 * unit;
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 3 * k;
+    ctx.strokeStyle = "rgba(168,85,247,0.9)";
+    ctx.strokeText(label, x, baseline);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = rgba(faceStyleFor(card).text, 0.5);
+    ctx.fillText(label, x, baseline);
+  }
+
+  // De klap: een lichtflits waar ze elkaar raken.
+  const flash = plan.reduced ? 0 : decay(t, gok.impactAt, 0.2);
+  if (flash > 0.01) {
+    ctx.shadowBlur = 0;
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = flash;
+    const r = 300 * k;
+    const hitX = exact ? ratingX + realWidth / 2 : ratingX + realWidth + 5 * k;
+    ctx.drawImage(glowSprite("#ffffff"), hitX - r / 2, baseline - size * 0.38 - r / 2, r, r);
+  }
+  ctx.restore();
+}
+
+/** Feature A: de camera zoomt tijdens het gokmoment heel langzaam in, en bij de flip terug. */
+function cameraZoom(plan: WalkoutPlan, t: number): number {
+  if (!plan.gok || plan.reduced) return 1;
+  const start = plan.phases.gok.start;
+  const flipStart = plan.phases.flip.start;
+  if (t <= start) return 1;
+  if (t < flipStart) return zoomAt(t - start);
+  const zoom = zoomAt(flipStart - start);
+  return 1 + (zoom - 1) * (1 - easeInOutCubic(clamp((t - flipStart) / 0.6)));
 }
 
 function drawGlitter(ctx: CanvasRenderingContext2D, scene: WalkoutScene, t: number) {
@@ -552,7 +822,7 @@ function drawHelderziende(
   unit: number,
 ) {
   const { plan, stage } = scene;
-  const start = plan.revealAt + 0.3;
+  const start = plan.gok?.guess != null ? plan.gok.impactAt : plan.revealAt + 0.3;
   if (!plan.helderziende || t < start) return;
   const since = t - start;
   const fadeOut = 1 - clamp((t - (plan.restAt - 0.45)) / 0.45);
@@ -624,24 +894,12 @@ function drawHelderziende(
 
 // ——— Frames ——————————————————————————————————————————————————————————————
 
-/**
- * Feature A: het podium terwijl je gokt. Neutraal licht en geen flares, zodat
- * niets al verraadt welke kaart eraan komt.
- */
-export function renderIdleFrame({ ctx, unit }: RenderTarget, stage: Stage, t: number) {
-  ctx.setTransform(unit, 0, 0, unit, 0, 0);
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = "source-over";
-  drawBackground(ctx, stage.w, stage.h, "#cfd6e6", 0.06);
-  drawSpotlights(ctx, stage.w, stage.h, t, 0.2 * clamp(t / 0.8), null, 0, "#fff6e0", true);
-  drawVignette(ctx, stage.w, stage.h);
-}
-
 export function renderWalkoutFrame(
   { ctx, unit }: RenderTarget,
   scene: WalkoutScene,
   assets: WalkoutAssets,
   t: number,
+  guess?: GuessView,
 ) {
   const { plan, stage } = scene;
   ctx.setTransform(unit, 0, 0, unit, 0, 0);
@@ -658,6 +916,12 @@ export function renderWalkoutFrame(
   ctx.translate(shake.x, shake.y);
 
   const card = cardCenter(scene, t);
+  const zoom = cameraZoom(plan, t);
+  if (zoom !== 1) {
+    ctx.translate(card.x, card.y);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-card.x, -card.y);
+  }
   const intro = clamp(t / 0.8);
   const spotStrength = (plan.fail ? 0.18 : 0.32) * intro * (t > plan.restAt ? 0.7 : 1);
   const aimMix = clamp((t - plan.phases.silhouet.start) / 1.2);
@@ -677,7 +941,10 @@ export function renderWalkoutFrame(
   drawRays(ctx, scene, t, card.x, card.y);
   drawFireworks(ctx, scene, t);
   drawRevealText(ctx, scene, assets, t, unit);
-  drawCard(ctx, scene, assets, t);
+  const pose = cardPose(scene, t);
+  drawCard(ctx, scene, assets, t, pose);
+  drawGuessCounter(ctx, scene, assets, t, unit, pose, guess);
+  drawGhost(ctx, scene, assets, t, unit, pose);
   drawGlitter(ctx, scene, t);
   drawConfetti(ctx, scene, t);
 

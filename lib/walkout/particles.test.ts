@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ambientPuffs,
   ballistic,
   confettiCannons,
   confettoAt,
@@ -114,5 +115,30 @@ describe("glitterTwinkles", () => {
         expect(alpha).toBeLessThanOrEqual(1);
       }
     }
+  });
+});
+
+describe("ambientPuffs (rook tijdens het gokmoment)", () => {
+  const stage = { w: 1778, h: 1000 };
+  const options = { count: 4, colors: ["#ffd25c"] };
+
+  it("is er pas als het gokmoment begint, en blijft dan altijd beperkt", () => {
+    expect(ambientPuffs(7, stage, options, 10, 9, Infinity)).toEqual([]);
+    for (const t of [10.5, 14, 60, 600]) {
+      const puffs = ambientPuffs(7, stage, options, 10, t, Infinity);
+      expect(puffs.length).toBeGreaterThan(0);
+      expect(puffs.length).toBeLessThanOrEqual(25);
+    }
+  });
+
+  it("is deterministisch: hetzelfde tijdstip geeft dezelfde rook", () => {
+    expect(ambientPuffs(7, stage, options, 10, 33.3, Infinity)).toEqual(
+      ambientPuffs(7, stage, options, 10, 33.3, Infinity),
+    );
+  });
+
+  it("stopt met nieuwe rook zodra de kaart omdraait", () => {
+    const after = ambientPuffs(7, stage, options, 10, 30, 20);
+    for (const puff of after) expect(puff.t0).toBeLessThanOrEqual(20);
   });
 });
