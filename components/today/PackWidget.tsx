@@ -8,18 +8,22 @@ import { LogoMark } from "@/components/shell/Logo";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Widget } from "@/components/ui/Widget";
-import { bestTier } from "@/lib/calc/tiers";
-import type { Grade } from "@/lib/types";
-import { toast } from "@/stores/toast";
+import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
+import { useCopy, useCopyParts } from "@/lib/use-copy";
+import { useUi } from "@/stores/ui";
 
 /** Zwevend kaartenpakket. De gloed verraadt subtiel de beste kaart erin. */
-function FloatingPack({ glow }: { glow: string }) {
+function FloatingPack({ glow, onOpen }: { glow: string; onOpen: () => void }) {
   const reduced = useReducedMotion();
   return (
-    <motion.div
-      aria-hidden
-      className="relative h-32 w-24 shrink-0"
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      aria-label="Open je pack"
+      className="relative h-32 w-24 shrink-0 cursor-pointer"
       animate={reduced ? undefined : { y: [0, -7, 0], rotate: [-2, 2, -2] }}
+      whileHover={reduced ? undefined : { scale: 1.06 }}
+      whileTap={{ scale: 0.94 }}
       transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
       style={{ "--glow": glow } as CSSProperties}
     >
@@ -31,12 +35,18 @@ function FloatingPack({ glow }: { glow: string }) {
           <LogoMark className="size-11 drop-shadow-[0_2px_6px_rgb(0_0_0/0.25)]" />
         </span>
       </span>
-    </motion.div>
+    </motion.button>
   );
 }
 
-/** Pack-banner: nieuwe cijfers wachten op een walkout (fase 2). */
-export function PackWidget({ pack, isLoading }: { pack: Grade[]; isLoading: boolean }) {
+/** Pack-banner: nieuwe cijfers wachten op een walkout. */
+export function PackWidget() {
+  const { openPack, packCount, packTier, isLoading } = useWalkoutActions();
+  // In de privacymodus verraadt de gloed niets over de beste kaart.
+  const privacy = useUi((s) => s.privacy);
+  const teaser = useCopy(packCount > 0 ? "pack.teaser" : null);
+  const empty = useCopyParts(packCount === 0 && !isLoading ? "pack.leeg" : null);
+
   if (isLoading) {
     return (
       <Widget title="Nieuwe cijfers" icon={Gift} size="md">
@@ -51,7 +61,7 @@ export function PackWidget({ pack, isLoading }: { pack: Grade[]; isLoading: bool
     );
   }
 
-  if (pack.length === 0) {
+  if (packCount === 0) {
     return (
       <Widget title="Nieuwe cijfers" icon={Gift} size="md">
         <div className="flex items-center gap-4">
@@ -59,38 +69,27 @@ export function PackWidget({ pack, isLoading }: { pack: Grade[]; isLoading: bool
             ✨
           </span>
           <div>
-            <p className="font-semibold text-ink">Alles bekeken</p>
-            <p className="text-sm text-ink-2">Nieuwe cijfers verschijnen hier als pack.</p>
+            <p className="font-semibold text-ink">{empty?.title}</p>
+            <p className="text-sm text-ink-2">{empty?.body}</p>
           </div>
         </div>
       </Widget>
     );
   }
 
-  const values = pack.flatMap((g) => (g.kind === "numeric" ? [g.value] : []));
-  const tier = bestTier(values) ?? "zilver";
-
   return (
     <Widget title="Nieuwe cijfers" icon={Gift} size="md">
       <div className="flex items-center gap-6">
-        <FloatingPack glow={TIER_GLOW[tier]} />
+        <FloatingPack
+          glow={TIER_GLOW[privacy ? "zilver" : (packTier ?? "zilver")]}
+          onOpen={openPack}
+        />
         <div className="min-w-0">
           <p className="font-display text-[1.7rem] leading-tight font-semibold tracking-tight">
-            🎁 {pack.length} {pack.length === 1 ? "nieuw cijfer" : "nieuwe cijfers"}
+            🎁 {packCount} {packCount === 1 ? "nieuw cijfer" : "nieuwe cijfers"}
           </p>
-          <p className="mt-1.5 text-ink-2">Er zit iets moois in. De gloed verraadt het al…</p>
-          <Button
-            variant="primary"
-            icon={Sparkles}
-            className="mt-4"
-            onClick={() =>
-              toast({
-                emoji: "🚧",
-                title: "De walkout komt in fase 2",
-                description: "Dan scheurt dit pack open en wordt elk cijfer een verzamelkaart.",
-              })
-            }
-          >
+          <p className="mt-1.5 text-ink-2">{teaser}</p>
+          <Button variant="primary" icon={Sparkles} className="mt-4" onClick={openPack}>
             Open je pack
           </Button>
         </div>

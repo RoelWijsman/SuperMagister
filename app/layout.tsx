@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Unbounded } from "next/font/google";
+import { Bebas_Neue, Inter, Unbounded } from "next/font/google";
 import { Sky } from "@/components/background/Sky";
+import { GoalWatcher } from "@/components/collection/GoalWatcher";
 import { CommandPalette } from "@/components/command/CommandPalette";
 import { Providers } from "@/components/providers/Providers";
 import { AppShell } from "@/components/shell/AppShell";
 import { MoreSheet } from "@/components/shell/MoreSheet";
 import { ShortcutsSheet } from "@/components/shell/ShortcutsSheet";
 import { Toaster } from "@/components/ui/Toaster";
+import { WalkoutOverlay } from "@/components/walkout/WalkoutOverlay";
 import { buildThemeScript } from "@/lib/theme/script";
 import "./globals.css";
 
@@ -20,6 +22,15 @@ const unbounded = Unbounded({
   subsets: ["latin"],
   variable: "--font-unbounded",
   display: "swap",
+});
+
+/** Sportief font voor de walkout en de kaarten. Laadt pas als het nodig is. */
+const bebas = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -44,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-mode="dark"
       data-tod="dag"
       suppressHydrationWarning
-      className={`${inter.variable} ${unbounded.variable}`}
+      className={`${inter.variable} ${unbounded.variable} ${bebas.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: buildThemeScript() }} />
@@ -58,6 +69,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <CommandPalette />
           <ShortcutsSheet />
           <MoreSheet />
+          <WalkoutOverlay />
+          <GoalWatcher />
           <Toaster />
         </Providers>
       </body>

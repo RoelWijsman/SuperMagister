@@ -2,37 +2,48 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import type { CopyKey } from "@/content/copy";
 import { cn } from "@/lib/cn";
-import { LOADING_QUIPS, type QuipTopic } from "@/lib/loading-quips";
+import { pickCopy } from "@/lib/copy";
+import { useCopy } from "@/lib/use-copy";
 
-/** Wisselende, grappige laadtekst. */
+export type LoadingTopic = "algemeen" | "cijfers" | "rooster" | "huiswerk" | "pack" | "collectie";
+
+/** Wisselende laadtekst uit content/copy.ts (laden.*). */
 export function LoadingQuip({
   topic = "algemeen",
   className,
 }: {
-  topic?: QuipTopic;
+  topic?: LoadingTopic;
   className?: string;
 }) {
-  const quips = LOADING_QUIPS[topic];
-  const [index, setIndex] = useState(0);
+  const key: CopyKey = `laden.${topic}`;
+  const first = useCopy(key);
+  const [next, setNext] = useState<{ key: CopyKey; text: string; round: number } | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % quips.length), 1800);
+    const id = setInterval(
+      () => setNext((prev) => ({ key, text: pickCopy(key), round: (prev?.round ?? 0) + 1 })),
+      2200,
+    );
     return () => clearInterval(id);
-  }, [quips.length]);
+  }, [key]);
+
+  const current = next?.key === key ? next : null;
+  const text = current?.text ?? first;
 
   return (
     <p role="status" className={cn("relative h-6 overflow-hidden text-sm text-ink-3", className)}>
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
-          key={index}
-          className="absolute inset-x-0"
+          key={current?.round ?? 0}
+          className="absolute inset-x-0 truncate"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.25 }}
         >
-          {quips[index]}
+          {text}
         </motion.span>
       </AnimatePresence>
     </p>

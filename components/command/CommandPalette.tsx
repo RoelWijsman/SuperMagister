@@ -18,11 +18,23 @@ import { Kbd } from "@/components/ui/Kbd";
 import { cn } from "@/lib/cn";
 import { rankCommands } from "@/lib/commands/rank";
 import { useFocusTrap, useIsClient, useModalLock } from "@/lib/hooks";
+import { useCopyParts } from "@/lib/use-copy";
 import type { MatchRange } from "@/lib/search/fuzzy";
 import { applyThemeVars } from "@/lib/theme/apply";
 import { useSettings } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
 import { useCommands, type Command, type PalettePage } from "./commands";
+
+function NoResults({ query }: { query: string }) {
+  const copy = useCopyParts("leeg.zoeken", { query: query.trim() });
+  return (
+    <div className="flex flex-col items-center px-6 py-8 text-center">
+      <Illustration name="zoeken" className="mb-3 w-28 text-ink-3" />
+      <p className="font-medium text-ink">{copy?.title}</p>
+      <p className="mt-1 text-sm text-ink-2">{copy?.body}</p>
+    </div>
+  );
+}
 
 function Highlight({ text, ranges }: { text: string; ranges: MatchRange[] }) {
   if (ranges.length === 0) return <>{text}</>;
@@ -189,15 +201,7 @@ export function CommandPalette() {
               role="listbox"
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2"
             >
-              {flat.length === 0 && (
-                <div className="flex flex-col items-center px-6 py-8 text-center">
-                  <Illustration name="zoeken" className="mb-3 w-28 text-ink-3" />
-                  <p className="font-medium text-ink">Niks gevonden voor ‘{query}’</p>
-                  <p className="mt-1 text-sm text-ink-2">
-                    Probeer ‘rooster morgen’ of de naam van een vak.
-                  </p>
-                </div>
-              )}
+              {flat.length === 0 && <NoResults query={query} />}
               {groups.map((group) => (
                 <div key={group.group} role="group" aria-label={group.group} className="mb-1">
                   <p className="px-3 pt-2 pb-1.5 text-xs font-semibold tracking-wide text-ink-3">

@@ -10,6 +10,7 @@ import { Widget } from "@/components/ui/Widget";
 import type { SubjectAppearance } from "@/lib/data/hooks";
 import { diffInCalendarDays, formatRelativeDay, parseISODate } from "@/lib/date";
 import type { Homework, Lesson, Test, TestKind } from "@/lib/types";
+import { useCopy } from "@/lib/use-copy";
 
 type SubjectLookup = (id: string | null) => SubjectAppearance;
 
@@ -47,6 +48,7 @@ export function TodayLessonsWidget({
   subject: SubjectLookup;
   isLoading: boolean;
 }) {
+  const empty = useCopy(!isLoading && lessons.length === 0 ? "leeg.lessenVandaag" : null);
   return (
     <Widget
       title="Vandaag"
@@ -58,7 +60,7 @@ export function TodayLessonsWidget({
       {isLoading ? (
         <RowsSkeleton rows={6} />
       ) : lessons.length === 0 ? (
-        <p className="py-6 text-center text-ink-2">Geen lessen vandaag. Geniet ervan 🎉</p>
+        <p className="py-6 text-center text-ink-2">{empty}</p>
       ) : (
         <ul className="-mx-2 space-y-0.5">
           {lessons.map((lesson) => (
@@ -87,6 +89,7 @@ export function HomeworkTomorrowWidget({
   subject: SubjectLookup;
   isLoading: boolean;
 }) {
+  const empty = useCopy(!isLoading && items.length === 0 ? "leeg.huiswerkMorgen" : null);
   return (
     <Widget
       title={`Huiswerk voor ${dayLabel}`}
@@ -97,7 +100,7 @@ export function HomeworkTomorrowWidget({
       {isLoading ? (
         <RowsSkeleton rows={3} />
       ) : items.length === 0 ? (
-        <p className="py-4 text-ink-2">Geen huiswerk. Tijd voor de bank 🛋️</p>
+        <p className="py-4 text-ink-2">{empty}</p>
       ) : (
         <ul className="space-y-3">
           {items.map((item) => {
@@ -142,12 +145,13 @@ export function TestsWidget({
   subject: SubjectLookup;
   isLoading: boolean;
 }) {
+  const empty = useCopy(!isLoading && tests.length === 0 ? "leeg.toetsen" : null);
   return (
     <Widget title="Toetsen" icon={NotebookPen} size="sm">
       {isLoading || !now ? (
         <RowsSkeleton rows={3} />
       ) : tests.length === 0 ? (
-        <p className="py-4 text-ink-2">Geen toetsen in zicht 😎</p>
+        <p className="py-4 text-ink-2">{empty}</p>
       ) : (
         <ul className="space-y-3">
           {tests.map((test) => {

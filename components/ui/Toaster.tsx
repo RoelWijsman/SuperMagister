@@ -71,6 +71,7 @@ export function Toaster() {
   return (
     <ol
       aria-live="polite"
+      data-toaster
       className="pointer-events-none fixed inset-x-0 bottom-[calc(6.25rem+env(safe-area-inset-bottom))] z-[60] mx-auto flex w-full max-w-sm flex-col gap-2 px-4 md:right-6 md:bottom-6 md:left-auto md:mx-0 md:px-0"
     >
       <AnimatePresence initial={false}>

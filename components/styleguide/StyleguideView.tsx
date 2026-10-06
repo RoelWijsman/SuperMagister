@@ -1,7 +1,10 @@
 "use client";
 
 import { ArrowRight, Bell, Heart, Plus, Sparkles } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { CardCanvas } from "@/components/cards/CardCanvas";
+import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
+import { WalkoutScrubber } from "./WalkoutScrubber";
 import { GradeValue } from "@/components/grades/GradeValue";
 import { SubjectBadge } from "@/components/subjects/SubjectBadge";
 import { SubjectIcon } from "@/components/subjects/SubjectIcon";
@@ -19,6 +22,7 @@ import { Tabs } from "@/components/ui/Tabs";
 import { Tilt } from "@/components/ui/Tilt";
 import { SUBJECT_ICON_NAMES } from "@/lib/subjects/icons";
 import { SUBJECT_PALETTE } from "@/lib/subjects/palette";
+import { practiceDeck } from "@/lib/walkout/practice";
 import { toast } from "@/stores/toast";
 
 function Block({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
@@ -56,6 +60,8 @@ export function StyleguideView() {
   const [tab, setTab] = useState<"dag" | "week" | "lijst">("week");
   const [on, setOn] = useState(true);
   const [sheet, setSheet] = useState(false);
+  const deck = useMemo(() => practiceDeck("Daan Visser"), []);
+  const { startPractice } = useWalkoutActions();
 
   return (
     <>
@@ -64,6 +70,44 @@ export function StyleguideView() {
         title="Stijlgids"
         subtitle="Alles op deze pagina volgt het gekozen thema. Wissel van thema met Ctrl/⌘ K en kijk mee."
       />
+
+      <div className="mb-5">
+        <Block
+          title="Verzamelkaarten"
+          note="Brons, zilver, goud, In Form, TOTY en ICON. Getekend met dezelfde code als de walkout."
+        >
+          <ul className="flex flex-wrap justify-center gap-4">
+            {deck.map((entry) => (
+              <li key={entry.id} className="text-center">
+                <button
+                  type="button"
+                  onClick={() => startPractice([entry.id])}
+                  aria-label={`Speel de walkout van de ${entry.label}-kaart`}
+                  className="rounded-2xl transition-transform hover:-translate-y-1 active:scale-95"
+                >
+                  <CardCanvas card={entry.card} width={170} />
+                </button>
+                <span className="mt-2 block text-xs text-ink-3">
+                  {entry.label} · tik voor walkout
+                </span>
+              </li>
+            ))}
+            <li className="text-center">
+              <CardCanvas card={deck[5]!.card} width={170} side="back" />
+              <span className="mt-2 block text-xs text-ink-3">Achterkant</span>
+            </li>
+          </ul>
+        </Block>
+      </div>
+
+      <div className="mb-5">
+        <Block
+          title="Walkout"
+          note="Spoel door de tijdlijn. Elk tijdstip geeft altijd precies hetzelfde frame."
+        >
+          <WalkoutScrubber deck={deck} />
+        </Block>
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Block

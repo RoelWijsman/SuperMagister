@@ -1,3 +1,5 @@
+import type { CopyKey } from "@/content/copy";
+import type { CopyVars } from "@/lib/copy";
 import { formatTime } from "@/lib/date";
 
 export interface GreetingInput {
@@ -14,57 +16,64 @@ export interface GreetingInput {
   isBirthday: boolean;
 }
 
-export interface Greeting {
-  title: string;
-  subtitle: string;
+export interface CopyLine {
+  key: CopyKey;
+  vars: CopyVars;
 }
 
-const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
-
-function testsPhrase(n: number): string {
-  return n === 1 ? "een toets" : `${n} toetsen`;
+export interface GreetingSituation {
+  title: CopyLine;
+  subtitle: CopyLine;
 }
 
-/** Begroeting bovenaan Vandaag. Verandert met het tijdstip en wat er op de dag staat. */
-export function getGreeting(input: GreetingInput): Greeting {
-  const { now, firstName, lessonsToday, lessonsLeft, testsToday } = input;
+const lessons = (n: number) => (n === 1 ? "les" : "lessen");
+const tests = (n: number) => (n === 1 ? "een toets" : `${n} toetsen`);
+
+/**
+ * Welke begroeting past bij dit moment? Geeft de tekstsleutels en variabelen;
+ * de teksten zelf (met varianten) staan in content/copy.ts.
+ */
+export function greetingSituation(input: GreetingInput): GreetingSituation {
+  const { now, firstName: naam, lessonsToday, lessonsLeft, testsToday } = input;
   const minutes = now.getHours() * 60 + now.getMinutes();
   const nightOwl = minutes >= 23 * 60 || minutes < 5 * 60;
   const weekday = now.getDay();
 
-  let title: string;
-  if (input.isBirthday) title = `Gefeliciteerd ${firstName}! 🎂`;
-  else if (nightOwl) title = "Huh, ben je nog wakker? 🌙";
-  else if (minutes < 12 * 60) title = `Goeiemorgen ${firstName} ☀️`;
-  else if (minutes < 18 * 60) title = `Goeiemiddag ${firstName} 👋`;
-  else title = `Goeienavond ${firstName} 🌆`;
+  let title: CopyLine;
+  if (input.isBirthday) title = { key: "begroeting.verjaardag", vars: { naam } };
+  else if (nightOwl) title = { key: "begroeting.nacht", vars: { naam, tijd: formatTime(now) } };
+  else if (minutes < 12 * 60) title = { key: "begroeting.ochtend", vars: { naam } };
+  else if (minutes < 18 * 60) title = { key: "begroeting.middag", vars: { naam } };
+  else title = { key: "begroeting.avond", vars: { naam } };
 
   return { title, subtitle: subtitleFor() };
 
-  function subtitleFor(): string {
+  function subtitleFor(): CopyLine {
     if (nightOwl) {
       return input.nextSchoolDayStart
-        ? `Je eerste les begint om ${formatTime(input.nextSchoolDayStart)}. Slaap lekker 😴`
-        : "Slaap lekker 😴";
+        ? { key: "dag.nacht", vars: { tijd: formatTime(input.nextSchoolDayStart) } }
+        : { key: "dag.nachtVrij", vars: {} };
     }
     if (lessonsToday === 0) {
-      return weekday === 0 || weekday === 6
-        ? "Weekend! Geen lessen vandaag 🎉"
-        : "Geen lessen vandaag. Geniet ervan 🎉";
+      return { key: weekday === 0 || weekday === 6 ? "dag.weekend" : "dag.vrij", vars: {} };
     }
-    if (lessonsLeft === 0) return "School zit erop voor vandaag ✅";
+    if (lessonsLeft === 0) return { key: "dag.klaar", vars: {} };
     if (weekday === 5) {
-      return `Vrijdag! Nog ${lessonsLeft} ${plural(lessonsLeft, "les", "lessen")} tot het weekend 🎉`;
+      return { key: "dag.vrijdag", vars: { aantal: lessonsLeft, lessen: lessons(lessonsLeft) } };
     }
     if (testsToday > 0 && (lessonsToday >= 7 || testsToday >= 2)) {
-      return `Pittige dag: ${lessonsToday} uur en ${testsPhrase(testsToday)}`;
+      return { key: "dag.pittig", vars: { uren: lessonsToday, toetsen: tests(testsToday) } };
     }
-    if (testsToday > 0) return `Vandaag ${testsPhrase(testsToday)}. Jij kan dit 💪`;
+    if (testsToday > 0) return { key: "dag.toets", vars: { toetsen: tests(testsToday) } };
     if (lessonsLeft < lessonsToday) {
-      return `Nog ${lessonsLeft} ${plural(lessonsLeft, "les", "lessen")} te gaan`;
+      return { key: "dag.bezig", vars: { aantal: lessonsLeft, lessen: lessons(lessonsLeft) } };
     }
-    return input.firstLessonStart
-      ? `${lessonsToday} uur vandaag, eerste les om ${formatTime(input.firstLessonStart)}`
-      : `${lessonsToday} uur vandaag`;
+    return {
+      key: "dag.voorSchool",
+      vars: {
+        uren: lessonsToday,
+        tijd: input.firstLessonStart ? formatTime(input.firstLessonStart) : "",
+      },
+    };
   }
 }

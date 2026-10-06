@@ -4,16 +4,11 @@ import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { LoadingQuip } from "@/components/ui/LoadingQuip";
-import {
-  daysRange,
-  useAccount,
-  useLessons,
-  useRevealState,
-  useSubjectAppearance,
-} from "@/lib/data/hooks";
+import { daysRange, useAccount, useLessons, useSubjectAppearance } from "@/lib/data/hooks";
 import { formatLongDate, formatRelativeDay, nextWeekday, startOfDay, toISODate } from "@/lib/date";
-import { getGreeting } from "@/lib/greeting";
+import { greetingSituation } from "@/lib/greeting";
 import { useNow } from "@/lib/hooks";
+import { useCopy } from "@/lib/use-copy";
 import { getDayStatus } from "@/lib/school/day";
 import { homeworkFromLessons, testsFromLessons } from "@/lib/school/derive";
 import { NowWidget } from "./NowWidget";
@@ -29,7 +24,6 @@ export function TodayView() {
   const account = useAccount();
   const lessons = useLessons(daysRange(today, 21));
   const subjects = useSubjectAppearance();
-  const { pack, isLoading: packLoading } = useRevealState();
 
   const view = useMemo(() => {
     if (!lessons.data || !now) return null;
@@ -53,7 +47,7 @@ export function TodayView() {
     const testsToday = tests.filter((t) => t.date === todayIso).length;
 
     const greeting = account.data
-      ? getGreeting({
+      ? greetingSituation({
           now,
           firstName: account.data.firstName,
           lessonsToday: todays.filter((l) => l.status !== "uitval").length,
@@ -70,14 +64,13 @@ export function TodayView() {
     return { todays, status, upcoming, homework, tests, greeting, nextDay };
   }, [lessons.data, now, account.data]);
 
+  const title = useCopy(view?.greeting?.title.key, view?.greeting?.title.vars);
+  const subtitle = useCopy(view?.greeting?.subtitle.key, view?.greeting?.subtitle.vars);
+
   return (
     <>
-      {view?.greeting && now ? (
-        <PageHeader
-          eyebrow={formatLongDate(now)}
-          title={view.greeting.title}
-          subtitle={view.greeting.subtitle}
-        />
+      {title && now ? (
+        <PageHeader eyebrow={formatLongDate(now)} title={title} subtitle={subtitle} />
       ) : (
         <div className="mb-6 md:mb-8" aria-busy>
           <Skeleton className="mb-3 h-4 w-40" />
@@ -93,7 +86,7 @@ export function TodayView() {
           now={now}
           subject={subjects.get}
         />
-        <PackWidget pack={pack} isLoading={packLoading} />
+        <PackWidget />
         <TodayLessonsWidget
           lessons={view?.todays ?? []}
           currentId={view?.status.current?.id ?? null}

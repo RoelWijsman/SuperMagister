@@ -4,37 +4,18 @@ import { House, KeyRound, ShieldCheck, Zap } from "lucide-react";
 import { LinkButton } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { GlassPanel } from "@/components/ui/GlassPanel";
+import { useCopyParts } from "@/lib/use-copy";
 
 /*
  * Pagina's die in een latere fase gevuld worden. Ze staan hier als
  * client-componenten omdat de knoppen een icoon-component meekrijgen.
  */
 
-export function CollectionPlaceholder() {
-  return (
-    <GlassPanel padding="lg">
-      <EmptyState
-        illustration="kaarten"
-        title="Je album is nog leeg"
-        description="Elk cijfer wordt straks een verzamelkaart, van Brons tot ICON. De walkout en je collectie komen in fase 2."
-        action={
-          <LinkButton href="/vandaag" variant="glass" icon={House}>
-            Naar je pack op Vandaag
-          </LinkButton>
-        }
-      />
-    </GlassPanel>
-  );
-}
-
 export function AchievementsPlaceholder() {
+  const copy = useCopyParts("leeg.prestaties");
   return (
     <GlassPanel padding="lg">
-      <EmptyState
-        illustration="trofee"
-        title="Nog geen prestaties. Nog niet!"
-        description="In fase 6 verdien je hier XP met afvinken, focussen en packs openen. Je gaat alleen omhoog: hier verlies je nooit iets."
-      />
+      <EmptyState illustration="trofee" title={copy?.title ?? ""} description={copy?.body} />
     </GlassPanel>
   );
 }
@@ -58,12 +39,13 @@ const PROMISES = [
 ];
 
 export function ConnectPlaceholder() {
+  const copy = useCopyParts("leeg.koppelen");
   return (
     <GlassPanel padding="lg">
       <EmptyState
         illustration="stekker"
-        title="Koppelen komt in fase 5"
-        description="Tot die tijd draait alles op de demo, zodat je de hele app al kunt uitproberen."
+        title={copy?.title ?? ""}
+        description={copy?.body}
         action={
           <LinkButton href="/vandaag" variant="glass" icon={House}>
             Terug naar Vandaag
@@ -84,12 +66,13 @@ export function ConnectPlaceholder() {
 }
 
 export function NotFoundContent() {
+  const copy = useCopyParts("leeg.404");
   return (
     <GlassPanel padding="lg" className="mt-6 md:mt-12">
       <EmptyState
         illustration="planeet"
-        title="Deze pagina is zoek"
-        description="Misschien is hij uitgevallen. Of hij heeft een tussenuur. In elk geval is hij hier niet."
+        title={copy?.title ?? ""}
+        description={copy?.body}
         action={
           <LinkButton href="/vandaag" variant="primary" icon={House}>
             Terug naar Vandaag

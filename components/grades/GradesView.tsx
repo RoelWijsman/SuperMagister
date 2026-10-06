@@ -16,7 +16,10 @@ import { cn } from "@/lib/cn";
 import { useGrades, usePeriods, useRevealState, useSubjectAppearance } from "@/lib/data/hooks";
 import { toISODate } from "@/lib/date";
 import type { Grade } from "@/lib/types";
-import { toast } from "@/stores/toast";
+import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
+import type { CopyKey } from "@/content/copy";
+import { useCopy, useCopyNodes } from "@/lib/use-copy";
+import { useUi } from "@/stores/ui";
 import { GradeValue, TONE_TEXT } from "./GradeValue";
 
 const PILL_TONE = {
@@ -62,12 +65,12 @@ function LockedPill({ count }: { count: number }) {
   );
 }
 
-const openPackToast = () =>
-  toast({
-    emoji: "🎁",
-    title: "Je pack opent in fase 2",
-    description: "Dan onthul je deze cijfers met een walkout en worden ze verzamelkaarten.",
-  });
+function subtitleKey(average: number | null, privacy: boolean): CopyKey | null {
+  if (average === null) return null;
+  if (privacy) return "cijfers.subtitel.privacy";
+  if (average >= 6.5) return "cijfers.subtitel.goed";
+  return average >= 5.5 ? "cijfers.subtitel.krap" : "cijfers.subtitel.zwaar";
+}
 
 /**
  * Cijferoverzicht per vak. Niet-onthulde cijfers blijven op slot tot je je
@@ -80,6 +83,8 @@ export function GradesView() {
   const periods = usePeriods();
   const subjects = useSubjectAppearance();
   const { revealed, pack } = useRevealState();
+  const { openPack } = useWalkoutActions();
+  const privacy = useUi((s) => s.privacy);
 
   const summaries = useMemo(() => {
     if (!grades.data) return [];
@@ -101,20 +106,19 @@ export function GradesView() {
   }, [focus, summaries.length]);
 
   const loading = !grades.data || !subjects.isReady || !revealed;
+  const subtitle = useCopyNodes(
+    subtitleKey(overall, privacy),
+    { aantal: String(averagedCount) },
+    { gem: overall !== null && <GradeValue value={overall} className="font-semibold" /> },
+  );
+  const locked = useCopy(pack.length > 0 ? "pack.slot" : null);
 
   return (
     <>
       <PageHeader
         eyebrow={currentPeriod ? `${currentPeriod.name} loopt` : "Cijfers"}
         title="Cijfers"
-        subtitle={
-          overall !== null ? (
-            <>
-              Gemiddeld <GradeValue value={overall} className="font-semibold" /> over{" "}
-              {averagedCount} vakken
-            </>
-          ) : undefined
-        }
+        subtitle={subtitle ?? undefined}
       />
 
       {pack.length > 0 && (
@@ -127,9 +131,9 @@ export function GradesView() {
               🔒 {pack.length} {pack.length === 1 ? "nieuw cijfer wacht" : "nieuwe cijfers wachten"}{" "}
               in je pack
             </p>
-            <p className="text-sm text-ink-2">Ze tellen pas mee als je ze onthult. Niet spieken.</p>
+            <p className="text-sm text-ink-2">{locked}</p>
           </div>
-          <Button variant="primary" onClick={openPackToast}>
+          <Button variant="primary" onClick={openPack}>
             Open je pack
           </Button>
         </GlassPanel>

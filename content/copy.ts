@@ -1,0 +1,571 @@
+/**
+ * Alle teksten met karakter in SuperMagister, op één plek.
+ *
+ * Volgt de humorbijbel (docs/aanvulling.md): droog, specifiek, maximaal één
+ * emoji, minstens 5 varianten per situatie. De app toont nooit twee keer
+ * achter elkaar dezelfde variant.
+ *
+ * Een witregel (\n) splitst een tekst in een titel en een uitleg.
+ * Variabelen tussen accolades worden ingevuld: {cijfer}, {vak}, {naam}, …
+ * Pas gerust aan; de tests in lib/copy.test.ts bewaken de regels.
+ */
+export const COPY = {
+  // ——— Laden ———————————————————————————————————————————————————————————
+  "laden.algemeen": [
+    "Magister wakker maken. Die is 's ochtends ook niet zo snel.",
+    "De conciërge zoekt de juiste sleutel.",
+    "Laden. Net als jij om 08:29.",
+    "Even geduld. Deze clanker doet zijn best.",
+    "Verbinding maken. Niet met de schoolwifi, gelukkig.",
+  ],
+  "laden.cijfers": [
+    "Cijfers worden opgepoetst…",
+    "Komma's worden rechtgezet…",
+    "Weegfactoren worden gewogen. Zwaar werk.",
+    "De rode pen wordt opgeborgen…",
+    "De nakijkstapel wordt doorgebladerd…",
+  ],
+  "laden.rooster": [
+    "Rooster wordt ontward…",
+    "Lokalen worden geteld. Er is er weer één kwijt.",
+    "Tussenuren worden opgespoord…",
+    "Uitval wordt gezocht. Duimen.",
+    "De bel wordt gestemd…",
+  ],
+  "laden.huiswerk": [
+    "Huiswerk wordt verstopt… grapje",
+    "Agenda wordt opengeslagen. Die was al weken dicht.",
+    "Teams-deadlines worden geteld. Allemaal om 23:59.",
+    "Opdrachten worden gezocht. Helaas gevonden.",
+    "De studiewijzer wordt ontcijferd…",
+  ],
+  "laden.pack": [
+    "Flares worden aangestoken…",
+    "Het stadion loopt vol…",
+    "Kaarten worden geschud…",
+    "Spanning wordt opgebouwd. Professioneel.",
+    "Schijnwerpers worden scheef gehangen…",
+  ],
+  "laden.collectie": [
+    "Album wordt opengeslagen…",
+    "Kaarten worden gesorteerd. Op glans.",
+    "Plaatjes worden gladgestreken…",
+    "De zeldzame kaarten worden apart gelegd…",
+    "Je verzameling wordt afgestoft…",
+  ],
+
+  // ——— Begroeting (titel bovenaan Vandaag) ————————————————————————————————
+  "begroeting.ochtend": [
+    "Goeiemorgen {naam}.",
+    "Morgen, {naam}.",
+    "Hé {naam}. Vroeg, hè.",
+    "Goeiemorgen {naam} ☀️",
+    "{naam}. Je bent wakker. Knap.",
+  ],
+  "begroeting.middag": [
+    "Hoi {naam}.",
+    "Goeiemiddag {naam}.",
+    "Daar ben je, {naam}.",
+    "Middag, {naam}.",
+    "Hé {naam}. Nog steeds hier.",
+  ],
+  "begroeting.avond": [
+    "Goeienavond {naam}.",
+    "Avond, {naam}.",
+    "Hé {naam}. Nog even dan.",
+    "{naam}. Huiswerktijd. Sorry.",
+    "Goeienavond {naam} 🌆",
+  ],
+  "begroeting.nacht": [
+    "Huh, ben je nog wakker? 🌙",
+    "Het is {tijd}, {naam}.",
+    "Nog wakker? Wij ook. Wij zijn een app.",
+    "{naam}. Bed. Nu.",
+    "Slapen is ook een vak, {naam}.",
+  ],
+  "begroeting.verjaardag": [
+    "Gefeliciteerd, {naam}.",
+    "Gefeliciteerd {naam} 🎂",
+    "Jarig, {naam}. Zelfde rooster.",
+    "{naam} is jarig. Je docent weet het niet.",
+    "Hoera, {naam}. De tosti is vandaag van jou.",
+  ],
+
+  // ——— Dag (regel onder de begroeting) ——————————————————————————————————
+  "dag.weekend": [
+    "Weekend. Magister weet even niet waar je bent.",
+    "Geen lessen vandaag. Lees dat nog een keer.",
+    "Weekend. De schoolwifi doet het nu vast wél.",
+    "Geen school. Zelfs de conciërge is vrij.",
+    "Geen bel vandaag. Hooguit die van de pizzabezorger.",
+  ],
+  "dag.vrij": [
+    "Geen lessen vandaag. Verdacht, maar we klagen niet.",
+    "Leeg rooster. Iemand heeft zich vergist. Niet melden.",
+    "Vandaag geen school. Officieel.",
+    "Geen lessen. De tostimachine in de aula voelt zich eenzaam.",
+    "Vrij. Zelfs het mentoruur gaat niet door.",
+  ],
+  "dag.klaar": [
+    "School zit erop. De rest van de dag is van jou.",
+    "Laatste bel is geweest. Je bent vrij. Ongeveer.",
+    "Klaar voor vandaag. Je tas mag in de hoek.",
+    "School is uit. Huiswerk is nog aan.",
+    "Dat was het. De conciërge doet zo het licht uit.",
+  ],
+  "dag.vrijdag": [
+    "Vrijdag. Nog {aantal} {lessen} tussen jou en het weekend.",
+    "Nog {aantal} {lessen}. Je ruikt het weekend al.",
+    "Vrijdag. Nog {aantal} {lessen} volhouden. Waarschijnlijk lukt dat.",
+    "Nog {aantal} {lessen}, dan is het weekend. Niet vooruitlopen.",
+    "Vrijdag. {aantal} {lessen} te gaan. Daarna: heerlijk niks.",
+  ],
+  "dag.pittig": [
+    "Pittige dag: {uren} uur en {toetsen}.",
+    "{uren} uur en {toetsen}. Neem een extra tosti mee.",
+    "Vandaag: {uren} uur en {toetsen}. Diep ademhalen.",
+    "{uren} uur en {toetsen}. Low cortisol zit er vandaag niet in.",
+    "{uren} uur school en {toetsen}. Je komt erdoorheen. We hebben het nagerekend.",
+  ],
+  "dag.toets": [
+    "Vandaag {toetsen}. Je kunt dit.",
+    "{toetsen} vandaag. Pak alvast een blaadje.",
+    "Vandaag {toetsen}. Je hebt geleerd. Toch?",
+    "{toetsen} op het menu. Succes. Echt.",
+    "Vandaag {toetsen}. Je brein heeft er zin in. Zegt hij.",
+  ],
+  "dag.bezig": [
+    "Nog {aantal} {lessen} te gaan.",
+    "Nog {aantal} {lessen}. Je bent er bijna. Je bent er niet.",
+    "Nog {aantal} {lessen}. De klok tikt. Langzaam.",
+    "Nog {aantal} {lessen}. Water drinken, mensen.",
+    "{aantal} {lessen} nog. Dan mag je weer ademen.",
+  ],
+  "dag.voorSchool": [
+    "{uren} uur vandaag. Eerste les om {tijd}.",
+    "Eerste bel om {tijd}. Daarna nog {uren} uur. Succes.",
+    "Om {tijd} begint het. {uren} uur. Je kunt het.",
+    "{uren} uur school. De eerste om {tijd}. Fiets voorzichtig.",
+    "Eerste les om {tijd}. Je hebt nog even. Niet te lang.",
+  ],
+  "dag.nacht": [
+    "Je eerste les begint om {tijd}. Slaap lekker.",
+    "Morgen om {tijd} weer. Je mentor rekent op je. Een beetje.",
+    "Om {tijd} moet je er staan. Je telefoon mag ook slapen.",
+    "Morgen {tijd}. Dat is sneller dan je denkt.",
+    "Eerste les om {tijd}. Je wekker weet het al. Jij nu ook.",
+  ],
+  "dag.nachtVrij": [
+    "Morgen geen school. Slapen mag toch.",
+    "Geen school morgen. Uitslapen is ook een vaardigheid.",
+    "Morgen vrij. Je bed is het enige lokaal dat telt.",
+    "Niks morgen. Ga toch maar slapen.",
+    "Morgen geen les. De wekker mag uit. Echt.",
+  ],
+
+  // ——— Nu bezig ——————————————————————————————————————————————————————————
+  "nu.pauze": [
+    "Pauze. Nog {minuten} minuten. Ren naar de aula.",
+    "Pauze. {minuten} minuten. De rij bij de kantine is al lang.",
+    "{minuten} minuten pauze. Genoeg voor één tosti. Net.",
+    "Pauze. {minuten} minuten niks. Geniet ervan.",
+    "Pauze. Jij hebt {minuten} minuten. De wifi heeft er nul.",
+  ],
+  "nu.tussenuur": [
+    "Tussenuur. {minuten} minuten in de aula naar je tosti staren. Prachtig.",
+    "Tussenuur. {minuten} minuten officieel niks. Onofficieel huiswerk.",
+    "Tussenuur. De aula is van jou. En van die drie anderen.",
+    "{minuten} minuten tussenuur. Je kunt huiswerk maken. Je gaat het niet doen.",
+    "Tussenuur. Zoek een stopcontact. Je weet waarom.",
+  ],
+  "nu.voorSchool": [
+    "Nog {minuten} minuten tot de eerste bel.",
+    "Over {minuten} minuten gaat de bel. Waar is je pasje?",
+    "Nog {minuten} minuten. Fietsen gaat sneller dan lopen. Dat is wetenschap.",
+    "Eerste bel om {tijd}. Je bent er bijna. Of nog thuis.",
+    "Nog {minuten} minuten. Geen paniek. Wel opschieten.",
+  ],
+  "nu.klaar": [
+    "School zit erop.",
+    "Klaar voor vandaag.",
+    "Uit. Echt uit.",
+    "Laatste bel geweest.",
+    "Dat was het voor vandaag.",
+  ],
+  "nu.vrij": [
+    "Vrij.",
+    "Geen school. Geen bel.",
+    "Vandaag niks. Echt niks.",
+    "Lege dag. Mooie dag.",
+    "Vrij. Zelfs de schoolbel is vrij.",
+  ],
+
+  // ——— Lege staten (titel\nuitleg) ————————————————————————————————————————
+  "leeg.huiswerk": [
+    "Geen huiswerk. Tijd voor de bank. 🛋️\nDe komende vier weken staat er niks. Verdacht, maar we klagen niet.",
+    "Geen huiswerk.\nJe hebt nu officieel niks te doen. Eng, hè.",
+    "Niks te doen.\nJe docenten zijn vergeten huiswerk op te geven. Wij zeggen niks.",
+    "Huiswerkvrij.\nGeniet ervan voordat iemand het merkt.",
+    "Leeg.\nZelfs de studiewijzer weet het even niet.",
+  ],
+  "leeg.huiswerkMorgen": [
+    "Geen huiswerk. Tijd voor de bank.",
+    "Niks opgegeven. Verdacht rustig.",
+    "Je agenda heeft vakantie.",
+    "Geen huiswerk. Je tas wordt lichter.",
+    "Niks te doen. Zeg het niet te hard.",
+  ],
+  "leeg.toetsen": [
+    "Geen toetsen in zicht.",
+    "Twee weken geen toetsen. Je hartslag mag omlaag.",
+    "Geen toetsen. Je hoeft geen blaadje te pakken.",
+    "Niks op de radar. Voor nu.",
+    "Geen toetsen. Je docenten zijn nog aan het bedenken.",
+  ],
+  "leeg.lessenVandaag": [
+    "Geen lessen vandaag.",
+    "Leeg rooster. Mooi rooster.",
+    "Niks vandaag. De beamer heeft rust.",
+    "Geen les. Geen bel. Geen probleem.",
+    "Vandaag geen lessen. De aula mist je. Een beetje.",
+  ],
+  "leeg.roosterDag": [
+    "Geen lessen. Lekker.",
+    "Leeg. Zo mag het altijd.",
+    "Niks. Nada. Noppes.",
+    "Geen les. Geen bel. Geen probleem.",
+    "Vrij. De beamer hoeft vandaag niet te worstelen.",
+  ],
+  "leeg.collectie": [
+    "Je album is leeg.\nOpen je eerste pack. Daar komen kaarten uit, dat is het hele idee.",
+    "Nog geen kaarten.\nElk cijfer wordt een kaart. Ook de 5,4. Vooral de 5,4.",
+    "Leeg album.\nTijd om iets te verzamelen dat geen huiswerk is.",
+    "Nul kaarten.\nDe collectie wacht. Het pack ook.",
+    "Hier komen je kaarten.\nVan brons tot ICON. Meestal zilver. Zo is het leven.",
+  ],
+  "leeg.collectieFilter": [
+    "Geen kaarten met deze filters.\nIets te streng gefilterd. Net als je docent bij een PO.",
+    "Niks gevonden.\nDeze combinatie bestaat (nog) niet.",
+    "Leeg.\nMisschien komt deze kaart nog. Misschien niet.",
+    "Geen match.\nZet een filter uit. Of twee.",
+    "Nul resultaten.\nOok onder de tafels gekeken.",
+  ],
+  "leeg.vitrine": [
+    "Je vitrine is nog leeg.\nKies je vijf beste kaarten. Opscheppen mag hier.",
+    "Lege vitrine.\nTik een kaart aan en zet hem erin.",
+    "Nog niks in de vitrine.\nVijf plekken. Kies wijs. Of gewoon je ICON.",
+    "Vitrine: leeg.\nDit is de plek voor je beste kaarten. Niet voor die 4,9.",
+    "Hier komen je toppers.\nMaximaal vijf. Zo werkt een vitrine.",
+  ],
+  "leeg.prestaties": [
+    "Nog geen prestaties. Nog niet.\nXP, levels en achievements komen in fase 6. Hier ga je alleen maar omhoog.",
+    "Leeg.\nStraks verdien je hier XP met afvinken, focussen en packs openen.",
+    "Nul achievements.\nDat verandert in fase 6. Wij hebben het al gezien. Het wordt goed.",
+    "Nog niks verdiend.\nGeduld. Er komt een levelbalk. Die gaat alleen omhoog.",
+    "Hier komen je prestaties.\nGeen XP-verlies, geen gedoe. Alleen omhoog.",
+  ],
+  "leeg.zoeken": [
+    "Niks gevonden voor ‘{query}’.\nProbeer ‘rooster morgen’ of de naam van een vak.",
+    "‘{query}’ zegt ons niks.\nWe zijn een app, geen helderziende.",
+    "Geen resultaten voor ‘{query}’.\nWel een goede poging.",
+    "‘{query}’? Nee.\nProbeer een vak, of ‘rooster vrijdag’.",
+    "Overal gezocht. Ook achter de radiator.\nGeen ‘{query}’.",
+  ],
+  "leeg.404": [
+    "Deze pagina is zoek.\nMisschien is hij uitgevallen. Of hij heeft een tussenuur.",
+    "Pagina niet gevonden.\nHij zit waarschijnlijk in het lokaal zonder ramen.",
+    "404.\nDeze pagina is net als je gymtas: niet hier.",
+    "Hier is niks.\nDe conciërge heeft ook al gekeken.",
+    "Deze pagina heeft zich ziek gemeld.\nBeterschap. Jij kunt gewoon terug naar Vandaag.",
+  ],
+  "leeg.koppelen": [
+    "Koppelen komt in fase 5.\nTot die tijd kijk je mee met Daan. Hij vindt het prima.",
+    "Nog niet gekoppeld.\nDaan uit 5 havo houdt je plek warm.",
+    "Je eigen Magister komt in fase 5.\nTot dan: de demo. Alles verzonnen, niks erg.",
+    "Koppelen: binnenkort.\nWe bouwen een bladwijzer. Je wachtwoord komt hier nooit.",
+    "Fase 5.\nDan zie je je eigen cijfers. Spannend. Of eng.",
+  ],
+
+  // ——— Meldingen (titel\nuitleg) ———————————————————————————————————————————
+  "toast.privacyAan": [
+    "Privacymodus aan.\nJe cijfers zijn vervaagd. Niemand hoeft het te weten.",
+    "Cijfers verstopt.\nDe meekijker naast je ziet nu alleen blur.",
+    "Privacymodus aan.\nJe tante op de verjaardag kan lang kijken.",
+    "Cijfers vervaagd.\nDruk op P om ze weer te zien.",
+    "Privacymodus aan.\nGeheim blijft geheim.",
+  ],
+  "toast.privacyUit": [
+    "Privacymodus uit.\nAlles is weer zichtbaar. Ook die ene.",
+    "Cijfers zichtbaar.\nKijk even of er niemand achter je staat.",
+    "Blur weg.\nDe waarheid is terug.",
+    "Privacymodus uit.\nDapper.",
+    "Alles zichtbaar.\nMet trots. Of niet.",
+  ],
+  "toast.thema": [
+    "Thema {thema}.\nDe hele app is omgekleed. Jij nog niet.",
+    "{thema} staat aan.\nZelfde rooster, mooiere kleuren.",
+    "Nieuw thema: {thema}.\nGoede keuze. Wij hadden hetzelfde gekozen.",
+    "{thema}.\nHet huiswerk blijft hetzelfde. Sorry.",
+    "Thema gewisseld naar {thema}.\nVoelt meteen anders. Is het ook.",
+  ],
+  "toast.binnenkort": [
+    "{wat} komt in {fase}.\nWe zijn ermee bezig. Het wordt mooi.",
+    "{wat}: nog even geduld.\nKomt in {fase}.",
+    "Nog niet klaar.\n{wat} komt in {fase}. Beloofd.",
+    "{wat} staat gepland voor {fase}.\nEr wordt aan gesleuteld.",
+    "Bijna. Nou ja, {fase}.\n{wat} is nog in de maak.",
+  ],
+  "toast.packGereset": [
+    "Pack opnieuw dichtgeplakt.\nDe demo-cijfers liggen weer klaar.",
+    "Terug in de verpakking.\nAlsof er nooit iets gebeurd is.",
+    "Pack gereset.\nJe mag weer opnieuw schrikken.",
+    "Dichtgeplakt.\nNiemand hoeft te weten dat je ze al kende.",
+    "Opnieuw verpakt.\nMet dezelfde liefde. En dezelfde cijfers.",
+  ],
+  "toast.geenPack": [
+    "Geen nieuwe cijfers.\nJe docenten zijn nog aan het nakijken. Of aan de koffie.",
+    "Niks om te openen.\nAlles is al onthuld. Probeer de oefenmodus.",
+    "Pack leeg.\nHet volgende komt vanzelf.",
+    "Geen pack.\nGeen nieuws is goed nieuws. Meestal.",
+    "Er ligt niks klaar.\nRust. Geniet ervan.",
+  ],
+  "toast.vitrineToegevoegd": [
+    "In je vitrine gezet.\nOpscheppen is ook een vak.",
+    "Vitrinewaardig.\nDeze kaart staat nu vooraan.",
+    "Toegevoegd.\nHij glimt er al.",
+    "In de vitrine.\nDe rest van je kaarten is jaloers.",
+    "Staat erin.\nGoede keuze. Wij oordelen niet. Een beetje wel.",
+  ],
+  "toast.vitrineWeg": [
+    "Uit je vitrine gehaald.\nHij ligt weer gewoon in je album.",
+    "Weggehaald.\nGeen drama. Hij kan terug.",
+    "Uit de vitrine.\nDe kaart begrijpt het. Denken we.",
+    "Verwijderd.\nPlek vrij voor iets moois.",
+    "Eruit.\nGeen hard feelings.",
+  ],
+  "toast.vitrineVol": [
+    "Vitrine vol.\nVijf is het maximum. Haal er eerst eentje uit.",
+    "Geen plek meer.\nVijf kaarten. Kiezen is ook een vaardigheid.",
+    "Vol.\nZelfs een vitrine heeft grenzen.",
+    "Het past niet.\nVijf plekken, vijf kaarten. Wiskunde.",
+    "Vitrine zit vol.\nWie mag eruit? Moeilijk, hè.",
+  ],
+  "toast.afbeelding": [
+    "Afbeelding klaar.\nDelen is opscheppen met extra stappen.",
+    "Opgeslagen.\nNu nog een goed moment om hem te sturen.",
+    "Klaar om te delen.\nJe groepsapp weet nog van niks.",
+    "Gedownload.\nPixel voor pixel. Met liefde gemaakt.",
+    "Afbeelding gemaakt.\nDe screenshot-generatie is trots op je.",
+  ],
+  "toast.doelGehaald": [
+    "Doel gehaald: {wat}.\nDe beloning ligt klaar. Verdiend.",
+    "{wat}: gelukt.\nJe album wordt er beter van.",
+    "Verzameldoel binnen.\n{wat}. Niemand had het verwacht. Behalve wij.",
+    "{wat}. Check.\nVolgende doel staat al klaar.",
+    "Gelukt: {wat}.\nWe zouden applaudisseren, maar we zijn een app.",
+  ],
+
+  // ——— Pack en cijfers —————————————————————————————————————————————————————
+  "pack.teaser": [
+    "Er zit iets in. De gloed verraadt het al.",
+    "Je docent heeft ze al gezien. Jij nog niet.",
+    "Spannend. Of niet. Dat weet je pas als je kijkt.",
+    "Negeren lukt niemand. Probeer het maar.",
+    "Ingevoerd door je docent, ingepakt door ons.",
+  ],
+  "pack.leeg": [
+    "Alles bekeken.\nNieuwe cijfers verschijnen hier als pack.",
+    "Geen nieuwe cijfers.\nJe docenten zijn nog aan het nakijken. Of aan de koffie.",
+    "Alles onthuld.\nRust. Eindelijk.",
+    "Pack leeg.\nHet volgende komt vanzelf. Soms helaas.",
+    "Niks nieuws.\nGeen nieuws is goed nieuws. Meestal.",
+  ],
+  "pack.slot": [
+    "Ze tellen pas mee als je ze onthult. Niet spieken.",
+    "Je gemiddelde wacht ook. Het is net zo nieuwsgierig.",
+    "Op slot tot je ze opent. Die regel hebben wij bedacht.",
+    "Ze liggen klaar. Ze kijken naar je.",
+    "Eerst openen, dan rekenen.",
+  ],
+  "huiswerk.subtitel": [
+    "{aantal} {dingen} te doen.",
+    "{aantal} {dingen}. Eén voor één.",
+    "{aantal} {dingen} te doen. Of te negeren. Doe dat niet.",
+    "{aantal} {dingen} in de wachtrij.",
+    "{aantal} {dingen} te doen. Teams telt mee.",
+  ],
+  "cijfers.subtitel.goed": [
+    "Gemiddeld {gem} over {aantal} vakken.",
+    "{gem} gemiddeld over {aantal} vakken. Netjes.",
+    "Je staat op een {gem}. De rapportvergadering wordt kort.",
+    "{gem} over {aantal} vakken. Je ouders zeggen 'zie je wel'.",
+    "Gemiddeld een {gem}. Dit rapport mag gezien worden.",
+  ],
+  "cijfers.subtitel.krap": [
+    "Gemiddeld {gem} over {aantal} vakken. Krap, maar binnen.",
+    "{gem} gemiddeld. Precies genoeg. Strategie.",
+    "Je staat op een {gem}. Niet spannend, wel voldoende.",
+    "{gem} over {aantal} vakken. De zesjescultuur leeft.",
+    "Gemiddeld {gem}. Er zit nog rek in. Wij zien het.",
+  ],
+  "cijfers.subtitel.zwaar": [
+    "Gemiddeld {gem} over {aantal} vakken. Werk aan de winkel. Te doen.",
+    "{gem} gemiddeld. Geen paniek. Wel een plan.",
+    "Je staat op een {gem}. Dit is het begin van een comeback.",
+    "{gem} over {aantal} vakken. Lowkey cooked, highkey te fixen.",
+    "Gemiddeld {gem}. Eén goede toetsweek verandert veel.",
+  ],
+  // Privacymodus: de toon mag niet verraden hoe het gaat.
+  "cijfers.subtitel.privacy": [
+    "Gemiddeld {gem} over {aantal} vakken. Meer zeggen we niet.",
+    "Je gemiddelde is {gem}. Staatsgeheim.",
+    "{gem} over {aantal} vakken. Wie meekijkt, ziet niks.",
+    "Gemiddeld {gem}. Wij weten het, jij weet het, verder niemand.",
+    "{aantal} vakken, één gemiddelde: {gem}. Vervaagd, voor de zekerheid.",
+  ],
+
+  // ——— Walkout: reacties per tier ——————————————————————————————————————————
+  "walkout.reactie.icon": [
+    "Een {cijfer}. Ergens in de lerarenkamer valt een koffiekopje.",
+    "{cijfer} voor {vak}. Aura: niet meer meetbaar.",
+    "Een {cijfer}. We hebben het nagerekend. Het klopt echt.",
+    "{cijfer}. Dit gaat op de koelkast. Digitaal dan.",
+    "Een {cijfer} voor {omschrijving}. Rustig blijven. Gewoon knikken.",
+  ],
+  "walkout.reactie.toty": [
+    "Een {cijfer}. Team of the Year. Het jaar is nog niet eens om.",
+    "{cijfer} voor {vak}. Dat is geen toeval meer.",
+    "Een {cijfer}. Zeg het niet te hard in de aula.",
+    "Een {cijfer}. De nakijkpen viel er even stil van.",
+    "{cijfer}. Op de ouderavond wordt over je gesproken. Positief.",
+  ],
+  "walkout.reactie.goud": [
+    "Een {cijfer}. Je docent heeft drie keer gecontroleerd of dat klopte.",
+    "{cijfer} voor {vak}. Geen drama. Gewoon goed.",
+    "Een {cijfer}. Vandaag mag de tosti extra kaas.",
+    "Een {cijfer}. Daar kun je mee thuiskomen.",
+    "{cijfer}. Netjes. Je ouders zeggen 'zie je wel'.",
+  ],
+  "walkout.reactie.zilver": [
+    "Een {cijfer}. Voldoende. Het systeem is tevreden.",
+    "{cijfer}. Niet spectaculair. Wel binnen.",
+    "Een {cijfer} voor {vak}. De zesjescultuur leeft.",
+    "Een {cijfer}. Geen applaus, geen gedoe.",
+    "Een {cijfer}. Overleefd. Daar gaat het om.",
+  ],
+  "walkout.reactie.tekst": [
+    "Een {cijfer}. Geen cijfer, wel een mening.",
+    "{cijfer}. Kort en krachtig. Net als je gymdocent.",
+    "Een {cijfer}. Telt niet mee. Voelt wel goed.",
+    "{cijfer} voor {vak}. Je hebt bewogen. Genoteerd.",
+    "Een {cijfer}. Beoordeeld met een fluitje om de nek.",
+  ],
+
+  // ——— Walkout: onvoldoende (grap, steun, actie) ——————————————————————————
+  "walkout.onvoldoende.bijna": [
+    "Een {cijfer}. De 5,5 was letterlijk dáár. Je kon hem ruiken.",
+    "Een {cijfer}. Zo dichtbij dat het pijn doet.",
+    "{cijfer}. Eén goed antwoord. Eén.",
+    "Een {cijfer}. De voldoende stond buiten te wachten. Hij is naar huis.",
+    "{cijfer} voor {vak}. Bijna is ook een woord. Geen fijn woord.",
+  ],
+  "walkout.onvoldoende.grap": [
+    "Een {cijfer}. Die toets had een slechte dag. Jij ook.",
+    "{cijfer} voor {vak}. Kaulo zuur. Maar het is één cijfer.",
+    "Een {cijfer}. De pinguïn begint richting de bergen te lopen. Roep hem terug.",
+    "Een {cijfer}. Deze kaart gaat niet in de vitrine.",
+    "{cijfer}. Niet je beste werk. Ook niet je laatste toets.",
+  ],
+  "walkout.onvoldoende.steun": [
+    "Eén cijfer zegt niks over wat je kunt.",
+    "Dit is te fixen. Vervelend, maar te fixen.",
+    "Je hebt zwaardere weken overleefd.",
+    "Iedereen heeft er zo één. Je docent vroeger ook.",
+    "Volgende toets is een nieuwe kans. Klinkt cliché, klopt wel.",
+  ],
+  "walkout.onvoldoende.actie": [
+    "Met een {nodig} op de volgende toets sta je weer op een {doel}.",
+    "Haal een {nodig} en je staat weer op een {doel}.",
+    "Een {nodig} op de volgende toets, en je gemiddelde is weer {doel}.",
+    "Volgende keer een {nodig}? Dan sta je op een {doel}. Doable.",
+    "Met een {nodig} ben je terug op een {doel}. Eén toets.",
+  ],
+  "walkout.onvoldoende.actieRustig": [
+    "Je staat nog op een {gem}. Met een {nodig} op de volgende toets is het weer {doel}.",
+    "Gemiddeld nog een {gem}. Een {nodig} erachteraan en je zit op {doel}.",
+    "Je gemiddelde is nog {gem}. Eén tik, geen breuk. Met een {nodig} wordt het {doel}.",
+    "Nog steeds een {gem} gemiddeld. Volgende toets een {nodig}? Dan {doel}.",
+    "Rustig: je staat op een {gem}. Met een {nodig} haal je {doel}.",
+  ],
+  "walkout.onvoldoende.actieLang": [
+    "Dit fix je niet in één toets. Wel in een paar. Begin bij de volgende.",
+    "Eén toets is niet genoeg om het recht te trekken. Twee of drie wel.",
+    "Dit wordt een project. Een haalbaar project.",
+    "Niet in één keer, wel stap voor stap. Je mentor denkt graag mee.",
+    "Lange adem nodig. Je hebt er meer van dan je denkt.",
+  ],
+  "walkout.onvoldoende.comeback": [
+    "Je kunt dit nog ophalen 💪",
+    "Wordt vervolgd. Met een beter cijfer.",
+    "Deze kaart krijgt een vervolg.",
+    "Aflevering 1. Het wordt beter.",
+    "Elke goede comeback begint hier.",
+  ],
+
+  // ——— Walkout: varianten ——————————————————————————————————————————————————
+  "walkout.variant.inform": [
+    "In Form. {verschil} boven je gemiddelde.",
+    "In Form. Je gemiddelde kan het niet bijhouden.",
+    "In Form-kaart. Zwart met goud. Net als je toekomst.",
+    "In Form. {verschil} boven je eigen normaal. Wie ben jij?",
+    "In Form. Je gemiddelde staat ervan te kijken.",
+  ],
+  "walkout.variant.record": [
+    "Record. Je hoogste {vak}-cijfer ooit.",
+    "Nieuw record voor {vak}. Het vorige record is beledigd.",
+    "Record. Zo hoog kwam je in {vak} nog nooit.",
+    "Record. Zet het in je bio.",
+    "Persoonlijk record. De lat ligt nu hoger. Sorry.",
+  ],
+  "walkout.variant.comeback": [
+    "Comeback. Eerst onvoldoende, nu dit.",
+    "Comeback-kaart. Netflix wil de rechten.",
+    "Comeback. De pinguïn draaide om.",
+    "Van onvoldoende naar dit. Character development.",
+    "Comeback. Je vorige cijfer wil er niet meer over praten.",
+  ],
+  "walkout.variant.reeks": [
+    "Reeks: {aantal} voldoendes op rij.",
+    "{aantal} keer op rij voldoende. Stabieler dan de schoolwifi.",
+    "Reeks van {aantal}. Niet stoppen nu.",
+    "{aantal} op rij. Consistent. Eng consistent.",
+    "Reeks: {aantal}. Je docent begint een patroon te zien.",
+  ],
+
+  // ——— Walkout: pack en oefenen ———————————————————————————————————————————
+  "walkout.pack.klaar": [
+    "Pack leeg.\n{aantal} nieuwe {kaarten}. Gevoelens: gemengd tot goed.",
+    "Dat waren ze.\n{aantal} {kaarten}. Je kunt weer ademen.",
+    "{aantal} {kaarten} erbij.\nJe album wordt dikker. Je tas niet.",
+    "Klaar.\n{aantal} nieuwe {kaarten} in je collectie. Niemand vroeg erom, iedereen wil ze.",
+    "Pack geopend.\n{aantal} {kaarten}. Geen retour mogelijk.",
+  ],
+  "walkout.oefen": [
+    "Nepcijfers, echte flares.\nZie alle tiers zonder dat er iets meetelt.",
+    "Oefenen zonder risico.\nGeen cijfer telt mee. Je hartslag wel.",
+    "De generale repetitie.\nAlle kaarten, nul gevolgen.",
+    "Testpack.\nVoor als je de ICON-walkout nog eens wilt zien. Begrijpelijk.",
+    "Oefenmodus.\nHier is een 9,8 gratis. Geniet ervan.",
+  ],
+
+  // ——— Collectie ——————————————————————————————————————————————————————————
+  "collectie.subtitel": [
+    "{aantal} {kaarten}. Geen enkele te koop.",
+    "{aantal} {kaarten} verzameld. Met bloed, zweet en SO's.",
+    "{aantal} {kaarten}. Elke kaart een toets die je overleefd hebt.",
+    "{aantal} {kaarten}. Allemaal eerlijk verdiend.",
+    "{aantal} {kaarten} in je album. Plakken hoeft niet.",
+  ],
+} as const satisfies Record<string, readonly string[]>;
+
+export type CopyKey = keyof typeof COPY;

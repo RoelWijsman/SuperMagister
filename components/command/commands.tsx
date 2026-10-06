@@ -3,6 +3,7 @@
 import {
   Gift,
   Keyboard,
+  Sparkles,
   Moon,
   Palette,
   Paintbrush,
@@ -18,10 +19,12 @@ import { useMemo } from "react";
 import { NAV_ITEMS } from "@/components/shell/nav";
 import { togglePrivacyWithFeedback } from "@/components/shell/PrivacyToggle";
 import { SubjectBadge } from "@/components/subjects/SubjectBadge";
+import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { parseIntent } from "@/lib/commands/intents";
 import type { RankableCommand } from "@/lib/commands/rank";
 import { daysRange, useHomework, useRevealState, useSubjectAppearance } from "@/lib/data/hooks";
 import { addDays, formatRelativeDay, nextWeekday, parseISODate, toISODate } from "@/lib/date";
+import { notify } from "@/lib/notify";
 import { applyThemeVars } from "@/lib/theme/apply";
 import { getPreset, THEME_PRESETS } from "@/lib/theme/themes";
 import { useSettings } from "@/stores/settings";
@@ -64,11 +67,7 @@ function ThemeSwatch({ from, to }: { from: string; to: string }) {
 }
 
 function soonToast(what: string, phase: string): void {
-  toast({
-    emoji: "🚧",
-    title: `${what} komt in ${phase}`,
-    description: "Nog even geduld, het wordt mooi.",
-  });
+  notify("toast.binnenkort", { wat: what, fase: phase }, { emoji: "🚧" });
 }
 
 interface Options {
@@ -85,6 +84,7 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
   const today = useMemo(() => new Date(), []);
   const homework = useHomework(daysRange(addDays(today, -2), 21));
   const { pack } = useRevealState();
+  const { openPack, startPractice } = useWalkoutActions();
   const colorMode = useSettings((s) => s.colorMode);
   const theme = useSettings((s) => s.theme);
 
@@ -104,7 +104,7 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
         preview: () => applyThemeVars(preset.id, null),
         run: () => {
           useSettings.getState().setTheme(preset.id);
-          toast({ emoji: "🎨", title: `Thema ${preset.name}`, duration: 1800 });
+          notify("toast.thema", { thema: preset.name }, { emoji: "🎨", duration: 2600 });
           close();
         },
       }));
@@ -173,8 +173,10 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
           group: "Snel",
           title: `Open je pack: ${pack.length} nieuwe ${pack.length === 1 ? "cijfer" : "cijfers"}`,
           icon: <IconBox icon={Gift} color="var(--sm-accent-ink)" />,
-          soon: "fase 2",
-          run: () => soonToast("De walkout", "fase 2"),
+          run: () => {
+            close();
+            openPack();
+          },
         });
       }
     }
@@ -290,9 +292,24 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
         group: "Acties",
         title: "Open pack",
         subtitle: "Onthul nieuwe cijfers met een walkout",
+        keywords: ["walkout", "kaarten", "cijfers"],
         icon: <IconBox icon={Gift} />,
-        soon: "fase 2",
-        run: () => soonToast("De walkout", "fase 2"),
+        run: () => {
+          close();
+          openPack();
+        },
+      },
+      {
+        id: "actie-oefen",
+        group: "Acties",
+        title: "Oefen een walkout",
+        subtitle: "Alle soorten kaarten, met nepcijfers",
+        keywords: ["walkout", "kaarten", "oefenmodus", "icon", "toty"],
+        icon: <IconBox icon={Sparkles} />,
+        run: () => {
+          close();
+          startPractice();
+        },
       },
       {
         id: "actie-sneltoetsen",
@@ -318,6 +335,8 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
     today,
     homework.data,
     pack.length,
+    openPack,
+    startPractice,
     colorMode,
     theme,
   ]);

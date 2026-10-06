@@ -4,10 +4,26 @@ import { Clock } from "lucide-react";
 import { SubjectBadge } from "@/components/subjects/SubjectBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Widget } from "@/components/ui/Widget";
+import type { CopyKey } from "@/content/copy";
 import type { SubjectAppearance } from "@/lib/data/hooks";
 import { formatDuration, formatRelativeDay, formatTime } from "@/lib/date";
-import type { DayStatus } from "@/lib/school/day";
+import type { DayStatus, DayStatusKind } from "@/lib/school/day";
 import type { Lesson } from "@/lib/types";
+import { useCopy } from "@/lib/use-copy";
+
+const FLAVOR: Partial<Record<DayStatusKind, CopyKey>> = {
+  pauze: "nu.pauze",
+  tussenuur: "nu.tussenuur",
+  "voor-school": "nu.voorSchool",
+  "na-school": "nu.klaar",
+  vrij: "nu.vrij",
+};
+
+const TITLES: Partial<Record<DayStatusKind, string>> = {
+  pauze: "Pauze",
+  tussenuur: "Tussenuur",
+  "voor-school": "Bijna begonnen",
+};
 
 function Ring({
   progress,
@@ -98,6 +114,11 @@ interface NowWidgetProps {
 
 /** Nu bezig: vak, lokaal, docent en de minuten tot de bel. */
 export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
+  const flavor = useCopy(status ? FLAVOR[status.kind] : null, {
+    minuten: String(status?.minutesLeft ?? 0),
+    tijd: status?.next ? formatTime(new Date(status.next.start)) : "",
+  });
+
   if (!status || !now) {
     return (
       <Widget title="Nu bezig" icon={Clock} size="md">
@@ -136,8 +157,6 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
   }
 
   if ((kind === "pauze" || kind === "tussenuur" || kind === "voor-school") && next) {
-    const title =
-      kind === "pauze" ? "Pauze ☕" : kind === "tussenuur" ? "Tussenuur! ☕" : "Bijna begonnen";
     const minutes = minutesLeft ?? 0;
     return (
       <Widget title="Nu bezig" icon={Clock} size="md">
@@ -149,10 +168,11 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
           />
           <div className="min-w-0">
             <p className="font-display text-2xl leading-tight font-semibold tracking-tight">
-              {title}
+              {TITLES[kind]}
             </p>
-            <p className="mt-1.5 text-ink-2">
-              {kind === "voor-school" ? "Je eerste les begint om " : "Volgende les om "}
+            <p className="mt-1.5 text-ink-2">{flavor}</p>
+            <p className="mt-0.5 text-sm text-ink-3">
+              {kind === "voor-school" ? "Eerste les om " : "Volgende les om "}
               {formatTime(new Date(next.start))}
             </p>
           </div>
@@ -164,9 +184,7 @@ export function NowWidget({ status, upcoming, now, subject }: NowWidgetProps) {
 
   return (
     <Widget title="Nu bezig" icon={Clock} size="md">
-      <p className="font-display text-2xl font-semibold tracking-tight">
-        {kind === "na-school" ? "School zit erop ✅" : "Vrij! 🎉"}
-      </p>
+      <p className="font-display text-2xl font-semibold tracking-tight">{flavor}</p>
       <p className="mt-1.5 text-ink-2">
         {upcoming
           ? `Volgende les: ${formatRelativeDay(new Date(upcoming.start), now)} om ${formatTime(new Date(upcoming.start))}.`

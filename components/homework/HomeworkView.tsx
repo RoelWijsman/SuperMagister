@@ -22,6 +22,7 @@ import {
 } from "@/lib/date";
 import { hourLabel } from "@/components/schedule/LessonRow";
 import type { Homework } from "@/lib/types";
+import { useCopy, useCopyParts } from "@/lib/use-copy";
 
 type GroupKey = "vandaag" | "morgen" | "komend" | "later";
 
@@ -68,6 +69,11 @@ export function HomeworkView() {
   }, [homework.data, today]);
 
   const open = (homework.data ?? []).filter((h) => !h.isDone).length;
+  const subtitle = useCopy(homework.data ? "huiswerk.subtitel" : null, {
+    aantal: String(open),
+    dingen: open === 1 ? "ding" : "dingen",
+  });
+  const empty = useCopyParts(homework.data && groups.length === 0 ? "leeg.huiswerk" : null);
 
   useEffect(() => {
     if (!homework.data) return;
@@ -84,7 +90,7 @@ export function HomeworkView() {
       <PageHeader
         eyebrow={`${formatRelativeDay(today, today)} t/m ${formatRelativeDay(addDays(today, 28), today)}`}
         title="Huiswerk"
-        subtitle={homework.data ? `${open} ${open === 1 ? "ding" : "dingen"} te doen` : undefined}
+        subtitle={subtitle ?? undefined}
       />
 
       {!homework.data ? (
@@ -98,11 +104,7 @@ export function HomeworkView() {
           ))}
         </div>
       ) : groups.length === 0 ? (
-        <EmptyState
-          illustration="bank"
-          title="Geen huiswerk. Tijd voor de bank. 🛋️"
-          description="Er staat de komende vier weken niets in Magister. Verdacht, maar we klagen niet."
-        />
+        <EmptyState illustration="bank" title={empty?.title ?? ""} description={empty?.body} />
       ) : (
         <div className="space-y-8">
           {groups.map((group) => (

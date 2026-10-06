@@ -12,10 +12,13 @@
 
 @custom-variant light (&:where([data-mode="light"], [data-mode="light"] *));
 @custom-variant privacy (&:where([data-privacy="on"], [data-privacy="on"] *));
+/* Brede schermen: eindscherm van de walkout naast de kaart. Gelijk aan SIDE_LAYOUT_MIN_ASPECT. */
+@custom-variant naast (@media (min-aspect-ratio: 6/5));
 
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-unbounded), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-card: var(--font-bebas), Impact, "Arial Narrow", sans-serif;
 
   --color-bg: var(--sm-bg);
   --color-ink: var(--sm-ink);
@@ -587,6 +590,24 @@
   list-style: decimal;
 }
 
+@keyframes comeback {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(330%);
+  }
+}
+
+@keyframes autoadvance {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 @keyframes pack-glow {
   0%,
   100% {
@@ -616,6 +637,12 @@
   }
 }
 
+/* Fullscreen-lagen (kaartviewer, walkout) hebben hun knoppen onderin: meldingen dan bovenin. */
+body:has([data-fullscreen]) [data-toaster] {
+  top: calc(0.75rem + env(safe-area-inset-top));
+  bottom: auto;
+}
+
 /* ---------- Kleine hulpklassen ---------- */
 .no-scrollbar {
   scrollbar-width: none;
@@ -631,4 +658,118 @@
 
 .pt-safe {
   padding-top: env(safe-area-inset-top);
+}
+
+/* ---------- Holografische folie (collectie) ----------
+ * Een laag over de kaart, gemaskeerd in de schildvorm. JS zet --px/--py
+ * (cursor in %), --mx/--my (-1 tot 1) en --hyp (0 midden, 1 rand).
+ */
+.holo {
+  --px: 50%;
+  --py: 50%;
+  --mx: 0;
+  --my: 0;
+  --hyp: 0;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.holo::before,
+.holo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* Glimlicht dat de cursor volgt: bij elke folie. */
+.holo::after {
+  background: radial-gradient(
+    farthest-corner circle at var(--px) var(--py),
+    rgb(255 255 255 / 0.6) 0%,
+    rgb(255 255 255 / 0.14) 24%,
+    transparent 55%
+  );
+  mix-blend-mode: overlay;
+  opacity: calc(0.3 + var(--hyp) * 0.55);
+}
+
+.holo[data-foil="standaard"]::before {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.4) 46%,
+    rgb(255 255 255 / 0.08) 54%,
+    transparent 70%
+  );
+  background-size: 260% 260%;
+  background-position: var(--px) var(--py);
+  mix-blend-mode: soft-light;
+}
+
+.holo[data-foil="regenboog"]::before {
+  background: repeating-linear-gradient(
+    110deg,
+    #ff5f6d 0%,
+    #ffc371 5%,
+    #f9f871 10%,
+    #5ee7a1 15%,
+    #5ab8ff 20%,
+    #b388ff 25%,
+    #ff5f6d 30%
+  );
+  background-size: 400% 400%;
+  background-position: var(--px) var(--py);
+  mix-blend-mode: color-dodge;
+  opacity: 0.38;
+}
+
+.holo[data-foil="goud"]::before {
+  background:
+    radial-gradient(circle at var(--px) var(--py), rgb(255 226 140 / 0.7), transparent 45%),
+    repeating-linear-gradient(55deg, transparent 0 5px, rgb(255 214 120 / 0.45) 5px 6px),
+    repeating-linear-gradient(-55deg, transparent 0 7px, rgb(255 232 165 / 0.32) 7px 8px);
+  mix-blend-mode: color-dodge;
+  opacity: 0.55;
+}
+
+.holo[data-foil="sterren"]::before {
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 0.95) 0 1px, transparent 1.7px) calc(var(--mx) * 10px)
+      calc(var(--my) * 10px) / 23px 23px,
+    radial-gradient(circle, rgb(190 215 255 / 0.9) 0 1.2px, transparent 2.1px)
+      calc(var(--mx) * -6px) calc(var(--my) * -6px) / 37px 31px,
+    radial-gradient(circle at var(--px) var(--py), rgb(120 170 255 / 0.6), transparent 55%);
+  mix-blend-mode: color-dodge;
+  opacity: 0.75;
+}
+
+.holo[data-foil="vlam"]::before {
+  background:
+    radial-gradient(120% 60% at 50% 112%, rgb(255 110 20 / 0.8), transparent 62%),
+    linear-gradient(
+      calc(var(--mx) * 25deg),
+      transparent 30%,
+      rgb(255 150 40 / 0.45) 62%,
+      rgb(255 230 120 / 0.6) 88%
+    );
+  mix-blend-mode: color-dodge;
+  opacity: 0.55;
+}
+
+.holo[data-foil="prisma"]::before {
+  background: conic-gradient(
+    from calc(var(--mx) * 180deg) at var(--px) var(--py),
+    #ff4d6d,
+    #ffb347,
+    #ffe066,
+    #4ade80,
+    #38bdf8,
+    #a78bfa,
+    #ff4d6d
+  );
+  mix-blend-mode: color-dodge;
+  opacity: 0.32;
 }

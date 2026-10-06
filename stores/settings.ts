@@ -7,6 +7,7 @@ import { customThemeVars, DEFAULT_THEME, type ThemeId } from "@/lib/theme/themes
 
 export type ColorMode = "dark" | "light" | "system";
 export type MotionPreference = "system" | "reduced" | "full";
+export type WalkoutSpeed = "normaal" | "snel" | "direct";
 
 export interface SettingsValues {
   theme: ThemeId;
@@ -21,9 +22,14 @@ export interface SettingsValues {
   motion: MotionPreference;
   /** Privacymodus staat bij het openen al aan. */
   privacyAuto: boolean;
+  /** Globale mute: geen enkel geluid. */
+  soundMuted: boolean;
   uiSounds: boolean;
   walkoutSounds: boolean;
   haptics: boolean;
+  walkoutSpeed: WalkoutSpeed;
+  /** Na een kaart vanzelf door naar de volgende. */
+  walkoutAuto: boolean;
   /** Eigen vakkleur (paletindex) per vak-id. */
   subjectColors: Record<string, number>;
   subjectIcons: Record<string, SubjectIconName>;
@@ -49,9 +55,12 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   ambientMotion: true,
   motion: "system",
   privacyAuto: false,
+  soundMuted: false,
   uiSounds: false,
   walkoutSounds: true,
   haptics: true,
+  walkoutSpeed: "normaal",
+  walkoutAuto: false,
   subjectColors: {},
   subjectIcons: {},
 };

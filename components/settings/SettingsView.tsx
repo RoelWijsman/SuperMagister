@@ -1,16 +1,26 @@
 "use client";
 
-import { Moon, Monitor, Plug, Sun } from "lucide-react";
+import { Moon, Monitor, PackageOpen, Plug, Sparkles, Sun } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
-import { LinkButton } from "@/components/ui/Button";
+import { Button, LinkButton } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Switch } from "@/components/ui/Switch";
 import { Tabs } from "@/components/ui/Tabs";
+import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
+import { useDataSource } from "@/lib/data/context";
+import { useRevealState } from "@/lib/data/hooks";
 import { useIsClient } from "@/lib/hooks";
+import { notify } from "@/lib/notify";
 import type { TimeOfDay } from "@/lib/theme/time-of-day";
-import { useSettings, type ColorMode, type MotionPreference } from "@/stores/settings";
+import { useCollectionStore } from "@/stores/collection";
+import {
+  useSettings,
+  type ColorMode,
+  type MotionPreference,
+  type WalkoutSpeed,
+} from "@/stores/settings";
 import { useUi } from "@/stores/ui";
 import { SubjectSettings } from "./SubjectSettings";
 import { ThemePicker } from "./ThemePicker";
@@ -60,6 +70,65 @@ const SKY_OPTIONS: { value: TimeOfDay | "auto"; label: string }[] = [
   { value: "avond", label: "Avond" },
   { value: "nacht", label: "Nacht" },
 ];
+
+const SPEED_HINT: Record<WalkoutSpeed, string> = {
+  normaal: "De hele show, met alles erop en eraan.",
+  snel: "Dezelfde show, bijna twee keer zo snel.",
+  direct: "Meteen naar de onthulling. Voor als je weinig tijd hebt.",
+};
+
+/** De walkout: snelheid, automatisch door, oefenen en (demo) het pack opnieuw. */
+function WalkoutSettings() {
+  const settings = useSettings();
+  const source = useDataSource();
+  const { startPractice } = useWalkoutActions();
+  const { resetPack } = useRevealState();
+
+  return (
+    <>
+      <Field label="Snelheid">
+        <Tabs<WalkoutSpeed>
+          id="walkout-snelheid"
+          aria-label="Snelheid van de walkout"
+          size="sm"
+          value={settings.walkoutSpeed}
+          onValueChange={(value) => settings.set("walkoutSpeed", value)}
+          items={[
+            { value: "normaal", label: "Normaal" },
+            { value: "snel", label: "Snel" },
+            { value: "direct", label: "Direct" },
+          ]}
+        />
+      </Field>
+      <p className="-mt-1 mb-2 text-sm text-ink-3">{SPEED_HINT[settings.walkoutSpeed]}</p>
+      <Switch
+        label="Automatisch door"
+        description="Na een paar seconden vanzelf naar de volgende kaart."
+        checked={settings.walkoutAuto}
+        onCheckedChange={(value) => settings.set("walkoutAuto", value)}
+      />
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Button variant="glass" icon={Sparkles} onClick={() => startPractice()}>
+          Oefen een walkout
+        </Button>
+        {source.id === "demo" && (
+          <Button
+            variant="ghost"
+            icon={PackageOpen}
+            onClick={() => {
+              if (!resetPack()) return;
+              // Dan mag ook het verzameldoel uit het startpack opnieuw gevierd worden.
+              useCollectionStore.getState().resetAnnounced(source.id);
+              notify("toast.packGereset", {}, { emoji: "🎁" });
+            }}
+          >
+            Pack opnieuw dichtplakken
+          </Button>
+        )}
+      </div>
+    </>
+  );
+}
 
 /** Instellingen. Alles wordt lokaal op dit apparaat bewaard. */
 export function SettingsView() {
@@ -154,6 +223,14 @@ export function SettingsView() {
         </Section>
 
         <Section
+          id="walkout"
+          title="Walkout"
+          description="Elk nieuw cijfer komt binnen als verzamelkaart, met een eigen walkout."
+        >
+          <WalkoutSettings />
+        </Section>
+
+        <Section
           id="vakken"
           title="Vakken"
           description="Elk vak heeft een vaste kleur en een icoon. Tik op een vak om ze aan te passen."
@@ -164,8 +241,14 @@ export function SettingsView() {
         <Section
           id="geluid"
           title="Geluid en trillen"
-          description="Alle geluiden worden live gemaakt, zonder geluidsbestanden. Ze komen met de walkout in fase 2."
+          description="Alle geluiden worden live gemaakt, zonder geluidsbestanden."
         >
+          <Switch
+            label="Alles stil"
+            description="Zet in één keer al het geluid uit. Kan ook met de luidspreker in de walkout."
+            checked={settings.soundMuted}
+            onCheckedChange={(value) => settings.set("soundMuted", value)}
+          />
           <Switch
             label="Geluidjes in de app"
             description="Zachte tikjes bij knoppen en afvinken."
@@ -204,7 +287,7 @@ export function SettingsView() {
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
             eigen account.
           </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.1 · fase 1: het fundament</p>
+          <p className="mt-3 text-xs text-ink-3">Versie 0.2 · fase 2: de cijferonthulling</p>
         </Section>
       </div>
     </>

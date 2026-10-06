@@ -12,6 +12,8 @@ interface RevealState {
     packIds: readonly string[],
   ) => Promise<void>;
   reveal: (ids: readonly string[]) => void;
+  /** Demo: het startpack weer dichtplakken, zodat je het opnieuw kunt openen. */
+  reset: (sourceId: string, allGradeIds: readonly string[], packIds: readonly string[]) => void;
 }
 
 const storageKey = (sourceId: string) => `onthuld:${sourceId}`;
@@ -35,5 +37,11 @@ export const useReveal = create<RevealState>()((set, get) => ({
     for (const id of ids) next.add(id);
     set({ revealed: next });
     void idbSet(storageKey(sourceId), [...next]);
+  },
+
+  reset(sourceId, allGradeIds, packIds) {
+    const ids = initialRevealedIds(allGradeIds, packIds);
+    set({ sourceId, revealed: new Set(ids) });
+    void idbSet(storageKey(sourceId), ids);
   },
 }));

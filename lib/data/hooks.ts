@@ -1,7 +1,7 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { addDays, startOfWeek, toISODate } from "@/lib/date";
 import { unrevealedGrades } from "@/lib/reveal";
 import { homeworkFromLessons, testsFromLessons } from "@/lib/school/derive";
@@ -122,7 +122,18 @@ export function useRevealState() {
     () => unrevealedGrades(grades.data ?? [], revealed),
     [grades.data, revealed],
   );
-  return { revealed, pack, isLoading: !revealed };
+  const resetStore = useReveal((s) => s.reset);
+  /** Plakt het startpack weer dicht. Geeft false als de data er nog niet is. */
+  const resetPack = useCallback(() => {
+    if (!grades.data || !packIds.data) return false;
+    resetStore(
+      source.id,
+      grades.data.map((g) => g.id),
+      packIds.data,
+    );
+    return true;
+  }, [grades.data, packIds.data, resetStore, source.id]);
+  return { revealed, pack, isLoading: !revealed, resetPack };
 }
 
 export interface SubjectAppearance {

@@ -24,9 +24,16 @@ import {
 import { useNow } from "@/lib/hooks";
 import { isTestInfoType } from "@/lib/school/derive";
 import type { Lesson } from "@/lib/types";
+import { useCopy } from "@/lib/use-copy";
 import { LessonRow } from "./LessonRow";
 
 const byStart = (a: Lesson, b: Lesson) => a.start.localeCompare(b.start);
+
+/** Lege dag in het rooster. Elke dag een andere variant. */
+function EmptyDay() {
+  const text = useCopy("leeg.roosterDag");
+  return <p className="py-4 text-ink-2">{text}</p>;
+}
 
 function daySummary(lessons: Lesson[]): string {
   const active = lessons.filter((l) => l.status !== "uitval");
@@ -187,7 +194,7 @@ export function ScheduleView() {
                   )}
                 </header>
                 {list.length === 0 ? (
-                  <p className="py-4 text-ink-2">Geen lessen. Lekker.</p>
+                  <EmptyDay />
                 ) : (
                   <ul className="-mx-2 space-y-0.5">
                     {list.map((lesson) => {

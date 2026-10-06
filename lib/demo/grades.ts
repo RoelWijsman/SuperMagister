@@ -227,7 +227,7 @@ const GRADE_SPECS: readonly GradeSpec[] = [
     subject: "biol",
     description: "Toets H4 Evolutie",
     weight: 2,
-    value: 8.6,
+    value: 8.4,
     period: 3,
     ago: 20,
     pta: true,
