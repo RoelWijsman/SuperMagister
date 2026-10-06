@@ -5,7 +5,7 @@ import { formatShortDate, parseISODate } from "@/lib/date";
 import { createRandom } from "@/lib/random";
 import { hashString } from "@/lib/subjects/palette";
 import { iconNodeToPaths, SUBJECT_ICON_NODES, type IconPath } from "./icon-paths";
-import { cardLook, cardTierLabel, type CardData } from "./model";
+import { cardLook, cardTierLabel, silhouetteCaption, type CardData } from "./model";
 
 /**
  * De verzamelkaart, getekend op canvas. Dit is de enige plek waar een kaart
@@ -540,9 +540,19 @@ export function drawCardBack(ctx: CanvasRenderingContext2D, card: CardData, widt
   ctx.restore();
 }
 
-/** Donker silhouet met een gloeiende rand, voor het ronddraaien in de walkout. */
-export function drawCardSilhouette(ctx: CanvasRenderingContext2D, width: number, glow: string) {
+/**
+ * Donker silhouet met een gloeiende rand, voor het ronddraaien in de walkout.
+ * Het midden blijft leeg (daar staat bij het gokmoment de teller); onderaan
+ * staat waar je op gokt: vak, toets en weging.
+ */
+export function drawCardSilhouette(
+  ctx: CanvasRenderingContext2D,
+  card: CardData,
+  width: number,
+  glow: string,
+) {
   const outline = cardOutline();
+  const family = cardFontFamily();
   const s = width / CARD_W;
   ctx.save();
   ctx.scale(s, s);
@@ -553,8 +563,25 @@ export function drawCardSilhouette(ctx: CanvasRenderingContext2D, width: number,
   base.addColorStop(1, "#05060b");
   ctx.fillStyle = base;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
-  ctx.fillStyle = rgba(glow, 0.12);
-  drawStar(ctx, 250, 360, 120);
+
+  const caption = silhouetteCaption(card);
+  ctx.fillStyle = rgba(glow, 0.35);
+  ctx.fillRect(200, 538, 100, 2);
+  ctx.textBaseline = "alphabetic";
+  ctx.textAlign = "left";
+  const nameSize = fitFont(ctx, caption.subject, family, 340, 38, 24);
+  const icon = nameSize * 0.95;
+  const gap = nameSize * 0.32;
+  const nameWidth = ctx.measureText(caption.subject).width;
+  const left = 250 - (icon + gap + nameWidth) / 2;
+  // Het icoon op dezelfde hoogte als de hoofdletters (ongeveer 0,7 van de lettergrootte).
+  drawSubjectIcon(ctx, card.icon, left, 592 - nameSize * 0.35 - icon / 2, icon, glow, 2.2);
+  ctx.fillStyle = "rgba(255,255,255,0.86)";
+  ctx.fillText(caption.subject, left + icon + gap, 592);
+  ctx.textAlign = "center";
+  fitFont(ctx, caption.detail, family, 380, 27, 18);
+  ctx.fillStyle = "rgba(255,255,255,0.52)";
+  ctx.fillText(ellipsize(ctx, caption.detail, 380), 250, 632);
   ctx.restore();
   ctx.strokeStyle = glow;
   ctx.lineWidth = 6;
@@ -586,6 +613,6 @@ export function renderCardCanvas(
   ctx.scale(ratio, ratio);
   if (side === "face") drawCardFace(ctx, card, cssWidth, options);
   else if (side === "back") drawCardBack(ctx, card, cssWidth);
-  else drawCardSilhouette(ctx, cssWidth, cardGlow(card));
+  else drawCardSilhouette(ctx, card, cssWidth, cardGlow(card));
   return canvas;
 }

@@ -67,7 +67,7 @@ export function CardCanvas({
       ctx.clearRect(0, 0, width, width * CARD_RATIO);
       if (side === "face") drawCardFace(ctx, card, width, options);
       else if (side === "back") drawCardBack(ctx, card, width);
-      else drawCardSilhouette(ctx, width, cardGlow(card));
+      else drawCardSilhouette(ctx, card, width, cardGlow(card));
     });
     return () => {
       cancelled = true;

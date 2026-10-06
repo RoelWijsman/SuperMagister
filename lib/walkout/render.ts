@@ -6,7 +6,9 @@ import {
   rgba,
   spaced,
 } from "@/lib/cards/draw";
+import { gradeTone, type GradeTone } from "@/lib/calc/average";
 import { odometer } from "@/lib/guess/input";
+import { GUESS_MAX, GUESS_MIN, SCALE_ZONES, scaleFraction } from "@/lib/guess/scale";
 import {
   ambientPuffs,
   confettoAt,
@@ -16,6 +18,7 @@ import {
   sparkAt,
   twinkleAlpha,
 } from "./particles";
+import { guessFlight } from "./flight";
 import { phaseProgress, type WalkoutPlan } from "./plan";
 import type { PackScene, WalkoutScene } from "./scene";
 import { glowSprite, smokeSprite, sparkleSprite } from "./sprites";
@@ -39,6 +42,10 @@ export interface GuessView {
   value: number | null;
   /** Sinds wanneer (walkout-tijd) de teller op 6,7 staat: dan wiebelt hij even. */
   wobbleSince?: number | null;
+  /** Live gokken: pijltjes en de schaal naast de kaart. Niet in herhalingen of de video. */
+  hints?: boolean;
+  /** Sinds wanneer de pijltjes een duwtje krijgen (tik of Enter zonder getal). */
+  nudgeSince?: number | null;
 }
 
 export interface PackAssets {
@@ -408,10 +415,18 @@ function drawCardStrips(
   const angle = (angleDeg * Math.PI) / 180;
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
+  if (Math.abs(sin) < 1e-3) {
+    // Recht van voren (of achteren): geen perspectief, dus in één keer, zonder naden.
+    ctx.drawImage(source, cx - w / 2, cy - h / 2, w, h);
+    return;
+  }
   const back = cos < 0;
   const strips = 40;
   const camera = 1500;
   const sw = source.width / strips;
+  // Stroken overlappen minstens een halve schermpixel, anders schemeren de naden door.
+  const transform = ctx.getTransform();
+  const overlap = Math.max(0.3, 0.5 / Math.max(1e-3, Math.hypot(transform.a, transform.b)));
   for (let i = 0; i < strips; i++) {
     const u0 = i / strips;
     const u1 = (i + 1) / strips;
@@ -431,9 +446,9 @@ function drawCardStrips(
       0,
       sw,
       source.height,
-      Math.min(X0, X1) - 0.3,
+      Math.min(X0, X1) - overlap,
       cy - height / 2,
-      width + 0.6,
+      width + overlap * 2,
       height,
     );
   }
@@ -577,7 +592,33 @@ function ratingSpot(pose: CardPose) {
   return { k, x: left + 48 * k, baseline: top + 168 * k, size: 150 * k, top };
 }
 
-/** Een getal als gokkast-teller: de tienden rollen mee, de eenheden bij de overgang. */
+/** Feature A: het gokgetal staat groot in het midden van de kaart, met de pijltjes erom. */
+function guessSpot(pose: CardPose) {
+  const k = pose.w / 500;
+  const top = pose.cy - pose.h / 2;
+  return {
+    k,
+    cx: pose.cx,
+    label: top + 214 * k,
+    up: top + 262 * k,
+    baseline: top + 455 * k,
+    down: top + 498 * k,
+    size: 210 * k,
+  };
+}
+
+type GuessSpot = ReturnType<typeof guessSpot>;
+
+/** Breedte van een gokgetal (eenheden, komma, tienden), zoals de teller hem neerzet. */
+function guessNumberWidth(ctx: CanvasRenderingContext2D, units: string, size: number, comma = 1) {
+  return (
+    ctx.measureText(units).width +
+    comma * (ctx.measureText(",").width + size * 0.04) +
+    ctx.measureText("0").width
+  );
+}
+
+/** Een getal als gokkast-teller, gecentreerd op x: de tienden rollen mee, de eenheden bij de overgang. */
 function drawOdometer(
   ctx: CanvasRenderingContext2D,
   tenths: number,
@@ -588,6 +629,7 @@ function drawOdometer(
 ) {
   const reels = odometer(tenths);
   ctx.font = `${size}px ${family}`;
+  ctx.textAlign = "left";
   const line = size * 0.95;
   const reel = (left: number, width: number, current: string, next: string, roll: number) => {
     ctx.save();
@@ -605,23 +647,179 @@ function drawOdometer(
   const unitsWidth =
     ctx.measureText(units).width +
     (ctx.measureText(unitsNext).width - ctx.measureText(units).width) * reels.unitsRoll;
-  reel(x, unitsWidth, units, unitsNext, reels.unitsRoll);
-  const commaX = x + unitsWidth + size * 0.02;
-  ctx.fillText(",", commaX, baseline);
+  const total = guessNumberWidth(ctx, units, size) - ctx.measureText(units).width + unitsWidth;
+  const left = x - total / 2;
+  const commaX = left + unitsWidth + size * 0.02;
   const tenthsX = commaX + ctx.measureText(",").width + size * 0.02;
-  reel(
-    tenthsX,
-    ctx.measureText("0").width,
-    String(reels.tenths),
-    String((reels.tenths + 1) % 10),
-    reels.tenthsRoll,
-  );
+  const tenthsNow = String(reels.tenths);
+  const tenthsNext = String((reels.tenths + 1) % 10);
+
+  ctx.save();
+  if (ctx.shadowBlur > 0) {
+    // De gloed apart en zonder knipvenster (anders tekent hij de randen van de rollen
+    // af): alleen de schaduw, op de rustplek. Een cijfer dat halverwege rolt, gloeit
+    // even niet, anders zie je een schim van een cijfer dat er niet staat.
+    const away = 5000;
+    const alpha = ctx.globalAlpha;
+    ctx.shadowOffsetX = away * ctx.getTransform().a;
+    const glow = (current: string, next: string, roll: number, at: number) => {
+      const settled = 1 - 4 * roll * (1 - roll);
+      ctx.globalAlpha = alpha * settled * (1 - roll);
+      ctx.fillText(current, at - away, baseline);
+      if (roll > 0.001) {
+        ctx.globalAlpha = alpha * settled * roll;
+        ctx.fillText(next, at - away, baseline);
+      }
+    };
+    glow(units, unitsNext, reels.unitsRoll, left);
+    glow(",", ",", 0, commaX);
+    glow(tenthsNow, tenthsNext, reels.tenthsRoll, tenthsX);
+    ctx.globalAlpha = alpha;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowBlur = 0;
+  }
+  reel(left, unitsWidth, units, unitsNext, reels.unitsRoll);
+  ctx.fillText(",", commaX, baseline);
+  reel(tenthsX, ctx.measureText("0").width, tenthsNow, tenthsNext, reels.tenthsRoll);
+  ctx.restore();
 }
 
 /**
- * Feature A: het gokmoment op de kaart. Op de plek van de rating een groot
- * "?" met erboven "Wat heb je?"; tijdens het gokken rolt daar de teller.
- * Na de klik bevriest het getal, bij de flip verdwijnt het.
+ * Feature A, alleen live: pulserende pijltjes boven en onder het getal. Op 10,0
+ * kan het niet hoger en op 1,0 niet lager; dan vervaagt dat pijltje. Een tik
+ * zonder getal geeft ze een duwtje.
+ */
+function drawGuessArrows(
+  ctx: CanvasRenderingContext2D,
+  spot: GuessSpot,
+  t: number,
+  unit: number,
+  reduced: boolean,
+  value: number | null,
+  nudgeSince: number | null,
+) {
+  const { k, cx } = spot;
+  const wave = reduced ? 0.5 : 0.5 - 0.5 * Math.cos((t * 2 * Math.PI) / 1.2);
+  const nudge =
+    reduced || nudgeSince === null || t < nudgeSince
+      ? 0
+      : Math.exp(-(t - nudgeSince) / 0.35) * Math.abs(Math.sin((t - nudgeSince) * 14));
+  const shift = (reduced ? 0 : 7 * wave + 16 * nudge) * k;
+  const base = ctx.globalAlpha;
+  const half = 30 * k;
+  const rise = 15 * k;
+
+  ctx.save();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 6 * k;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = "rgba(255,255,255,0.85)";
+  ctx.shadowBlur = 10 * unit;
+  const chevron = (y: number, direction: -1 | 1, dim: boolean) => {
+    ctx.globalAlpha = base * (dim ? 0.12 : Math.min(1, 0.4 + 0.45 * wave + 0.5 * nudge));
+    ctx.beginPath();
+    ctx.moveTo(cx - half, y - (direction * rise) / 2);
+    ctx.lineTo(cx, y + (direction * rise) / 2);
+    ctx.lineTo(cx + half, y - (direction * rise) / 2);
+    ctx.stroke();
+  };
+  chevron(spot.up - shift, -1, value !== null && Math.round(value) >= GUESS_MAX);
+  chevron(spot.down + shift, 1, value !== null && Math.round(value) <= GUESS_MIN);
+  ctx.restore();
+}
+
+const SCALE_COLORS: Readonly<Record<GradeTone, string>> = {
+  bad: "#ff6b81",
+  warn: "#ffb547",
+  good: "#4fe3a3",
+};
+
+/**
+ * Feature A, alleen live: een verticale schaal naast de kaart, van 1 (onder) tot
+ * 10 (boven), met dezelfde rood/oranje/groen-grenzen als de cijfers in de app.
+ * Een streepje beweegt mee met je gok.
+ */
+function drawGuessScale(
+  ctx: CanvasRenderingContext2D,
+  scene: WalkoutScene,
+  assets: WalkoutAssets,
+  t: number,
+  unit: number,
+  view: GuessView | undefined,
+) {
+  const { plan, layout } = scene;
+  const gok = plan.gok;
+  const gokStart = plan.phases.gok.start;
+  if (!gok || !view?.hints || t < gokStart || t >= plan.phases.flip.start) return;
+  const out = t >= gok.lockAt ? 1 - clamp((t - gok.lockAt) / 0.25) : 1;
+  const fade = clamp((t - gokStart) / 0.4) * out;
+  if (fade <= 0.01) return;
+
+  const k = layout.w / 500;
+  const x = layout.cx + layout.w / 2 + 40 * k;
+  const top = layout.cy - layout.h / 2 + 96 * k;
+  const bottom = layout.cy + layout.h / 2 - 118 * k;
+  const yAt = (fraction: number) => bottom - (bottom - top) * fraction;
+  const bar = 10 * k;
+  const gap = 2 * k;
+  const current = view.value === null ? null : scaleFraction(view.value);
+
+  ctx.save();
+  ctx.globalAlpha = fade;
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x - bar / 2, top, bar, bottom - top, bar / 2);
+  ctx.clip();
+  for (const zone of SCALE_ZONES) {
+    const active = current !== null && current >= zone.from && (current < zone.to || zone.to === 1);
+    ctx.fillStyle = rgba(SCALE_COLORS[zone.tone], active ? 0.95 : 0.45);
+    const y0 = yAt(zone.to) + (zone.to < 1 ? gap / 2 : 0);
+    const y1 = yAt(zone.from) - (zone.from > 0 ? gap / 2 : 0);
+    ctx.fillRect(x - bar / 2, y0, bar, y1 - y0);
+  }
+  ctx.restore();
+
+  // Streepjes per heel cijfer, met 1, 5,5 en 10 erbij.
+  ctx.fillStyle = "rgba(255,255,255,0.32)";
+  for (let n = 1; n <= 10; n++) {
+    ctx.fillRect(x + bar / 2 + 4 * k, yAt(scaleFraction(n * 10)) - k, 9 * k, 2 * k);
+  }
+  ctx.font = `${21 * k}px ${assets.family}`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(255,255,255,0.58)";
+  for (const [label, tenths] of [
+    ["10", 100],
+    ["5,5", 55],
+    ["1", 10],
+  ] as const) {
+    ctx.fillText(label, x + bar / 2 + 16 * k, yAt(scaleFraction(tenths)));
+  }
+
+  if (current !== null && view.value !== null) {
+    const y = yAt(current);
+    ctx.shadowColor = SCALE_COLORS[gradeTone(Math.round(view.value) / 10)];
+    ctx.shadowBlur = 14 * unit;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.roundRect(x - 17 * k, y - 3 * k, 34 * k, 6 * k, 3 * k);
+    ctx.fill();
+    // Een puntje naar de kaart toe.
+    ctx.beginPath();
+    ctx.moveTo(x - 17 * k, y - 7 * k);
+    ctx.lineTo(x - 27 * k, y);
+    ctx.lineTo(x - 17 * k, y + 7 * k);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/**
+ * Feature A: het gokmoment op de kaart. Groot in het midden een "?" met klein
+ * "Wat heb je?" erboven; tijdens het gokken rolt daar de teller. Na de klik
+ * bevriest het getal; bij de flip neemt drawGuessFlight het over.
  */
 function drawGuessCounter(
   ctx: CanvasRenderingContext2D,
@@ -636,7 +834,8 @@ function drawGuessCounter(
   const gok = plan.gok;
   const gokStart = plan.phases.gok.start;
   if (!gok || !pose || t < gokStart || t >= plan.phases.flip.start) return;
-  const { k, x, baseline, size, top } = ratingSpot(pose);
+  const spot = guessSpot(pose);
+  const { k, cx, baseline, size } = spot;
   const locked = t >= gok.lockAt;
   const value = locked && gok.guess !== null ? Math.round(gok.guess * 10) : (view?.value ?? null);
   const pulse = plan.reduced ? 0 : pulseAt(t - gokStart);
@@ -644,18 +843,22 @@ function drawGuessCounter(
 
   ctx.save();
   ctx.globalAlpha = clamp((t - gokStart) / 0.35) * pose.alpha;
-  ctx.textAlign = "left";
+  ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "rgba(255,255,255,0.78)";
-  ctx.font = `${30 * k}px ${assets.family}`;
-  ctx.fillText(spaced("WAT HEB JE?"), x + 4 * k, top + 46 * k);
+  ctx.font = `${28 * k}px ${assets.family}`;
+  ctx.fillText(spaced("WAT HEB JE?"), cx, spot.label);
+
+  if (view?.hints && !locked) {
+    drawGuessArrows(ctx, spot, t, unit, plan.reduced, value, view.nudgeSince ?? null);
+  }
 
   ctx.fillStyle = "#ffffff";
   ctx.shadowColor = rgba(glow, 0.95);
   ctx.shadowBlur = (16 + 22 * pulse) * unit;
   if (value === null) {
     ctx.font = `${size * (1 + 0.06 * pulse)}px ${assets.family}`;
-    ctx.fillText("?", x + 10 * k, baseline);
+    ctx.fillText("?", cx, baseline);
   } else {
     let wobble = 0;
     if (!plan.reduced && !locked && view?.wobbleSince != null && Math.round(value) === 67) {
@@ -663,22 +866,23 @@ function drawGuessCounter(
       wobble = Math.sin(since * 26) * 16 * k * Math.exp(-since / 0.35);
     }
     const flash = locked ? decay(t, gok.lockAt, 0.18) : 0;
-    drawOdometer(ctx, value, x, baseline + wobble, size * (1 + 0.07 * flash), assets.family);
+    drawOdometer(ctx, value, cx, baseline + wobble, size * (1 + 0.07 * flash), assets.family);
     if (flash > 0.01) {
       ctx.globalCompositeOperation = "lighter";
       ctx.globalAlpha = flash * 0.8;
-      const r = size * 1.3;
-      ctx.drawImage(glowSprite("#ffffff"), x - r * 0.2, baseline - size * 0.4 - r / 2, r * 1.4, r);
+      const r = size * 1.6;
+      ctx.drawImage(glowSprite("#ffffff"), cx - r, baseline - size * 0.4 - r / 2, r * 2, r);
     }
   }
   ctx.restore();
 }
 
 /**
- * Feature A: na de flip staat je gok als spookcijfer naast de echte rating en
- * schuift er met een klap tegenaan. Precies goed: hij valt er precies over.
+ * Feature A: vanaf de flip vliegt je gok uit het midden naar een plek naast de
+ * rating (de komma valt weg), wordt een doorschijnend spookcijfer en klapt dan
+ * tegen de echte rating. Precies goed: hij valt er precies over. Zie guessFlight.
  */
-function drawGhost(
+function drawGuessFlight(
   ctx: CanvasRenderingContext2D,
   scene: WalkoutScene,
   assets: WalkoutAssets,
@@ -688,51 +892,77 @@ function drawGhost(
 ) {
   const { plan, card } = scene;
   const gok = plan.gok;
-  if (!gok || gok.guess === null || !pose || t < gok.ghostAt) return;
-  const { k, x: ratingX, baseline, size } = ratingSpot(pose);
-  ctx.save();
-  ctx.font = `${size}px ${assets.family}`;
-  const realWidth = ctx.measureText(card.ratingLabel).width;
-  const label = String(Math.round(gok.guess * 10));
+  const frame = guessFlight(plan, t);
+  if (!gok || gok.guess === null || !frame || !pose) return;
+  const spot = guessSpot(pose);
+  const rating = ratingSpot(pose);
+  const { k } = rating;
+  const tenthsValue = Math.round(gok.guess * 10);
+  const units = String(Math.floor(tenthsValue / 10));
+  const tenths = String(tenthsValue % 10);
   const exact = plan.helderziende;
-  const final = exact ? ratingX : ratingX + realWidth + 10 * k;
-  const start = ratingX + realWidth + 150 * k;
-  const slide = gok.impactAt - gok.ghostAt;
 
-  let x: number;
-  let alpha: number;
-  if (t < gok.impactAt) {
-    const p = clamp((t - gok.ghostAt) / slide);
-    // Versnellen richting de klap.
-    x = start + (final - start) * p ** 3;
-    alpha = 0.8 * clamp(0.3 + (t - gok.ghostAt) / 0.12);
+  ctx.save();
+  ctx.font = `${rating.size}px ${assets.family}`;
+  const realWidth = ctx.measureText(card.ratingLabel).width;
+  const waitLeft = rating.x + realWidth + 80 * k;
+  const finalLeft = exact ? rating.x : rating.x + realWidth + 10 * k;
+
+  let size: number;
+  let left: number;
+  let baseline: number;
+  if (frame.path <= 1) {
+    const p = frame.path;
+    size = spot.size + (rating.size - spot.size) * p;
+    ctx.font = `${size}px ${assets.family}`;
+    const centerLeft = spot.cx - guessNumberWidth(ctx, units, size, frame.comma) / 2;
+    left = centerLeft + (waitLeft - centerLeft) * p;
+    baseline = spot.baseline + (rating.baseline - spot.baseline) * p;
   } else {
-    const since = t - gok.impactAt;
-    if (exact) {
-      x = final;
-      alpha = 0.8 * (1 - clamp(since / 0.35));
-    } else {
-      const bounce = plan.reduced ? 0 : 22 * k * Math.sin(clamp(since / 0.22) * Math.PI);
-      x = final + bounce;
-      alpha = 0.8 - 0.35 * clamp(since / 0.5);
-    }
+    size = rating.size;
+    left = waitLeft + (finalLeft - waitLeft) * (frame.path - 1) + 22 * k * frame.bounce;
+    baseline = rating.baseline;
   }
+  ctx.font = `${size}px ${assets.family}`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
 
-  if (alpha > 0.01) {
-    ctx.globalAlpha = alpha * pose.alpha;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    // Een doorschijnende echo van de rating, in de inktkleur van de kaart
-    // (leesbaar op lichte en donkere kaarten), met een paarse gokrand.
-    ctx.shadowColor = "#a855f7";
-    ctx.shadowBlur = 22 * unit;
+  const paintNumber = (paint: (text: string, x: number) => void) => {
+    const unitsWidth = ctx.measureText(units).width;
+    paint(units, left);
+    if (frame.comma > 0.01) {
+      const alpha = ctx.globalAlpha;
+      ctx.globalAlpha = alpha * frame.comma;
+      paint(",", left + unitsWidth + size * 0.02 * frame.comma);
+      ctx.globalAlpha = alpha;
+    }
+    const commaWidth = (ctx.measureText(",").width + size * 0.04) * frame.comma;
+    paint(tenths, left + unitsWidth + commaWidth);
+  };
+
+  // Nog de gloeiende teller…
+  if (frame.ghost < 1 && frame.alpha > 0.01) {
+    ctx.globalAlpha = frame.alpha * (1 - frame.ghost);
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = rgba(plan.fail ? "#c9d2e3" : cardGlow(card), 0.95);
+    ctx.shadowBlur = 16 * unit;
+    paintNumber((text, x) => ctx.fillText(text, x, baseline));
+  }
+  // …of al het spookcijfer: een doorschijnende echo in de inktkleur van de kaart
+  // (leesbaar op lichte en donkere kaarten), met een paarse gokrand.
+  if (frame.ghost > 0 && frame.alpha > 0.01) {
+    ctx.globalAlpha = frame.alpha * frame.ghost;
     ctx.lineJoin = "round";
     ctx.lineWidth = 3 * k;
     ctx.strokeStyle = "rgba(168,85,247,0.9)";
-    ctx.strokeText(label, x, baseline);
-    ctx.shadowBlur = 0;
     ctx.fillStyle = rgba(faceStyleFor(card).text, 0.5);
-    ctx.fillText(label, x, baseline);
+    paintNumber((text, x) => {
+      ctx.shadowColor = "#a855f7";
+      ctx.shadowBlur = 22 * unit;
+      ctx.strokeText(text, x, baseline);
+      ctx.shadowBlur = 0;
+      ctx.fillText(text, x, baseline);
+    });
   }
 
   // De klap: een lichtflits waar ze elkaar raken.
@@ -742,8 +972,9 @@ function drawGhost(
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = flash;
     const r = 300 * k;
-    const hitX = exact ? ratingX + realWidth / 2 : ratingX + realWidth + 5 * k;
-    ctx.drawImage(glowSprite("#ffffff"), hitX - r / 2, baseline - size * 0.38 - r / 2, r, r);
+    const hitX = exact ? rating.x + realWidth / 2 : rating.x + realWidth + 5 * k;
+    const hitY = rating.baseline - rating.size * 0.38;
+    ctx.drawImage(glowSprite("#ffffff"), hitX - r / 2, hitY - r / 2, r, r);
   }
   ctx.restore();
 }
@@ -943,8 +1174,9 @@ export function renderWalkoutFrame(
   drawRevealText(ctx, scene, assets, t, unit);
   const pose = cardPose(scene, t);
   drawCard(ctx, scene, assets, t, pose);
+  drawGuessScale(ctx, scene, assets, t, unit, guess);
   drawGuessCounter(ctx, scene, assets, t, unit, pose, guess);
-  drawGhost(ctx, scene, assets, t, unit, pose);
+  drawGuessFlight(ctx, scene, assets, t, unit, pose);
   drawGlitter(ctx, scene, t);
   drawConfetti(ctx, scene, t);
 

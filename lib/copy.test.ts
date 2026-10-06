@@ -9,8 +9,13 @@ const allVariants = keys.flatMap((key) => COPY[key].map((text) => ({ key, text }
 const emojiCount = (text: string) => (text.match(/\p{Extended_Pictographic}/gu) ?? []).length;
 
 describe("humorbijbel: regels voor alle teksten", () => {
-  // De 6,7-grap is één vaste zin, precies zoals de aanvulling hem voorschrijft.
-  const ONE_LINERS: ReadonlySet<string> = new Set(["gok.commentaar.67"]);
+  // Vaste zinnen, precies zoals voorgeschreven: de 6,7-grap (aanvulling) en de vraag
+  // bij het gokmoment zolang je nog niet gesleept hebt (feedback op feature A).
+  const ONE_LINERS: ReadonlySet<string> = new Set(["gok.commentaar.67", "gok.vraag"]);
+
+  it("stelt bij het gokmoment altijd dezelfde vraag", () => {
+    expect(COPY["gok.vraag"]).toEqual(["Geen druk. (Wel een beetje.)"]);
+  });
 
   it.each(keys.filter((key) => !ONE_LINERS.has(key)))("%s heeft minstens 5 varianten", (key) => {
     expect(COPY[key].length).toBeGreaterThanOrEqual(5);

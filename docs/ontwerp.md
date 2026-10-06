@@ -135,28 +135,48 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   silhouet en flip. De show loopt door: de flares bewegen, de camera zoomt heel langzaam in (tot
   9%) en het stadiongeluid maakt plaats voor een spanningsloop (hartslag van 64 naar 110 slagen
   per minuut, een aanzwellende drone) die steeds feller wordt. Het silhouet pulseert op dezelfde
-  hartslag. Op de plek van de rating staat een groot "?" met "Wat heb je?" erboven.
+  hartslag.
+- **Meteen duidelijk wat je moet doen** (feedback na de eerste versie). Het getal staat groot in
+  het midden van de kaart, met klein "Wat heb je?" erboven en pulserende pijltjes erboven en
+  eronder (op 10,0 vervaagt het pijltje omhoog, op 1,0 dat omlaag). Onder de kaart staat vanaf
+  de eerste seconde "Sleep omhoog of omlaag · loslaten = vastzetten". Naast de kaart staat een
+  verticale schaal van 1 tot 10 met rood/oranje/groen-zones (dezelfde grenzen als de
+  cijferkleuren: onder 5,5, tot 6,5, daarboven) en een streepje dat meebeweegt. Onderaan het
+  silhouet staat waar je op gokt: vak-icoon en vaknaam, en daaronder toets · weging. De ster in
+  het midden is weg; daar staat nu het getal. Pijltjes, uitleg en schaal horen bij het live
+  gokken; in herhalingen en (straks) de video staan ze er niet.
 - **Eén gebaar.** Slepen (waar dan ook) rolt de teller als een gokkast-teller van 1,0 tot 10,0,
   6 px per tiende, met oplopende tikjes en een lichte trilling. Op een computer ook het scrollwiel
   of ↑/↓ (Page Up/Down per hele punt, Home/End naar 1,0/10,0). Je eerste beweging begint bij je
   gemiddelde voor dat vak; alles rekent in tienden (geen afrondingsfouten). Loslaten of Enter zet
-  de gok vast: klik, het getal bevriest, een halve seconde stilte, dan meteen de flip. Tik je op
-  de kaart zonder te slepen, dan draait hij meteen om zonder gok (heb je met het wiel of de
-  pijltjes al een getal gekozen, dan zet de tik dat vast). Na 8 seconden zonder actie verschijnt
-  rustig "Sleep omhoog of omlaag". Nooit een automatische skip of tijdsdruk: "Overslaan" springt
-  hooguit naar het gokmoment, nooit eroverheen.
-- **Commentaar** staat klein onder de kaart en wisselt mee met je teller. Tussen 5,6 en 5,9 heeft
-  een eigen bereik; de opdracht sloeg dat over. Bij 6,7 wiebelt de teller en staat er "…nee. We
-  doen dit niet.": de enige 6-7-grap, als één vaste zin (een bewuste uitzondering op "minstens 5
-  varianten").
+  de gok vast: klik, het getal bevriest, een halve seconde stilte, dan meteen de flip. Een tik
+  (of Enter) zonder getal doet niets behalve de pijltjes een duwtje geven; zo botsen tikken en
+  slepen nooit. Heb je met het wiel of de pijltjestoetsen al een getal gekozen, dan zet indrukken
+  en loslaten dat vast. Zonder gok omdraaien kan alleen met het tekstknopje onderaan:
+  "Overslaan, ik ben er klaar voor (ben ik niet)". Nooit een automatische skip of tijdsdruk: het
+  gewone "Overslaan" springt hooguit naar het gokmoment, nooit eroverheen.
+- **Commentaar** staat klein onder de kaart. Zolang je nog niets gekozen hebt, staat er één vaste
+  zin: "Geen druk. (Wel een beetje.)" (op verzoek; net als de 6,7-grap een bewuste uitzondering op
+  "minstens 5 varianten"). Daarna praat het live mee met je teller. Een nieuwe tekst verschijnt
+  meteen, zonder te wachten tot de vorige weg is: met "wachten" bleef het commentaar bij snel
+  slepen soms hangen. Tussen 5,6 en 5,9 heeft een eigen bereik; de opdracht sloeg dat over. Bij
+  6,7 wiebelt de teller en staat er "…nee. We doen dit niet.": de enige 6-7-grap, als één vaste
+  zin.
 - **Een open einde in een pure tijdlijn.** Zolang je nog niet gegokt hebt, duurt de fase `gok`
   oneindig lang (de tijdlijn stopt daar netjes). Bij het vastzetten bouwen we de tijdlijn opnieuw,
   met de gokduur ingevuld; alles daarvóór blijft gelijk, dus het beeld loopt naadloos door. De
   spanningsloop wordt in blokken van 12 seconden ingepland en loopt in elk blok precies door.
-- **Na de flip** verschijnt je gok als doorschijnend "spookcijfer" (in de inktkleur van de kaart,
-  met een paarse rand) naast de echte rating en schuift er met een klap tegenaan: lichtflits,
-  "boem" en een kleine terugvering. Daarna de strook "Gegokt 7,2 · Echt 7,8 · +0,6" met een
-  reactie.
+- **Bij de flip** vliegt je gok uit het midden naar een plek naast de rating linksboven; onderweg
+  krimpt hij en valt de komma weg (7,2 wordt 72, zoals een rating). Na de onthulling wordt hij een
+  doorschijnend "spookcijfer" (in de inktkleur van de kaart, met een paarse rand), wacht even en
+  klapt dan tegen de echte rating: lichtflits, "boem" en een kleine terugvering. Daarna de strook
+  "Gegokt 7,2 · Echt 7,8 · +0,6" met een reactie. De vlucht is een pure functie van de tijd
+  (`guessFlight`), getest los van het tekenen. Met minder beweging vervaagt het getal en verschijnt
+  het spookcijfer op zijn plek.
+- **Tekendetails.** De gloed van de rollende teller tekenen we apart van de cijfers (alleen de
+  schaduw, zonder knipvenster), anders verraadt hij de randen van de rollen. Een kaart die recht
+  van voren of achteren staat, tekenen we in één keer in plaats van in 40 stroken: bij het
+  stilhangende silhouet schemerden de naden tussen de stroken anders door.
 - **Herhalingen en video.** Heb je een kaart al gegokt (eerder in deze sessie of bewaard), dan
   speelt het gokmoment zich vanzelf af: na het "?" rolt de teller in 1,6 seconde naar je gok, klik,
   flip. Dat is een vaste, pure tijdlijn (`SCRIPTED_LOCK_AFTER`), dus de video van feature B kan

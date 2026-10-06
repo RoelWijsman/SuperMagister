@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  confirmGuess,
   dragToGuess,
   keyToGuess,
   lockValue,
@@ -94,5 +95,15 @@ describe("shouldGuess", () => {
   it("gokt nooit als het uit staat of bij een herhaling", () => {
     expect(shouldGuess({ ...base, mode: "uit" })).toBe(false);
     expect(shouldGuess({ ...base, session: "opnieuw" })).toBe(false);
+  });
+});
+
+describe("confirmGuess (loslaten of Enter)", () => {
+  it("zet een gekozen getal vast, afgerond op een tiende", () => {
+    expect(confirmGuess(72.4)).toEqual({ kind: "vastzetten", value: 7.2 });
+  });
+
+  it("slaat nooit over: zonder getal wiebelen alleen de pijltjes", () => {
+    expect(confirmGuess(null)).toEqual({ kind: "duwtje" });
   });
 });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { gradeTone } from "@/lib/calc/average";
 import {
   clampGuess,
   formatGuess,
@@ -6,6 +7,8 @@ import {
   GUESS_MIN,
   guessCommentKey,
   isSixSeven,
+  SCALE_ZONES,
+  scaleFraction,
   tickFrequency,
 } from "./scale";
 
@@ -62,5 +65,30 @@ describe("geluid", () => {
   it("tikt twee octaven omhoog van 1,0 naar 10,0", () => {
     expect(tickFrequency(100) / tickFrequency(10)).toBeCloseTo(4);
     for (let t = 11; t <= 100; t++) expect(tickFrequency(t)).toBeGreaterThan(tickFrequency(t - 1));
+  });
+});
+
+describe("de gokschaal naast de kaart", () => {
+  it("loopt van 1,0 onderaan tot 10,0 bovenaan", () => {
+    expect(scaleFraction(10)).toBe(0);
+    expect(scaleFraction(100)).toBe(1);
+    expect(scaleFraction(55)).toBe(0.5);
+    expect(scaleFraction(3)).toBe(0);
+    expect(scaleFraction(120)).toBe(1);
+  });
+
+  it("dekt de hele schaal zonder gaten", () => {
+    expect(SCALE_ZONES[0]!.from).toBe(0);
+    expect(SCALE_ZONES[SCALE_ZONES.length - 1]!.to).toBe(1);
+    SCALE_ZONES.slice(1).forEach((zone, i) => expect(zone.from).toBe(SCALE_ZONES[i]!.to));
+  });
+
+  it("kleurt rood, oranje en groen, net als de cijfers in de rest van de app", () => {
+    expect(SCALE_ZONES.map((zone) => zone.tone)).toEqual(["bad", "warn", "good"]);
+    for (let tenths = 10; tenths <= 100; tenths++) {
+      const f = scaleFraction(tenths);
+      const zone = SCALE_ZONES.find((z) => f >= z.from && (f < z.to || z.to === 1));
+      expect(zone?.tone).toBe(gradeTone(tenths / 10));
+    }
   });
 });

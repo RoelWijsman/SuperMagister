@@ -59,8 +59,9 @@ kunt veilig rondklikken.
 - In **Collectie** staan al je kaarten. Tik op een kaart om hem te kantelen, om te draaien, in je
   vitrine te zetten of als afbeelding te delen. Verzameldoelen spelen nieuwe folies vrij.
 - **Gok je cijfer:** vlak voor de flip hangt het silhouet gloeiend in beeld en vraagt de kaart
-  "Wat heb je?". Sleep omhoog of omlaag om de teller te laten rollen en laat los om vast te zetten;
-  tik op de kaart als je niet wilt gokken. Precies goed? HELDERZIENDE. Bij **Cijfers** zie je wat
+  "Wat heb je?". Sleep omhoog of omlaag om de teller te laten rollen en laat los om vast te zetten.
+  Niet gokken? Tik onderaan op "Overslaan, ik ben er klaar voor (ben ik niet)". Precies goed?
+  HELDERZIENDE. Bij **Cijfers** zie je wat
   voor gokker je bent, bij **Prestaties** wat je ermee verdiende. Liever alleen bij de laatste
   kaart, of helemaal niet? **Instellingen → Walkout → Gokken.**
 - Alle soorten kaarten bekijken? Kies **Oefen een walkout** in Instellingen of via Ctrl/⌘ K.

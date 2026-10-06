@@ -66,3 +66,19 @@ export function cardTierLabel(card: Pick<CardData, "tier" | "primaryVariant">): 
 export function cardAltText(card: CardData): string {
   return `${cardTierLabel(card)}-kaart: ${card.subjectName}, ${card.stats.cyf} voor ${card.grade.description}.`;
 }
+
+/**
+ * Feature A: wat er onderaan het silhouet staat tijdens het gokmoment, zodat je
+ * weet waar je op gokt. "WISKUNDE A" en "SO KANSREKENING · ×3".
+ */
+export function silhouetteCaption(card: {
+  subjectName: string;
+  grade: { description: string };
+  stats: { weg: string };
+}): { subject: string; detail: string } {
+  const test = card.grade.description.trim();
+  return {
+    subject: card.subjectName.toUpperCase(),
+    detail: (test ? `${test} · ${card.stats.weg}` : card.stats.weg).toUpperCase(),
+  };
+}

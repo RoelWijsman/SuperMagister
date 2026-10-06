@@ -73,7 +73,7 @@ export function WalkoutScrubber({ deck }: { deck: readonly PracticeEntry[] }) {
       !plan
         ? undefined
         : guessDemo === "open"
-          ? { value: counter === 0 ? null : counter }
+          ? { value: counter === 0 ? null : counter, hints: true }
           : { value: scriptedGuessView(plan, time) },
     [plan, guessDemo, counter, time],
   );

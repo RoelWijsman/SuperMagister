@@ -20,7 +20,7 @@ import { ensureCardFont, renderCardCanvas } from "@/lib/cards/draw";
 import type { CardData } from "@/lib/cards/model";
 import { cn } from "@/lib/cn";
 import { useGuesses } from "@/lib/data/guesses";
-import { dragToGuess, keyToGuess, lockValue, shouldGuess, wheelSteps } from "@/lib/guess/input";
+import { confirmGuess, dragToGuess, keyToGuess, shouldGuess, wheelSteps } from "@/lib/guess/input";
 import { guessOutcome, makeGuessRecord, type GuessRecord } from "@/lib/guess/outcome";
 import {
   clampGuess,
@@ -69,8 +69,8 @@ const HOLD_MS = 180;
 const HOLD_SPEED = 3;
 /** Zo ver moet je slepen voordat het telt als gokken (en niet als tikken). */
 const DRAG_THRESHOLD = 6;
-/** Na zoveel milliseconden zonder actie verschijnt de hint, nooit eerder. */
-const HINT_AFTER = 8000;
+/** Feature A: zonder gok omdraaien kan alleen met dit knopje, nooit met een tik op de kaart. */
+const SKIP_GUESS_LABEL = "Overslaan, ik ben er klaar voor (ben ik niet)";
 
 /** Maakt het canvas scherp (max. 2× pixels) en geeft stage en eenheid terug. */
 function sizeCanvas(canvas: HTMLCanvasElement) {
@@ -82,6 +82,14 @@ function sizeCanvas(canvas: HTMLCanvasElement) {
 
 /** Startpunt van de teller: je gemiddelde voor dit vak. */
 const anchorFor = (card: CardData) => clampGuess(toTenths(card.avgBefore ?? 6));
+
+/** Elke kaart begint met een "?", met de pijltjes en de schaal in beeld. */
+const freshView = (): GuessView => ({
+  value: null,
+  wobbleSince: null,
+  hints: true,
+  nudgeSince: null,
+});
 
 /** De walkout: fullscreen, overslaanbaar met een tik, sneller door ingedrukt te houden. */
 export function WalkoutOverlay() {
@@ -130,8 +138,6 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   const [guessOpen, setGuessOpen] = useState(false);
   /** Huidige gok in hele tienden (voor commentaar en schermlezer); null = "?". */
   const [guessValue, setGuessValue] = useState<number | null>(null);
-  const [hint, setHint] = useState(false);
-  const [actions, setActions] = useState(0);
   /** Waar de onderkant van de kaart zit (procent van de hoogte), voor het commentaar. */
   const [commentTop, setCommentTop] = useState(78);
 
@@ -143,12 +149,11 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   const skipRef = useRef<() => void>(() => {});
   /** Zet de gok vast (of draai zonder gok om); geeft false als het nu niet kan. */
   const lockRef = useRef<(value: number | null) => boolean>(() => false);
-  const viewRef = useRef<GuessView>({ value: null, wobbleSince: null });
+  const viewRef = useRef<GuessView>(freshView());
   const timeRef = useRef(0);
   const dragRef = useRef<DragState | null>(null);
   const wheelRest = useRef(0);
   const lastTick = useRef(0);
-  const cardRect = useRef<DOMRect | null>(null);
   const sessionGuessesRef = useRef(sessionGuesses);
   const storedGuessesRef = useRef<Readonly<Record<string, GuessRecord>> | null>(storedGuesses);
   /** Hoeveel van de hoogte het eindscherm onderaan inneemt (gemeten). */
@@ -347,19 +352,10 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
           silhouette: renderCardCanvas(card, faceWidth, { pixelRatio: 1, side: "silhouette" }),
           family,
         };
-        // Waar de kaart in beeld staat (CSS-pixels): voor "tik op de kaart" en het commentaar.
-        const box = element.getBoundingClientRect();
-        const { cx, cy, w, h } = scene.layout;
-        const sx = box.width / stage.w;
-        const sy = box.height / stage.h;
-        cardRect.current = new DOMRect(
-          box.left + (cx - w * 0.55) * sx,
-          box.top + (cy - h * 0.55) * sy,
-          w * 1.1 * sx,
-          h * 1.1 * sy,
-        );
-        // Iets ruimer dan de kaart: hij zoomt tijdens het gokmoment langzaam in.
-        setCommentTop(Math.min(92, ((cy + h * 0.62) / stage.h) * 100));
+        // Het commentaar komt net onder de kaart. Iets ruimer dan de kaart zelf:
+        // hij zoomt tijdens het gokmoment langzaam in.
+        const { cy, h } = scene.layout;
+        setCommentTop(Math.min(90, ((cy + h * 0.58) / stage.h) * 100));
       };
       build();
       window.addEventListener("resize", build);
@@ -421,7 +417,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
           tension = startLiveTension();
           setGuessOpen(true);
           setAnnouncement(
-            "Wat heb je? Sleep omhoog of omlaag, of gebruik de pijltjes. Enter zet je gok vast. Tik op de kaart om niet te gokken.",
+            "Wat heb je? Sleep omhoog of omlaag, of gebruik de pijltjestoetsen. Loslaten of Enter zet je gok vast. Niet gokken? Kies Overslaan onderaan.",
           );
         }
         for (const event of plan.events) if (event.at > previous && event.at <= t) play(event);
@@ -481,9 +477,11 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     }
   };
 
-  const markAction = () => {
-    setHint(false);
-    setActions((n) => n + 1);
+  /** Loslaten of Enter: met een getal vastzetten; zonder getal krijgen de pijltjes een duwtje. */
+  const confirm = () => {
+    const result = confirmGuess(viewRef.current.value);
+    if (result.kind === "vastzetten") lock(result.value);
+    else viewRef.current.nudgeSince = timeRef.current;
   };
 
   /** Gok vastzetten (value) of zonder gok omdraaien (null). */
@@ -491,7 +489,6 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     const card = entry?.card;
     if (!card || !lockRef.current(value)) return;
     setGuessOpen(false);
-    setHint(false);
     dragRef.current = null;
     setSessionGuesses((all) => ({ ...all, [card.id]: value }));
     if (value === null) {
@@ -509,16 +506,9 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
 
   // Elke nieuwe kaart begint met een "?".
   useEffect(() => {
-    viewRef.current = { value: null, wobbleSince: null };
+    viewRef.current = freshView();
     wheelRest.current = 0;
   }, [cardIndex, run]);
-
-  // De hint verschijnt pas na 8 seconden zonder actie. Nooit een automatische skip.
-  useEffect(() => {
-    if (!guessOpen) return;
-    const id = setTimeout(() => setHint(true), HINT_AFTER);
-    return () => clearTimeout(id);
-  }, [guessOpen, actions]);
 
   useEffect(() => {
     if (guessOpen) sliderRef.current?.focus({ preventScroll: true });
@@ -536,15 +526,13 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         if ((event.target as HTMLElement | null)?.closest?.("button")) return;
         if (event.key === "Enter") {
           event.preventDefault();
-          const value = viewRef.current.value;
-          lock(value === null ? null : lockValue(value));
+          confirm();
           return;
         }
         const base = viewRef.current.value ?? anchorFor(entry.card);
         const next = keyToGuess(Math.round(base), event.key);
         if (next !== null) {
           event.preventDefault();
-          markAction();
           setLiveValue(next);
         }
         return;
@@ -558,11 +546,6 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  const insideCard = (x: number, y: number) => {
-    const rect = cardRect.current;
-    return Boolean(rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
-  };
-
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest("button, a")) return;
     if (guessOpen && entry) {
@@ -574,7 +557,6 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         moved: false,
       };
       event.currentTarget.setPointerCapture(event.pointerId);
-      markAction();
       return;
     }
     holdTimer.current = setTimeout(() => {
@@ -596,15 +578,10 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     if ((event.target as HTMLElement).closest("button, a")) return;
     const drag = dragRef.current;
     if (guessOpen && drag && drag.pointerId === event.pointerId) {
+      // Loslaten = vastzetten. Een tik zonder getal slaat niets over (dat kan
+      // alleen met het knopje onderaan), dus slepen en tikken botsen nooit.
       dragRef.current = null;
-      const value = viewRef.current.value;
-      if (drag.moved && value !== null) {
-        // Loslaten = vastgezet.
-        lock(lockValue(value));
-      } else if (insideCard(event.clientX, event.clientY)) {
-        // Tik op de kaart: met een gekozen getal vastzetten, anders zonder gok omdraaien.
-        lock(value === null ? null : lockValue(value));
-      }
+      confirm();
       return;
     }
     if (holdTimer.current) clearTimeout(holdTimer.current);
@@ -618,7 +595,6 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     const { steps, rest } = wheelSteps(wheelRest.current, event.deltaY);
     wheelRest.current = rest;
     if (steps === 0) return;
-    markAction();
     const base = viewRef.current.value ?? anchorFor(entry.card);
     setLiveValue(clampGuess(Math.round(base) + steps));
   };
@@ -661,7 +637,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
         {announcement}
       </p>
 
-      {/* Het gokmoment: commentaar onder de kaart, de hint pas na 8 seconden stilte. */}
+      {/* Het gokmoment: live commentaar en meteen de uitleg onder de kaart. */}
       <AnimatePresence>
         {guessOpen && (
           <motion.div
@@ -683,35 +659,38 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
               aria-valuetext={guessValue === null ? "Nog geen gok" : formatGuess(guessValue)}
               className="sr-only"
             />
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.p
-                key={commentKey ?? "leeg"}
-                className="mx-auto max-w-md text-[0.95rem] font-medium text-balance text-white/80"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.14 }}
-              >
-                {comment}
-              </motion.p>
-            </AnimatePresence>
-            <AnimatePresence>
-              {hint && (
-                <motion.p
-                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-white/55"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <ChevronsUpDown size={16} aria-hidden />
-                  Sleep omhoog of omlaag
-                </motion.p>
-              )}
-            </AnimatePresence>
+            {/* Elke nieuwe tekst komt er meteen in (geen wachten op de vorige), zodat het
+                commentaar bij snel slepen nooit blijft hangen. */}
+            <motion.p
+              key={commentKey ?? "leeg"}
+              className="mx-auto max-w-md text-[0.95rem] font-medium text-balance text-white/85"
+              initial={{ opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.12 }}
+            >
+              {comment}
+            </motion.p>
+            <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-white/60">
+              <ChevronsUpDown size={16} aria-hidden className="shrink-0" />
+              Sleep omhoog of omlaag · loslaten = vastzetten
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Zonder gok omdraaien kan alleen hier, nooit met een tik op de kaart. */}
+      {guessOpen && (
+        <div className="pb-safe pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-3 sm:p-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => lock(null)}
+            className="pointer-events-auto text-white/55 hover:bg-white/10 hover:text-white"
+          >
+            {SKIP_GUESS_LABEL}
+          </Button>
+        </div>
+      )}
 
       <div className="pt-safe absolute inset-x-0 top-0 flex items-center gap-2 p-3 sm:p-4">
         <span className="font-card text-lg tracking-[0.2em] text-white/55">

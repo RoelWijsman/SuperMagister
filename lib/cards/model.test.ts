@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cardLook, cardTierLabel } from "./model";
+import { cardLook, cardTierLabel, silhouetteCaption } from "./model";
 
 describe("cardLook", () => {
   it("geeft een In Form-kaart de zwart-gouden look", () => {
@@ -22,5 +22,27 @@ describe("cardTierLabel", () => {
   it("volgt de look", () => {
     expect(cardTierLabel({ tier: "goud", primaryVariant: "inform" })).toBe("IN FORM");
     expect(cardTierLabel({ tier: "icon", primaryVariant: "inform" })).toBe("ICON");
+  });
+});
+
+describe("silhouetteCaption", () => {
+  it("zegt op het silhouet waar je op gokt: vak, toets en weging", () => {
+    expect(
+      silhouetteCaption({
+        subjectName: "Wiskunde A",
+        grade: { description: "SO Kansrekening" },
+        stats: { weg: "×3" },
+      }),
+    ).toEqual({ subject: "WISKUNDE A", detail: "SO KANSREKENING · ×3" });
+  });
+
+  it("laat een lege toetsomschrijving weg", () => {
+    expect(
+      silhouetteCaption({
+        subjectName: "Duits",
+        grade: { description: "  " },
+        stats: { weg: "×1" },
+      }),
+    ).toEqual({ subject: "DUITS", detail: "×1" });
   });
 });

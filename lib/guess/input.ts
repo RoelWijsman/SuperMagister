@@ -49,6 +49,16 @@ export function lockValue(tenths: number): number {
   return clampGuess(Math.round(tenths)) / 10;
 }
 
+export type GuessConfirm = { kind: "vastzetten"; value: number } | { kind: "duwtje" };
+
+/**
+ * Loslaten of Enter. Met een gekozen getal: vastzetten. Zonder getal gebeurt er
+ * niets behalve een duwtje van de pijltjes; overslaan kan alleen met de knop.
+ */
+export function confirmGuess(tenths: number | null): GuessConfirm {
+  return tenths === null ? { kind: "duwtje" } : { kind: "vastzetten", value: lockValue(tenths) };
+}
+
 export interface OdometerState {
   /** Eenheden (1 tot 10) en hoe ver ze al naar de volgende rollen (0–1). */
   units: number;

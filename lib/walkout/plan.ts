@@ -131,9 +131,9 @@ export interface GuessMoment {
   guess: number | null;
   /** Moment van vastzetten (de klik). */
   lockAt: number;
-  /** Het spookcijfer verschijnt naast de rating… */
+  /** Je gok vliegt bij de flip naast de rating en wacht daar; nu schiet hij weg… */
   ghostAt: number;
-  /** …en schuift er met een klap tegenaan. */
+  /** …en klapt hij tegen de echte rating aan. */
   impactAt: number;
 }
 
@@ -143,7 +143,7 @@ const SKIP_DELAY = 0.05;
 /** Gescript gokmoment (herhaling, video): eerst "?", dan rolt de teller naar je gok. */
 const SCRIPT = { question: 0.7, roll: 1.6, settle: 0.25 } as const;
 export const SCRIPTED_LOCK_AFTER = SCRIPT.question + SCRIPT.roll + SCRIPT.settle;
-/** Na de flip: spookcijfer verschijnen, dan schuiven tot de klap. */
+/** Na de flip: het spookcijfer wacht nog even naast de rating en schuift dan tot de klap. */
 const GHOST = { delay: 0.1, slide: 0.45 } as const;
 
 const RAINBOW = ["#ff4d6d", "#ffb347", "#ffe066", "#4ade80", "#38bdf8", "#a78bfa"] as const;

@@ -552,13 +552,8 @@ export const COPY = {
   ],
 
   // ——— Gok je cijfer (feature A) ——————————————————————————————————————————
-  "gok.vraag": [
-    "Eerlijk zijn. Je weet het eigenlijk al.",
-    "Je voelde het tijdens de toets al.",
-    "Geen druk. (Wel een beetje.)",
-    "Denk aan vraag 3. Je weet welke.",
-    "Je eerste gevoel na de bel. Dat.",
-  ],
+  // Vaste zin zolang je nog niet gesleept hebt; daarna praat het commentaar mee met je teller.
+  "gok.vraag": ["Geen druk. (Wel een beetje.)"],
   "gok.commentaar.een": [
     "Je hebt je naam wel ingevuld, toch?",
     "Een 1,0 krijg je al voor je naam. Meestal.",

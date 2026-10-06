@@ -1,4 +1,5 @@
 import type { CopyKey } from "@/content/copy";
+import type { GradeTone } from "@/lib/calc/average";
 
 /**
  * Gok je cijfer (feature A). Gokken rekenen in tienden: 10 is een 1,0 en 100
@@ -40,3 +41,15 @@ export function guessCommentKey(tenths: number): CopyKey {
 export function tickFrequency(tenths: number): number {
   return 330 * 2 ** (((clampGuess(tenths) - GUESS_MIN) / (GUESS_MAX - GUESS_MIN)) * 2);
 }
+
+/** Plek op de gokschaal naast de kaart: 0 = 1,0 (onderaan), 1 = 10,0 (bovenaan). */
+export function scaleFraction(tenths: number): number {
+  return (Math.min(GUESS_MAX, Math.max(GUESS_MIN, tenths)) - GUESS_MIN) / (GUESS_MAX - GUESS_MIN);
+}
+
+/** Zones van de gokschaal, met dezelfde grenzen als de cijferkleuren (zie gradeTone). */
+export const SCALE_ZONES: readonly { tone: GradeTone; from: number; to: number }[] = [
+  { tone: "bad", from: 0, to: scaleFraction(55) },
+  { tone: "warn", from: scaleFraction(55), to: scaleFraction(65) },
+  { tone: "good", from: scaleFraction(65), to: 1 },
+];
