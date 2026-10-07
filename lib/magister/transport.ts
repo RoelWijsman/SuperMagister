@@ -50,11 +50,27 @@ export class MagisterError extends Error {
     readonly code: MagisterErrorCode,
     message: string,
     readonly status?: number,
+    /** Bij "te-vaak": zoveel seconden wachten. */
+    readonly retryAfter?: number,
   ) {
     super(message);
     this.name = "MagisterError";
   }
 }
+
+/** De foutcodes van onze eigen proxy (lib/magister/proxy.ts), vertaald. */
+const PROXY_CODES: Readonly<Record<string, MagisterErrorCode>> = {
+  "geen-token": "geen-sessie",
+  verlopen: "verlopen",
+  "geen-toegang": "geen-toegang",
+  "niet-gevonden": "niet-gevonden",
+  "te-vaak": "te-vaak",
+  "magister-plat": "server",
+  timeout: "netwerk",
+  netwerk: "netwerk",
+  "ongeldige-school": "ongeldige-school",
+  "ongeldig-pad": "ongeldig-pad",
+};
 
 /** Alleen echte Magister-scholen: `{school}.magister.net`. */
 export const SCHOOL_HOST = /^[a-z0-9-]+\.magister\.net$/;
@@ -120,8 +136,23 @@ export function createProxyTransport({
         throw new MagisterError("netwerk", "Geen verbinding met Magister.");
       }
       if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as {
+          fout?: string;
+          melding?: string;
+          opnieuwNa?: number;
+        } | null;
+        const retry = Number(body?.opnieuwNa ?? response.headers?.get("retry-after"));
+        const retryAfter = Number.isFinite(retry) && retry > 0 ? retry : undefined;
+        const fromProxy = body?.fout ? PROXY_CODES[body.fout] : undefined;
         const known = STATUS_CODES.find(([status]) => status === response.status);
-        if (known) throw new MagisterError(known[1], known[2], response.status);
+        if (fromProxy)
+          throw new MagisterError(
+            fromProxy,
+            known?.[2] ?? "Magister doet even moeilijk.",
+            response.status,
+            retryAfter,
+          );
+        if (known) throw new MagisterError(known[1], known[2], response.status, retryAfter);
         throw new MagisterError("server", "Magister doet even moeilijk.", response.status);
       }
       try {

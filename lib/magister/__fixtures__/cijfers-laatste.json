@@ -1,0 +1,33 @@
+{
+  "items": [
+    {
+      "kolomId": 1070,
+      "omschrijving": "Toets hoofdstuk 2",
+      "ingevoerdOp": "2026-09-29T11:40:30.0000000Z",
+      "vak": {
+        "code": "lo",
+        "omschrijving": "lichamelijke opvoeding"
+      },
+      "waarde": "Inh",
+      "weegfactor": 1,
+      "isVoldoende": true,
+      "teltMee": true,
+      "moetInhalen": true,
+      "heeftVrijstelling": false,
+      "behaaldOp": null,
+      "links": {}
+    }
+  ],
+  "links": {
+    "voortgangscijfers": {
+      "href": "/api/aanmeldingen/1014/cijfers"
+    },
+    "first": {
+      "href": "/api/personen/1002/cijfers/laatste?top=50"
+    },
+    "last": {
+      "href": "/api/personen/1002/cijfers/laatste?top=50"
+    }
+  },
+  "totalCount": 1
+}

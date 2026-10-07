@@ -54,6 +54,7 @@ export interface CardCore {
 const TEXT_TIERS: Readonly<Record<TextGradeValue, CardTier>> = {
   ZG: "toty",
   G: "goud",
+  RV: "zilver",
   V: "zilver",
   VR: "zilver",
   R: "zilver",
@@ -61,6 +62,7 @@ const TEXT_TIERS: Readonly<Record<TextGradeValue, CardTier>> = {
   M: "brons",
   O: "brons",
   ZS: "brons",
+  INH: "brons",
 };
 
 const chronological = (a: Grade, b: Grade) =>

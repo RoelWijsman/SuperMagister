@@ -58,3 +58,10 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 .idea/
 .claude/settings.local.json
+
+# Magister: echte responses, HAR-bestanden en tokens komen NOOIT in git.
+# Zet ruwe voorbeelden in magister-voorbeelden/; alleen geanonimiseerde
+# testbestanden (lib/magister/__fixtures__) gaan wel mee.
+/magister-voorbeelden/
+*.har
+*.har.json

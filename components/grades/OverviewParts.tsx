@@ -342,7 +342,9 @@ export function GradeTimeline({ data, subject }: { data: GradeData; subject: Loo
                     {grade.kind === "numeric" ? (
                       <GradeValue value={grade.value} className="w-9 text-right font-semibold" />
                     ) : (
-                      <span className="w-9 text-right font-semibold text-ink-2">{grade.value}</span>
+                      <span className="w-9 text-right font-semibold text-ink-2">
+                        {grade.display}
+                      </span>
                     )}
                   </div>
                   {milestone && (

@@ -16,9 +16,16 @@ export function createMagisterClient(transport: MagisterTransport) {
       call(ENDPOINTS.latestGrades(personId, top, skip)),
     appointments: (personId: number, range: DateRange) =>
       call(ENDPOINTS.appointments(personId, range)),
+    scheduleChanges: (personId: number, range: DateRange) =>
+      call(ENDPOINTS.scheduleChanges(personId, range)),
     enrollments: (personId: number) => call(ENDPOINTS.enrollments(personId)),
     gradeOverview: (personId: number, enrollmentId: number) =>
       call(ENDPOINTS.gradeOverview(personId, enrollmentId)),
+    gradePeriods: (personId: number, enrollmentId: number) =>
+      call(ENDPOINTS.gradePeriods(personId, enrollmentId)),
+    progressGrades: (enrollmentId: number) => call(ENDPOINTS.progressGrades(enrollmentId)),
+    subjects: (personId: number, enrollmentId: number) =>
+      call(ENDPOINTS.subjects(personId, enrollmentId)),
     absences: (personId: number, range: DateRange) => call(ENDPOINTS.absences(personId, range)),
   };
 }

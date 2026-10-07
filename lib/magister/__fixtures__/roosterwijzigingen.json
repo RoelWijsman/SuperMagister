@@ -1,0 +1,157 @@
+{
+  "Items": [
+    {
+      "Id": 1144,
+      "ExterneId": null,
+      "Links": null,
+      "Start": "2026-10-06T22:00:00.0000000Z",
+      "Einde": "2026-10-07T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "-",
+      "Status": 2,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": null,
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1146,
+      "ExterneId": "nep-externeid-1170",
+      "Links": null,
+      "Start": "2026-10-07T09:45:00.0000000Z",
+      "Einde": "2026-10-07T10:45:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ec - DCDK - k3a",
+      "Lokatie": "R114",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": "Toets: kh3 ec",
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1129,
+          "Naam": "economie"
+        }
+      ],
+      "Docenten": null,
+      "Lokalen": [
+        {
+          "Naam": "R114"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1171,
+      "ExterneId": "nep-externeid-1172",
+      "Links": null,
+      "Start": "2026-10-07T11:00:00.0000000Z",
+      "Einde": "2026-10-07T12:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "schk - DCFM - k3a",
+      "Lokatie": "R114",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": "Toets: kh3 schk",
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1173,
+          "Naam": "scheikunde"
+        }
+      ],
+      "Docenten": null,
+      "Lokalen": [
+        {
+          "Naam": "R114"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1147,
+      "ExterneId": "nep-externeid-1148",
+      "Links": null,
+      "Start": "2026-10-08T09:45:00.0000000Z",
+      "Einde": "2026-10-08T10:45:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ak - DCFM - k3a",
+      "Lokatie": "R114",
+      "Status": 1,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": "Toets: kh3 ak",
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1098,
+          "Naam": "aardrijkskunde"
+        }
+      ],
+      "Docenten": null,
+      "Lokalen": [
+        {
+          "Naam": "R114"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    }
+  ],
+  "TotalCount": 4,
+  "Links": []
+}

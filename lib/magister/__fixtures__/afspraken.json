@@ -1,0 +1,1566 @@
+{
+  "Items": [
+    {
+      "Id": 1072,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1072"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1073"
+        }
+      ],
+      "Start": "2026-07-05T22:00:00.0000000Z",
+      "Einde": "2026-08-14T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 6,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1073,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1072"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1073"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1074"
+        }
+      ],
+      "Start": "2026-08-16T22:00:00.0000000Z",
+      "Einde": "2026-08-17T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 6,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1074,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1073"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1074"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1075"
+        }
+      ],
+      "Start": "2026-08-18T06:15:00.0000000Z",
+      "Einde": "2026-08-18T13:00:00.0000000Z",
+      "LesuurVan": 1,
+      "LesuurTotMet": 6,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": " ",
+      "Status": 7,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1076,
+          "Naam": "Docent O",
+          "Docentcode": "DCAH"
+        },
+        {
+          "Id": 1077,
+          "Naam": "Docent P",
+          "Docentcode": "DCBI"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1075,
+      "ExterneId": "nep-externeid-1078",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1074"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1075"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1079"
+        }
+      ],
+      "Start": "2026-08-18T06:15:00.0000000Z",
+      "Einde": "2026-08-18T07:15:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 1,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1079,
+      "ExterneId": "nep-externeid-1080",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1075"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1079"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1081"
+        }
+      ],
+      "Start": "2026-08-18T07:15:00.0000000Z",
+      "Einde": "2026-08-18T08:15:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 1,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1082,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1083"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1082"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1084"
+        }
+      ],
+      "Start": "2026-08-18T09:45:00.0000000Z",
+      "Einde": "2026-08-18T12:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R101 | R102 | R103",
+      "Status": 2,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1085,
+          "Naam": "Docent Q",
+          "Docentcode": "DCCJ"
+        },
+        {
+          "Id": 1086,
+          "Naam": "Docent R",
+          "Docentcode": "DCDK"
+        },
+        {
+          "Id": 1087,
+          "Naam": "Docent S",
+          "Docentcode": "DCEL"
+        },
+        {
+          "Id": 1088,
+          "Naam": "Docent T",
+          "Docentcode": "DCFM"
+        },
+        {
+          "Id": 1089,
+          "Naam": "Docent U",
+          "Docentcode": "DCGN"
+        },
+        {
+          "Id": 1090,
+          "Naam": "Docent V",
+          "Docentcode": "DCHO"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1091,
+      "ExterneId": "nep-externeid-1092",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1093"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1091"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1094"
+        }
+      ],
+      "Start": "2026-08-19T06:15:00.0000000Z",
+      "Einde": "2026-08-19T07:15:00.0000000Z",
+      "LesuurVan": 1,
+      "LesuurTotMet": 1,
+      "DuurtHeleDag": false,
+      "Omschrijving": "bi - DCFM - k3a",
+      "Lokatie": "R104",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1095,
+          "Naam": "biologie"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1088,
+          "Naam": "Docent T",
+          "Docentcode": "DCFM"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R104"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1094,
+      "ExterneId": "nep-externeid-1096",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1091"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1094"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1097"
+        }
+      ],
+      "Start": "2026-08-19T07:15:00.0000000Z",
+      "Einde": "2026-08-19T08:15:00.0000000Z",
+      "LesuurVan": 2,
+      "LesuurTotMet": 2,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ak - DCIP - k3a",
+      "Lokatie": "R105",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1098,
+          "Naam": "aardrijkskunde"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1099,
+          "Naam": "Docent W",
+          "Docentcode": "DCIP"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R105"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1097,
+      "ExterneId": "nep-externeid-1100",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1094"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1097"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1101"
+        }
+      ],
+      "Start": "2026-08-19T08:30:00.0000000Z",
+      "Einde": "2026-08-19T09:30:00.0000000Z",
+      "LesuurVan": 3,
+      "LesuurTotMet": 3,
+      "DuurtHeleDag": false,
+      "Omschrijving": "lo - DCDK - k3a",
+      "Lokatie": "R106",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1102,
+          "Naam": "lichamelijke opvoeding"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1086,
+          "Naam": "Docent R",
+          "Docentcode": "DCDK"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R106"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1103,
+      "ExterneId": "nep-externeid-1104",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1105"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1103"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1106"
+        }
+      ],
+      "Start": "2026-08-20T06:15:00.0000000Z",
+      "Einde": "2026-08-20T07:15:00.0000000Z",
+      "LesuurVan": 1,
+      "LesuurTotMet": 1,
+      "DuurtHeleDag": false,
+      "Omschrijving": "du - DCJQ - k3a",
+      "Lokatie": "R107",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1107,
+          "Naam": "Duitse taal"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1108,
+          "Naam": "Docent X",
+          "Docentcode": "DCJQ"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R107"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1109,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1110"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1109"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1111"
+        }
+      ],
+      "Start": "2026-08-25T11:00:00.0000000Z",
+      "Einde": "2026-08-25T12:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R108",
+      "Status": 2,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1088,
+          "Naam": "Docent T",
+          "Docentcode": "DCFM"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1112,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1113"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1112"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1114"
+        }
+      ],
+      "Start": "2026-08-31T08:30:00.0000000Z",
+      "Einde": "2026-08-31T08:50:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 3,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1115,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1116"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1115"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1117"
+        }
+      ],
+      "Start": "2026-09-01T11:00:00.0000000Z",
+      "Einde": "2026-09-01T11:30:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R109",
+      "Status": 2,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1088,
+          "Naam": "Docent T",
+          "Docentcode": "DCFM"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1118,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1119"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1118"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1120"
+        }
+      ],
+      "Start": "2026-09-03T07:15:00.0000000Z",
+      "Einde": "2026-09-03T07:35:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 3,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1121,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1122"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1121"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1123"
+        }
+      ],
+      "Start": "2026-09-03T13:00:00.0000000Z",
+      "Einde": "2026-09-03T13:30:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R110",
+      "Status": 2,
+      "Type": 1,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1123,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1121"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1123"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1124"
+        }
+      ],
+      "Start": "2026-09-03T13:15:00.0000000Z",
+      "Einde": "2026-09-03T13:45:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R111",
+      "Status": 2,
+      "Type": 1,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1124,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1123"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1124"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1125"
+        }
+      ],
+      "Start": "2026-09-03T13:45:00.0000000Z",
+      "Einde": "2026-09-03T14:15:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R109",
+      "Status": 2,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1088,
+          "Naam": "Docent T",
+          "Docentcode": "DCFM"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1126,
+      "ExterneId": "nep-externeid-1127",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1125"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1126"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1128"
+        }
+      ],
+      "Start": "2026-09-04T06:15:00.0000000Z",
+      "Einde": "2026-09-04T07:15:00.0000000Z",
+      "LesuurVan": 1,
+      "LesuurTotMet": 1,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ec - DCEL - k3a",
+      "Lokatie": "R112",
+      "Status": 5,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1129,
+          "Naam": "economie"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1087,
+          "Naam": "Docent S",
+          "Docentcode": "DCEL"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R112"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1130,
+      "ExterneId": "nep-externeid-1131",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1132"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1130"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1133"
+        }
+      ],
+      "Start": "2026-09-15T06:15:00.0000000Z",
+      "Einde": "2026-09-15T07:15:00.0000000Z",
+      "LesuurVan": 1,
+      "LesuurTotMet": 1,
+      "DuurtHeleDag": false,
+      "Omschrijving": "gds - DCKR - k3a",
+      "Lokatie": "R113",
+      "Status": 5,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1134,
+          "Naam": "godsdienst"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1135,
+          "Naam": "Docent Y",
+          "Docentcode": "DCKR"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R113"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1136,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1137"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1136"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1138"
+        }
+      ],
+      "Start": "2026-09-23T22:00:00.0000000Z",
+      "Einde": "2026-09-24T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 3,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1139,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1138"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1139"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1140"
+        }
+      ],
+      "Start": "2026-09-24T07:00:00.0000000Z",
+      "Einde": "2026-09-24T09:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": " ",
+      "Status": 6,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1076,
+          "Naam": "Docent O",
+          "Docentcode": "DCAH"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1141,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1142"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1141"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1143"
+        }
+      ],
+      "Start": "2026-09-30T22:00:00.0000000Z",
+      "Einde": "2026-10-01T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 3,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 1,
+      "Herhaling": {
+        "BeginDatum": "2026-10-01",
+        "EindDatum": "2026-10-09",
+        "Wekelijks": {
+          "Interval": 1,
+          "Dagen": 58
+        }
+      },
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1144,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1145"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1144"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1146"
+        }
+      ],
+      "Start": "2026-10-06T22:00:00.0000000Z",
+      "Einde": "2026-10-07T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "-",
+      "Status": 2,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1087,
+          "Naam": "Docent S",
+          "Docentcode": "DCEL"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1147,
+      "ExterneId": "nep-externeid-1148",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1149"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1147"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1150"
+        }
+      ],
+      "Start": "2026-10-08T09:45:00.0000000Z",
+      "Einde": "2026-10-08T10:45:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ak - DCFM - k3a",
+      "Lokatie": "R114",
+      "Status": 1,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": "Toets: kh3 ak",
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1098,
+          "Naam": "aardrijkskunde"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1088,
+          "Naam": "Docent T",
+          "Docentcode": "DCFM"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R114"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1151,
+      "ExterneId": "nep-externeid-1152",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1150"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1151"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1153"
+        }
+      ],
+      "Start": "2026-10-09T09:45:00.0000000Z",
+      "Einde": "2026-10-09T10:45:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": false,
+      "Omschrijving": "gs - DCEL - k3a",
+      "Lokatie": "R114",
+      "Status": 1,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": "Toets: kh3 gs",
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1154,
+          "Naam": "geschiedenis"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1087,
+          "Naam": "Docent S",
+          "Docentcode": "DCEL"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R114"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1155,
+      "ExterneId": "nep-externeid-1156",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1157"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1155"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1158"
+        }
+      ],
+      "Start": "2026-10-19T07:15:00.0000000Z",
+      "Einde": "2026-10-19T08:15:00.0000000Z",
+      "LesuurVan": 2,
+      "LesuurTotMet": 2,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ec - DCEL - k3a",
+      "Lokatie": "R112",
+      "Status": 1,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1129,
+          "Naam": "economie"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1087,
+          "Naam": "Docent S",
+          "Docentcode": "DCEL"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R112"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1159,
+      "ExterneId": "nep-externeid-1160",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1161"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1159"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1162"
+        }
+      ],
+      "Start": "2026-10-19T11:00:00.0000000Z",
+      "Einde": "2026-10-19T12:00:00.0000000Z",
+      "LesuurVan": 5,
+      "LesuurTotMet": 5,
+      "DuurtHeleDag": false,
+      "Omschrijving": "gs - DCLS - k3a",
+      "Lokatie": "R115",
+      "Status": 5,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1154,
+          "Naam": "geschiedenis"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1163,
+          "Naam": "Docent Z",
+          "Docentcode": "DCLS"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R115"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1164,
+      "ExterneId": "nep-externeid-1165",
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1166"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1164"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1167"
+        }
+      ],
+      "Start": "2026-10-20T08:30:00.0000000Z",
+      "Einde": "2026-10-20T09:30:00.0000000Z",
+      "LesuurVan": 3,
+      "LesuurTotMet": 3,
+      "DuurtHeleDag": false,
+      "Omschrijving": "stage - DCEL - k3a",
+      "Lokatie": "R112",
+      "Status": 5,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": null,
+      "InfoType": 0,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1168,
+          "Naam": "stage"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1087,
+          "Naam": "Docent S",
+          "Docentcode": "DCEL"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R112"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 0,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1169"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/0"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/0"
+        }
+      ],
+      "Start": "2026-08-20T06:00:00.0000000Z",
+      "Einde": "2026-08-20T06:00:00.0000000Z",
+      "LesuurVan": 0,
+      "LesuurTotMet": 0,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Markering",
+      "Lokatie": "",
+      "Status": 0,
+      "Type": 101,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": "",
+      "InfoType": 0,
+      "Aantekening": "",
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 0,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/0"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/0"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/0"
+        }
+      ],
+      "Start": "2026-08-31T07:00:00.0000000Z",
+      "Einde": "2026-08-31T07:00:00.0000000Z",
+      "LesuurVan": 0,
+      "LesuurTotMet": 0,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Markering",
+      "Lokatie": "",
+      "Status": 0,
+      "Type": 101,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": null,
+      "Opmerking": "",
+      "InfoType": 0,
+      "Aantekening": "",
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    }
+  ],
+  "TotalCount": 30,
+  "Links": []
+}

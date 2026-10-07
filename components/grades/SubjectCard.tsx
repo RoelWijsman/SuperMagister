@@ -28,7 +28,7 @@ export function GradePill({ grade }: { grade: Grade }) {
   if (grade.kind === "text") {
     return (
       <span className="sensitive grid h-7 min-w-9 place-items-center rounded-lg bg-glass-strong px-1.5 text-sm font-semibold text-ink-2">
-        {grade.value}
+        {grade.display}
       </span>
     );
   }

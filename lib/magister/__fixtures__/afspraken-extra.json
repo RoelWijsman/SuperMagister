@@ -1,0 +1,356 @@
+{
+  "Items": [
+    {
+      "Id": 1196,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1197"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1196"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1198"
+        }
+      ],
+      "Start": "2026-05-21T08:30:00.0000000Z",
+      "Einde": "2026-05-21T09:30:00.0000000Z",
+      "LesuurVan": 3,
+      "LesuurTotMet": 3,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ak - DCOV - k3a",
+      "Lokatie": "R120",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 2,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1098,
+          "Naam": "aardrijkskunde"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1199,
+          "Naam": "Docent A1",
+          "Docentcode": "DCOV"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R120"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1200,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1201"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1200"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1202"
+        }
+      ],
+      "Start": "2026-05-22T07:15:00.0000000Z",
+      "Einde": "2026-05-22T08:15:00.0000000Z",
+      "LesuurVan": 2,
+      "LesuurTotMet": 2,
+      "DuurtHeleDag": false,
+      "Omschrijving": "ak - DCOV - k3a",
+      "Lokatie": "R120",
+      "Status": 7,
+      "Type": 13,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 2,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [
+        {
+          "Id": 1098,
+          "Naam": "aardrijkskunde"
+        }
+      ],
+      "Docenten": [
+        {
+          "Id": 1199,
+          "Naam": "Docent A1",
+          "Docentcode": "DCOV"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R120"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1203,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1204"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1203"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1205"
+        }
+      ],
+      "Start": "2026-05-24T22:00:00.0000000Z",
+      "Einde": "2026-05-25T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": " ",
+      "Status": 4,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 1,
+      "Herhaling": {
+        "BeginDatum": "2026-03-24",
+        "EindDatum": "2026-07-31",
+        "Wekelijks": {
+          "Interval": 1,
+          "Dagen": 2
+        }
+      },
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1076,
+          "Naam": "Docent O",
+          "Docentcode": "DCAH"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1206,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1207"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1206"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1208"
+        }
+      ],
+      "Start": "2026-05-31T22:00:00.0000000Z",
+      "Einde": "2026-06-01T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": " ",
+      "Status": 4,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 1,
+      "Herhaling": {
+        "BeginDatum": "2026-03-24",
+        "EindDatum": "2026-07-31",
+        "Wekelijks": {
+          "Interval": 1,
+          "Dagen": 2
+        }
+      },
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1076,
+          "Naam": "Docent O",
+          "Docentcode": "DCAH"
+        }
+      ],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1209,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1210"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1209"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1211"
+        }
+      ],
+      "Start": "2026-06-25T06:15:00.0000000Z",
+      "Einde": "2026-06-25T08:30:00.0000000Z",
+      "LesuurVan": 1,
+      "LesuurTotMet": 2,
+      "DuurtHeleDag": false,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "R121",
+      "Status": 7,
+      "Type": 2,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+      "Opmerking": null,
+      "InfoType": 1,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [
+        {
+          "Id": 1076,
+          "Naam": "Docent O",
+          "Docentcode": "DCAH"
+        },
+        {
+          "Id": 1212,
+          "Naam": "Docent B1",
+          "Docentcode": "DCPW"
+        },
+        {
+          "Id": 1077,
+          "Naam": "Docent P",
+          "Docentcode": "DCBI"
+        },
+        {
+          "Id": 1213,
+          "Naam": "Docent C1",
+          "Docentcode": "DCQX"
+        }
+      ],
+      "Lokalen": [
+        {
+          "Naam": "R122"
+        },
+        {
+          "Naam": "R123"
+        },
+        {
+          "Naam": "R124"
+        }
+      ],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    },
+    {
+      "Id": 1214,
+      "ExterneId": null,
+      "Links": [
+        {
+          "Rel": "Prev",
+          "Href": "/api/personen/1002/afspraken/1215"
+        },
+        {
+          "Rel": "Self",
+          "Href": "/api/personen/1002/afspraken/1214"
+        },
+        {
+          "Rel": "Next",
+          "Href": "/api/personen/1002/afspraken/1216"
+        }
+      ],
+      "Start": "2026-06-28T22:00:00.0000000Z",
+      "Einde": "2026-06-29T22:00:00.0000000Z",
+      "LesuurVan": null,
+      "LesuurTotMet": null,
+      "DuurtHeleDag": true,
+      "Omschrijving": "Schoolactiviteit",
+      "Lokatie": "",
+      "Status": 2,
+      "Type": 3,
+      "Subtype": 1,
+      "IsOnlineDeelname": false,
+      "WeergaveType": 0,
+      "Inhoud": "<p>Informatie over deze activiteit. <strong>Neem je pas mee.</strong></p>",
+      "Opmerking": null,
+      "InfoType": 6,
+      "Aantekening": null,
+      "Afgerond": false,
+      "HerhaalStatus": 0,
+      "Herhaling": null,
+      "Vakken": [],
+      "Docenten": [],
+      "Lokalen": [],
+      "Groepen": null,
+      "OpdrachtId": 0,
+      "HeeftBijlagen": false,
+      "Bijlagen": null
+    }
+  ],
+  "TotalCount": 6
+}

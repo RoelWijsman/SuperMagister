@@ -1,0 +1,1078 @@
+{
+  "items": [
+    {
+      "waarde": "6,4",
+      "cijferGetal": 6.4,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-10-12T17:47:17.0000000Z",
+      "kolom": {
+        "id": 1275,
+        "nummer": 300,
+        "naam": "ak300",
+        "omschrijving": "Voorbeeldtoets 1",
+        "kop": "ak300",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 300,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1276"
+        }
+      }
+    },
+    {
+      "waarde": "9,4",
+      "cijferGetal": 9.4,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-01-05T10:39:14.0000000Z",
+      "kolom": {
+        "id": 1277,
+        "nummer": 301,
+        "naam": "ak301",
+        "omschrijving": "Voorbeeldtoets 2",
+        "kop": "ak301",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 301,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1278"
+        }
+      }
+    },
+    {
+      "waarde": "1,0",
+      "cijferGetal": 1,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-01-05T15:34:44.0000000Z",
+      "kolom": {
+        "id": 1279,
+        "nummer": 355,
+        "naam": "ak355",
+        "omschrijving": "Tekortpunten overgangstoetsen",
+        "kop": "TEK",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "formule",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 355,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1279/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "10,0",
+      "cijferGetal": 10,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-03-05T12:55:25.0000000Z",
+      "kolom": {
+        "id": 1280,
+        "nummer": 302,
+        "naam": "ak302",
+        "omschrijving": "Voorbeeldtoets 3",
+        "kop": "ak302",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 302,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "4,9",
+      "cijferGetal": 4.9,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-03-27T15:13:41.0000000Z",
+      "kolom": {
+        "id": 1281,
+        "nummer": 303,
+        "naam": "ak303",
+        "omschrijving": "Voorbeeldtoets 4",
+        "kop": "ak303",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 303,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1282"
+        }
+      }
+    },
+    {
+      "waarde": "7,7",
+      "cijferGetal": 7.7,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-04-01T14:34:11.0000000Z",
+      "kolom": {
+        "id": 1283,
+        "nummer": 350,
+        "naam": "ak350",
+        "omschrijving": "Voortschrijdend gemiddelde overgangstoetsen",
+        "kop": "VG",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "gemiddelde",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 350,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1283/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "RV",
+      "cijferGetal": 7,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-24T08:31:42.0000000Z",
+      "kolom": {
+        "id": 1284,
+        "nummer": 305,
+        "naam": "ak305",
+        "omschrijving": "Voorbeeldtoets 5",
+        "kop": "ak305",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1219,
+        "volgNummer": 305,
+        "weegfactor": 0,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "5,7",
+      "cijferGetal": 5.7,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-10-16T12:43:03.0000000Z",
+      "kolom": {
+        "id": 1285,
+        "nummer": 300,
+        "naam": "ec300",
+        "omschrijving": "Voorbeeldtoets 6",
+        "kop": "ec300",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 300,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1286"
+        }
+      }
+    },
+    {
+      "waarde": "1,0",
+      "cijferGetal": 1,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-10-17T11:02:34.0000000Z",
+      "kolom": {
+        "id": 1287,
+        "nummer": 355,
+        "naam": "ec355",
+        "omschrijving": "Tekortpunten overgangstoetsen",
+        "kop": "TEK",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "formule",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 355,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1287/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "5,5",
+      "cijferGetal": 5.5,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-12-19T13:14:26.0000000Z",
+      "kolom": {
+        "id": 1288,
+        "nummer": 301,
+        "naam": "ec301",
+        "omschrijving": "Voorbeeldtoets 7",
+        "kop": "ec301",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 301,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1289"
+        }
+      }
+    },
+    {
+      "waarde": "7,4",
+      "cijferGetal": 7.4,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-02-18T10:24:15.0000000Z",
+      "kolom": {
+        "id": 1290,
+        "nummer": 302,
+        "naam": "ec302",
+        "omschrijving": "Voorbeeldtoets 8",
+        "kop": "ec302",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 302,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "3,8",
+      "cijferGetal": 3.8,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-04-01T07:07:17.0000000Z",
+      "kolom": {
+        "id": 1291,
+        "nummer": 303,
+        "naam": "ec303",
+        "omschrijving": "Voorbeeldtoets 9",
+        "kop": "ec303",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 303,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "5,3",
+      "cijferGetal": 5.3,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-04-01T14:34:42.0000000Z",
+      "kolom": {
+        "id": 1292,
+        "nummer": 350,
+        "naam": "ec350",
+        "omschrijving": "Voortschrijdend gemiddelde overgangstoetsen",
+        "kop": "VG",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "gemiddelde",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 350,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1292/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "Vr",
+      "cijferGetal": null,
+      "isVoldoende": true,
+      "heeftVrijstelling": true,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-24T09:53:43.0000000Z",
+      "kolom": {
+        "id": 1293,
+        "nummer": 305,
+        "naam": "ec305",
+        "omschrijving": "Voorbeeldtoets 10",
+        "kop": "ec305",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 305,
+        "weegfactor": 2,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "RV",
+      "cijferGetal": 5,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-24T09:57:56.0000000Z",
+      "kolom": {
+        "id": 1294,
+        "nummer": 304,
+        "naam": "ec304",
+        "omschrijving": "Voorbeeldtoets 11",
+        "kop": "ec304",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1221,
+        "volgNummer": 304,
+        "weegfactor": 0,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "4,7",
+      "cijferGetal": 4.7,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-10-27T14:19:28.0000000Z",
+      "kolom": {
+        "id": 1295,
+        "nummer": 300,
+        "naam": "en300",
+        "omschrijving": "Voorbeeldtoets 12",
+        "kop": "en300",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 300,
+        "weegfactor": 3,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1296"
+        }
+      }
+    },
+    {
+      "waarde": "4,9",
+      "cijferGetal": 4.9,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-01-07T14:15:14.0000000Z",
+      "kolom": {
+        "id": 1297,
+        "nummer": 301,
+        "naam": "en301",
+        "omschrijving": "Voorbeeldtoets 13",
+        "kop": "en301",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 301,
+        "weegfactor": 3,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "8,4",
+      "cijferGetal": 8.4,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-02-04T12:13:35.0000000Z",
+      "kolom": {
+        "id": 1298,
+        "nummer": 302,
+        "naam": "en302",
+        "omschrijving": "Voorbeeldtoets 14",
+        "kop": "en302",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 302,
+        "weegfactor": 3,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "1,0",
+      "cijferGetal": 1,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-02-04T15:30:48.0000000Z",
+      "kolom": {
+        "id": 1299,
+        "nummer": 355,
+        "naam": "en355",
+        "omschrijving": "Tekortpunten overgangstoetsen",
+        "kop": "TEK",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "formule",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 355,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1299/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "4,6",
+      "cijferGetal": 4.6,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-03-30T13:46:08.0000000Z",
+      "kolom": {
+        "id": 1300,
+        "nummer": 303,
+        "naam": "en303",
+        "omschrijving": "Voorbeeldtoets 15",
+        "kop": "en303",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 303,
+        "weegfactor": 3,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "8,1",
+      "cijferGetal": 8.1,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-11T14:31:03.0000000Z",
+      "kolom": {
+        "id": 1301,
+        "nummer": 304,
+        "naam": "en304",
+        "omschrijving": "Voorbeeldtoets 16",
+        "kop": "en304",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 304,
+        "weegfactor": 3,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "4,0",
+      "cijferGetal": 4,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-26T09:32:04.0000000Z",
+      "kolom": {
+        "id": 1302,
+        "nummer": 305,
+        "naam": "en305",
+        "omschrijving": "Voorbeeldtoets 17",
+        "kop": "en305",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 305,
+        "weegfactor": 3,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "5,8",
+      "cijferGetal": 5.8,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-26T09:35:17.0000000Z",
+      "kolom": {
+        "id": 1303,
+        "nummer": 350,
+        "naam": "en350",
+        "omschrijving": "Voortschrijdend gemiddelde overgangstoetsen",
+        "kop": "VG",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "gemiddelde",
+        "deelcijferOptie": "geen",
+        "studievakId": 1223,
+        "volgNummer": 350,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1303/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "O",
+      "cijferGetal": 8.5,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-12-08T18:00:04.0000000Z",
+      "kolom": {
+        "id": 1304,
+        "nummer": 300,
+        "naam": "lo300",
+        "omschrijving": "Voorbeeldtoets 18",
+        "kop": "lo300",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 300,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1305"
+        }
+      }
+    },
+    {
+      "waarde": "1,0",
+      "cijferGetal": 1,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2025-12-09T14:30:54.0000000Z",
+      "kolom": {
+        "id": 1306,
+        "nummer": 355,
+        "naam": "lo355",
+        "omschrijving": "Tekortpunten overgangstoetsen",
+        "kop": "TEK",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "formule",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 355,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1306/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "O",
+      "cijferGetal": 10,
+      "isVoldoende": false,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-02-24T13:37:39.0000000Z",
+      "kolom": {
+        "id": 1307,
+        "nummer": 305,
+        "naam": "lo305",
+        "omschrijving": "Voorbeeldtoets 19",
+        "kop": "lo305",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 305,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1308"
+        }
+      }
+    },
+    {
+      "waarde": "RV",
+      "cijferGetal": 7,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-03-06T13:06:42.0000000Z",
+      "kolom": {
+        "id": 1309,
+        "nummer": 301,
+        "naam": "lo301",
+        "omschrijving": "Voorbeeldtoets 20",
+        "kop": "lo301",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 301,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1310"
+        }
+      }
+    },
+    {
+      "waarde": "V",
+      "cijferGetal": 5,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-05-06T07:56:13.0000000Z",
+      "kolom": {
+        "id": 1311,
+        "nummer": 303,
+        "naam": "lo303",
+        "omschrijving": "Voorbeeldtoets 21",
+        "kop": "lo303",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 303,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {}
+    },
+    {
+      "waarde": "RV",
+      "cijferGetal": 7,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-14T12:36:14.0000000Z",
+      "kolom": {
+        "id": 1312,
+        "nummer": 304,
+        "naam": "lo304",
+        "omschrijving": "Voorbeeldtoets 22",
+        "kop": "lo304",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 304,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1313"
+        }
+      }
+    },
+    {
+      "waarde": "G",
+      "cijferGetal": 7.5,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-15T14:32:41.0000000Z",
+      "kolom": {
+        "id": 1314,
+        "nummer": 350,
+        "naam": "lo350",
+        "omschrijving": "Voortschrijdend gemiddelde overgangstoetsen",
+        "kop": "VG",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "gemiddelde",
+        "deelcijferOptie": "geen",
+        "studievakId": 1229,
+        "volgNummer": 350,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1314/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "7,1",
+      "cijferGetal": 7.1,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-23T13:07:42.0000000Z",
+      "kolom": {
+        "id": 1315,
+        "nummer": 350,
+        "naam": "gem350",
+        "omschrijving": "Voortschrijdend gemiddelde overgangstoetsen",
+        "kop": "VG",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "gemiddelde",
+        "deelcijferOptie": "geen",
+        "studievakId": 1247,
+        "volgNummer": 350,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1315/gerelateerdekolommen"
+        }
+      }
+    },
+    {
+      "waarde": "1,0",
+      "cijferGetal": 1,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": false,
+      "teltMee": true,
+      "ingevoerdOp": "2026-06-25T14:25:21.0000000Z",
+      "kolom": {
+        "id": 1316,
+        "nummer": 355,
+        "naam": "tek355",
+        "omschrijving": "Tekortpunten overgangstoetsen",
+        "kop": "TEK",
+        "werkinformatieKop": null,
+        "opties": ["werkinformatieAfnamedatumAanpassen"],
+        "type": "som",
+        "deelcijferOptie": "geen",
+        "studievakId": 1249,
+        "volgNummer": 355,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1274,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "gerelateerdeKolommen": {
+          "href": "/api/leerlingen/1002/cijfers/kolommen/1316/gerelateerdekolommen"
+        }
+      }
+    }
+  ],
+  "links": {},
+  "totalCount": 32
+}

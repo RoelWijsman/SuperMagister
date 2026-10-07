@@ -19,7 +19,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | ✅ Klaar |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | ✅ Klaar |
-| 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | Gepland  |
+| 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | 5a klaar |
 | 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                          | Gepland  |
 | 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid         | Gepland  |

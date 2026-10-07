@@ -35,7 +35,19 @@ describe("ENDPOINTS", () => {
       path: "personen/42/afspraken",
       query: { van: "2026-10-05", tot: "2026-10-11" },
     });
-    expect(ENDPOINTS.enrollments(42)).toEqual({ path: "personen/42/aanmeldingen" });
+    expect(ENDPOINTS.enrollments(42)).toEqual({
+      path: "personen/42/aanmeldingen",
+      query: { geenToekomstige: false },
+    });
+    expect(ENDPOINTS.gradePeriods(42, 7).path).toBe(
+      "personen/42/aanmeldingen/7/cijfers/cijferperiodenvooraanmelding",
+    );
+    expect(ENDPOINTS.progressGrades(7)).toEqual({ path: "aanmeldingen/7/cijfers" });
+    expect(ENDPOINTS.subjects(42, 7).path).toBe("personen/42/aanmeldingen/7/vakken");
+    expect(ENDPOINTS.scheduleChanges(42, { from: "2026-10-05", to: "2026-10-11" })).toEqual({
+      path: "personen/42/roosterwijzigingen",
+      query: { van: "2026-10-05", tot: "2026-10-11" },
+    });
     expect(ENDPOINTS.gradeOverview(42, 7)).toEqual({
       path: "personen/42/aanmeldingen/7/cijfers/cijferoverzichtvooraanmelding",
       query: { actievePerioden: false, alleenBerekendeKolommen: false, alleenPTAKolommen: false },
@@ -118,6 +130,26 @@ describe("createProxyTransport", () => {
       expect(error.status).toBe(status);
       expect(error.message).not.toContain(session.token);
     }
+  });
+
+  it("leest de foutcode van de proxy, en wanneer je het opnieuw mag proberen", async () => {
+    const transport = createProxyTransport({
+      session: () => session,
+      fetch: fakeFetch({
+        ok: false,
+        status: 429,
+        headers: new Headers({ "retry-after": "120" }),
+        json: async () => ({ fout: "te-vaak", opnieuwNa: 120 }),
+      }),
+    });
+    const error = (await transport.get("account").catch((e: unknown) => e)) as MagisterError;
+    expect(error).toMatchObject({ code: "te-vaak", status: 429, retryAfter: 120 });
+
+    const plat = createProxyTransport({
+      session: () => session,
+      fetch: fakeFetch({ ok: false, status: 502, json: async () => ({ fout: "magister-plat" }) }),
+    });
+    await expect(plat.get("account")).rejects.toMatchObject({ code: "server", status: 502 });
   });
 
   it("zegt 'netwerk' als de verbinding wegvalt", async () => {

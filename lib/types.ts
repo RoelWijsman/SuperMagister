@@ -50,7 +50,8 @@ export interface Period {
 }
 
 /** Niet-numerieke beoordelingen die Magister kan teruggeven. */
-export type TextGradeValue = "V" | "G" | "O" | "ZG" | "ZS" | "R" | "M" | "NB" | "VR";
+/** RV = ruim voldoende, VR = vrijstelling, INH = moet nog inhalen (Magister toont "Inh"). */
+export type TextGradeValue = "V" | "G" | "O" | "RV" | "ZG" | "ZS" | "R" | "M" | "NB" | "VR" | "INH";
 
 interface GradeBase {
   id: string;

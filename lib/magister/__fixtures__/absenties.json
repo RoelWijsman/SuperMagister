@@ -1,0 +1,414 @@
+{
+  "Items": [
+    {
+      "Id": 1174,
+      "Start": "2026-08-18T22:00:00.0000000Z",
+      "Eind": "2026-08-18T22:00:00.0000000Z",
+      "Lesuur": 1,
+      "Geoorloofd": false,
+      "AfspraakId": 1091,
+      "Omschrijving": "Te laat ongeoorloofd",
+      "Verantwoordingtype": 2,
+      "Code": "LO",
+      "Afspraak": {
+        "Id": 1091,
+        "ExterneId": "nep-externeid-1092",
+        "Links": null,
+        "Start": "2026-08-19T06:15:00.0000000Z",
+        "Einde": "2026-08-19T07:15:00.0000000Z",
+        "LesuurVan": 1,
+        "LesuurTotMet": 1,
+        "DuurtHeleDag": false,
+        "Omschrijving": "bi - DCFM - k3a",
+        "Lokatie": "R104",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+        "Opmerking": null,
+        "InfoType": 1,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1095,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1175,
+      "Start": "2026-08-19T22:00:00.0000000Z",
+      "Eind": "2026-08-19T22:00:00.0000000Z",
+      "Lesuur": 2,
+      "Geoorloofd": true,
+      "AfspraakId": 1106,
+      "Omschrijving": "Counseling / RT / PL",
+      "Verantwoordingtype": 1,
+      "Code": "CR",
+      "Afspraak": {
+        "Id": 1106,
+        "ExterneId": "nep-externeid-1176",
+        "Links": null,
+        "Start": "2026-08-20T07:15:00.0000000Z",
+        "Einde": "2026-08-20T08:15:00.0000000Z",
+        "LesuurVan": 2,
+        "LesuurTotMet": 2,
+        "DuurtHeleDag": false,
+        "Omschrijving": "gs - DCLS - k3a",
+        "Lokatie": "R116",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": null,
+        "Opmerking": null,
+        "InfoType": 0,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1154,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1177,
+      "Start": "2026-08-20T22:00:00.0000000Z",
+      "Eind": "2026-08-20T22:00:00.0000000Z",
+      "Lesuur": 1,
+      "Geoorloofd": true,
+      "AfspraakId": 1178,
+      "Omschrijving": "Afwezig geoorl. bekende reden",
+      "Verantwoordingtype": 1,
+      "Code": "AG",
+      "Afspraak": {
+        "Id": 1178,
+        "ExterneId": "nep-externeid-1179",
+        "Links": null,
+        "Start": "2026-08-21T06:15:00.0000000Z",
+        "Einde": "2026-08-21T07:15:00.0000000Z",
+        "LesuurVan": 1,
+        "LesuurTotMet": 1,
+        "DuurtHeleDag": false,
+        "Omschrijving": "ec - DCEL - k3a",
+        "Lokatie": "R112",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+        "Opmerking": null,
+        "InfoType": 1,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1129,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1180,
+      "Start": "2026-08-31T22:00:00.0000000Z",
+      "Eind": "2026-08-31T22:00:00.0000000Z",
+      "Lesuur": 3,
+      "Geoorloofd": false,
+      "AfspraakId": 1181,
+      "Omschrijving": "Boeken vergeten ",
+      "Verantwoordingtype": 7,
+      "Code": "BO",
+      "Afspraak": {
+        "Id": 1181,
+        "ExterneId": "nep-externeid-1182",
+        "Links": null,
+        "Start": "2026-09-01T08:30:00.0000000Z",
+        "Einde": "2026-09-01T09:30:00.0000000Z",
+        "LesuurVan": 3,
+        "LesuurTotMet": 3,
+        "DuurtHeleDag": false,
+        "Omschrijving": "en - DCMT - k3a",
+        "Lokatie": "R117",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+        "Opmerking": null,
+        "InfoType": 1,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1183,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1184,
+      "Start": "2026-08-31T22:00:00.0000000Z",
+      "Eind": "2026-08-31T22:00:00.0000000Z",
+      "Lesuur": 4,
+      "Geoorloofd": false,
+      "AfspraakId": 1116,
+      "Omschrijving": "Huiswerk vergeten ",
+      "Verantwoordingtype": 8,
+      "Code": "HV",
+      "Afspraak": {
+        "Id": 1116,
+        "ExterneId": "nep-externeid-1185",
+        "Links": null,
+        "Start": "2026-09-01T09:30:00.0000000Z",
+        "Einde": "2026-09-01T10:30:00.0000000Z",
+        "LesuurVan": 4,
+        "LesuurTotMet": 4,
+        "DuurtHeleDag": false,
+        "Omschrijving": "ak - DCIP - k3a",
+        "Lokatie": "R105",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+        "Opmerking": null,
+        "InfoType": 1,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1098,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1186,
+      "Start": "2026-09-01T22:00:00.0000000Z",
+      "Eind": "2026-09-01T22:00:00.0000000Z",
+      "Lesuur": 4,
+      "Geoorloofd": true,
+      "AfspraakId": 1187,
+      "Omschrijving": "Ziek achteraf bevestigd",
+      "Verantwoordingtype": 3,
+      "Code": "ZB",
+      "Afspraak": {
+        "Id": 1187,
+        "ExterneId": "nep-externeid-1188",
+        "Links": null,
+        "Start": "2026-09-02T09:30:00.0000000Z",
+        "Einde": "2026-09-02T10:30:00.0000000Z",
+        "LesuurVan": 4,
+        "LesuurTotMet": 4,
+        "DuurtHeleDag": false,
+        "Omschrijving": "nat - DCHO - k3a",
+        "Lokatie": "R118",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+        "Opmerking": null,
+        "InfoType": 1,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1189,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1190,
+      "Start": "2026-09-22T22:00:00.0000000Z",
+      "Eind": "2026-09-22T22:00:00.0000000Z",
+      "Lesuur": 6,
+      "Geoorloofd": true,
+      "AfspraakId": 1137,
+      "Omschrijving": "Binnen- en buitenschoolse act.",
+      "Verantwoordingtype": 1,
+      "Code": "BS",
+      "Afspraak": {
+        "Id": 1137,
+        "ExterneId": "nep-externeid-1191",
+        "Links": null,
+        "Start": "2026-09-23T12:00:00.0000000Z",
+        "Einde": "2026-09-23T13:00:00.0000000Z",
+        "LesuurVan": 6,
+        "LesuurTotMet": 6,
+        "DuurtHeleDag": false,
+        "Omschrijving": "wi - DCNU - k3a",
+        "Lokatie": "R119",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": null,
+        "Opmerking": null,
+        "InfoType": 0,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1192,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    },
+    {
+      "Id": 1193,
+      "Start": "2026-09-29T22:00:00.0000000Z",
+      "Eind": "2026-09-29T22:00:00.0000000Z",
+      "Lesuur": 1,
+      "Geoorloofd": false,
+      "AfspraakId": 1194,
+      "Omschrijving": "Spijbelen",
+      "Verantwoordingtype": 1,
+      "Code": "SP",
+      "Afspraak": {
+        "Id": 1194,
+        "ExterneId": "nep-externeid-1195",
+        "Links": null,
+        "Start": "2026-09-30T06:15:00.0000000Z",
+        "Einde": "2026-09-30T07:15:00.0000000Z",
+        "LesuurVan": 1,
+        "LesuurTotMet": 1,
+        "DuurtHeleDag": false,
+        "Omschrijving": "bi - DCFM - k3a",
+        "Lokatie": "R104",
+        "Status": 7,
+        "Type": 13,
+        "Subtype": 1,
+        "IsOnlineDeelname": false,
+        "WeergaveType": 0,
+        "Inhoud": "<p>Maak opgave 3 t/m 7 van § 2.4.<br>Neem je rekenmachine mee.</p>",
+        "Opmerking": null,
+        "InfoType": 1,
+        "Aantekening": null,
+        "Afgerond": false,
+        "HerhaalStatus": 0,
+        "Herhaling": null,
+        "Vakken": [
+          {
+            "Id": 1095,
+            "Naam": null
+          }
+        ],
+        "Docenten": null,
+        "Lokalen": [
+          {
+            "Naam": null
+          }
+        ],
+        "Groepen": null,
+        "OpdrachtId": 0,
+        "HeeftBijlagen": false,
+        "Bijlagen": null
+      }
+    }
+  ],
+  "TotalCount": 8,
+  "Links": []
+}

@@ -1,0 +1,35 @@
+{
+  "UuId": "nep-uuid-1001",
+  "Persoon": {
+    "Id": 1002,
+    "Roepnaam": "Daan",
+    "Tussenvoegsel": null,
+    "Achternaam": "Visser",
+    "OfficieleVoornamen": "Daan Pieter",
+    "Voorletters": "D.P.",
+    "OfficieleTussenvoegsels": null,
+    "OfficieleAchternaam": "Visser",
+    "Geboortedatum": "2010-03-14T00:00:00.0000000Z",
+    "GeboorteAchternaam": null,
+    "GeboortenaamTussenvoegsel": null,
+    "GebruikGeboortenaam": false,
+    "ExterneId": "nep-externeid-1003"
+  },
+  "Groep": [
+    {
+      "Naam": "Leerling",
+      "Privileges": [
+        {
+          "Naam": "Cijfers",
+          "AccessType": ["Read"]
+        },
+        {
+          "Naam": "Aanmeldingen",
+          "AccessType": ["Read"]
+        }
+      ],
+      "Links": null
+    }
+  ],
+  "Links": []
+}

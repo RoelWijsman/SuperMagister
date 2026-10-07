@@ -1,0 +1,14 @@
+{
+  "Items": [
+    {
+      "Omschrijving": "Overgangstoetsen LJ3",
+      "Start": "2026-07-31T22:00:00.0000000Z",
+      "Einde": "2027-07-30T22:00:00.0000000Z",
+      "Id": 1069,
+      "Naam": "OV3",
+      "VolgNummer": 100
+    }
+  ],
+  "TotalCount": 1,
+  "Links": []
+}

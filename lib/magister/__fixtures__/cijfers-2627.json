@@ -1,0 +1,41 @@
+{
+  "items": [
+    {
+      "waarde": "Inh",
+      "cijferGetal": null,
+      "isVoldoende": true,
+      "heeftVrijstelling": false,
+      "moetInhalen": true,
+      "teltMee": true,
+      "ingevoerdOp": "2026-09-29T11:40:30.0000000Z",
+      "kolom": {
+        "id": 1070,
+        "nummer": 302,
+        "naam": "lo302",
+        "omschrijving": "Voorbeeldtoets 1",
+        "kop": "lo302",
+        "werkinformatieKop": null,
+        "opties": ["tekstInvoeren", "werkinformatieAfnamedatumAanpassen"],
+        "type": "cijfer",
+        "deelcijferOptie": "geen",
+        "studievakId": 1026,
+        "volgNummer": 302,
+        "weegfactor": 1,
+        "periode": {
+          "id": 1069,
+          "code": "OV3",
+          "links": {
+            "self": "[object Object]"
+          }
+        }
+      },
+      "links": {
+        "werkinformatie": {
+          "href": "/api/cijfers/werkinformatie/1217"
+        }
+      }
+    }
+  ],
+  "links": {},
+  "totalCount": 1
+}

@@ -1,0 +1,130 @@
+{
+  "Items": [
+    {
+      "Id": 1004,
+      "Links": [
+        {
+          "Rel": "self",
+          "Href": "/api/aanmeldingen/1004"
+        }
+      ],
+      "LeerlingId": 1005,
+      "Start": "2023-07-31T22:00:00.0000000Z",
+      "Einde": "2024-07-30T22:00:00.0000000Z",
+      "Lesperiode": "2324",
+      "Studie": {
+        "Id": 1006,
+        "Omschrijving": "VWO/1"
+      },
+      "Groep": {
+        "Id": 1007,
+        "Links": [
+          {
+            "Rel": "mentoren",
+            "Href": "/api/groepen/1007/mentoren"
+          }
+        ],
+        "Omschrijving": "Klas A",
+        "LocatieId": 0
+      },
+      "Profiel": null,
+      "Profiel2": null,
+      "AanBronMelden": true
+    },
+    {
+      "Id": 1008,
+      "Links": [
+        {
+          "Rel": "self",
+          "Href": "/api/aanmeldingen/1008"
+        }
+      ],
+      "LeerlingId": 1005,
+      "Start": "2024-07-31T22:00:00.0000000Z",
+      "Einde": "2025-07-30T22:00:00.0000000Z",
+      "Lesperiode": "2425",
+      "Studie": {
+        "Id": 1009,
+        "Omschrijving": "VWO/2"
+      },
+      "Groep": {
+        "Id": 1010,
+        "Links": [
+          {
+            "Rel": "mentoren",
+            "Href": "/api/groepen/1010/mentoren"
+          }
+        ],
+        "Omschrijving": "Klas B",
+        "LocatieId": 0
+      },
+      "Profiel": "ATH",
+      "Profiel2": null,
+      "AanBronMelden": true
+    },
+    {
+      "Id": 1011,
+      "Links": [
+        {
+          "Rel": "self",
+          "Href": "/api/aanmeldingen/1011"
+        }
+      ],
+      "LeerlingId": 1005,
+      "Start": "2025-07-31T22:00:00.0000000Z",
+      "Einde": "2026-07-30T22:00:00.0000000Z",
+      "Lesperiode": "2526",
+      "Studie": {
+        "Id": 1012,
+        "Omschrijving": "HAVO/3"
+      },
+      "Groep": {
+        "Id": 1013,
+        "Links": [
+          {
+            "Rel": "mentoren",
+            "Href": "/api/groepen/1013/mentoren"
+          }
+        ],
+        "Omschrijving": "HAVO 3",
+        "LocatieId": 0
+      },
+      "Profiel": "HAVO/3",
+      "Profiel2": null,
+      "AanBronMelden": true
+    },
+    {
+      "Id": 1014,
+      "Links": [
+        {
+          "Rel": "self",
+          "Href": "/api/aanmeldingen/1014"
+        }
+      ],
+      "LeerlingId": 1005,
+      "Start": "2026-07-31T22:00:00.0000000Z",
+      "Einde": "2027-07-30T22:00:00.0000000Z",
+      "Lesperiode": "2627",
+      "Studie": {
+        "Id": 1015,
+        "Omschrijving": "HAVO/3"
+      },
+      "Groep": {
+        "Id": 1016,
+        "Links": [
+          {
+            "Rel": "mentoren",
+            "Href": "/api/groepen/1016/mentoren"
+          }
+        ],
+        "Omschrijving": "HAVO 3",
+        "LocatieId": 0
+      },
+      "Profiel": "HAVO/3",
+      "Profiel2": null,
+      "AanBronMelden": true
+    }
+  ],
+  "TotalCount": 4,
+  "Links": []
+}

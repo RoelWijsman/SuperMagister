@@ -418,6 +418,62 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - Alles telt alleen met onthulde cijfers. Je normen, tabblad en combinatievakken staan lokaal
   (`sm-cijfers`).
 
+## Koppeling met Magister (fase 5a: de echte API)
+
+- **Gecontroleerd met echte data.** `scripts/verzamel-magister.js` plak je één keer in de
+  console van je eigen Magister (F12 → Console). Het gebruikt het token uit sessionStorage
+  (key `oidc.user:https://accounts.magister.net:M6-{school}.magister.net`, met `access_token`
+  en `expires_at`; zo'n token is ongeveer een uur geldig) alleen binnen het script. Het haalt
+  rustig alle endpoints op, met per endpoint de bekende varianten, en downloadt één JSON-bestand.
+  Tokens en cookies komen er nooit in; `lib/magister/collector.test.ts` controleert dat.
+- **Ruwe exports blijven lokaal** in `magister-voorbeelden/` (in `.gitignore`, net als `*.har`).
+  `scripts/anonimiseer-magister.mjs` maakt er testbestanden van in `lib/magister/__fixtures__`:
+  nepnaam, nepdocenten, neplokalen, nep-id's en nepteksten, in precies dezelfde vorm. Cijfers
+  schuiven per vak een vaste, geheime stap (veelvoud van 0,1, of hele stappen bij vakken met
+  hele cijfers), zodat Magisters eigen gemiddelden blijven kloppen met de nepcijfers. Het
+  script controleert zelf dat er geen echte waarde achterblijft.
+- **Endpoints** (`lib/magister/endpoints.ts`): account, aanmeldingen (`?geenToekomstige=false`),
+  vakken, cijferperioden, afspraken, roosterwijzigingen, absenties en laatste cijfers werkten
+  allemaal zoals bekend. **Cijfers** komen niet uit het oude cijferoverzicht (dat bleek leeg of
+  alleen lege vakregels) maar uit `/api/aanmeldingen/{id}/cijfers`: per cel de kolom met
+  weegfactor, periode en studievak-id (het vak via `/vakken` van hetzelfde schooljaar). Het
+  oude overzicht gebruiken we alleen nog om te weten welke vakken cijfers kunnen krijgen.
+- **Codes, met echte voorbeelden:**
+  - Afspraken: Type 13 = les; 1, 2 en 3 = persoonlijk, algemeen en schoolbreed (tonen we);
+    6 = roostervrij, 101 = markering zonder duur en hele dagen tonen we niet.
+  - Status 4 en 5 = vervallen (uitval), 3, 9 en 10 = gewijzigd; lessen uit
+    `/roosterwijzigingen` zijn ook "gewijzigd" (Magister geeft daar het oude lokaal niet bij).
+  - InfoType 1 = huiswerk (89 voorbeelden), 2 = toets (bevestigd), 3–5 tentamen, SO,
+    mondeling, 6 = informatie, 7 = aantekening.
+  - Absenties: Verantwoordingtype 1 afwezig (ook spijbelen, counseling), 2 te laat, 3 ziek,
+    7 boeken/materiaal vergeten, 8 huiswerk vergeten.
+  - Cijferkolommen: `cijfer` (toetsen), `gemiddelde` (kop VG: Magisters gemiddelde per vak),
+    `formule` en `som` (kop TEK: tekortpunten, per school anders; die gebruiken we niet).
+  - Beoordelingen: V, G, O, RV (ruim voldoende), Vr (vrijstelling) en Inh (inhalen). Achter
+    V/G/O zet Magister een verborgen getal; dat telt niet mee, ook niet bij Magister zelf.
+  - Magisters rekenvakken "gemiddelde over alle vakken" (gem) en "tekortpunten over alle
+    vakken" (tek) zijn geen echte vakken.
+- **Gemiddelden vergeleken:** over drie schooljaren en zo'n zestig vak-perioden is ons gewogen
+  gemiddelde, afgerond op één decimaal, steeds gelijk aan Magisters VG-kolom. Het verschil
+  (ongeveer ±0,05) is alleen afronding. `compareAverages` doet die vergelijking; bij een echt
+  verschil komt er in 5b een waarschuwingsicoon. Magisters "gemiddelde over alle vakken" en
+  zijn tekortpunten gebruiken een eigen keuze aan vakken; die vergelijken we niet.
+- **Schooljaren:** het huidige schooljaar wordt automatisch gekozen (in de zomer het nieuwste
+  dat al begonnen is); examenklassen herkennen we aan de studie ("K_HAVO/5", "6 vwo"). Een
+  schooljaar kan meerdere perioden hebben (OV1, OV2); we volgen wat Magister erbij zet. PTA
+  herkennen we voorlopig aan "SE"/"PTA" in periode of kolomkop: nog niet getest met echte
+  bovenbouwdata.
+- **Proxy** (`/api/magister/[...path]`, `lib/magister/proxy.ts`): alleen GET, school strikt
+  `^[a-z0-9-]+\.magister\.net$`, paden alleen letters, cijfers, `-` en `_`, alleen het token en
+  `Accept` door (geen cookies, geen doorverwijzingen volgen), nooit loggen of opslaan. Fouten:
+  401 en een doorverwijzing worden "verlopen", 403, 404, 429 met "probeer over X seconden",
+  5xx "Magister plat", time-out na 15 seconden.
+- **Databron** (`lib/magister/source.ts`): levert precies dezelfde types als de demo, via de
+  client (dus de transport: proxy nu, extensie in 5c). Zuinig: schooljaren, vakken en cijfers
+  worden 30 seconden gedeeld in plaats van dubbel opgevraagd. Het welkomstpack zijn de laatste
+  vijf echte cijfers (zonder Inh en vrijstellingen); de rest is bij de eerste koppeling al
+  onthuld. In 5b komt hij in de app.
+
 ## Geschrapt (besluit 6 oktober 2026)
 
 Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar
@@ -442,6 +498,6 @@ app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5
 
 ## Nog niet gebouwd
 
-Koppelen, proxy-route, parsers en CSP (fase 5; de client staat klaar) · XP, achievements,
+Koppelen, tokens en echte data in de app (5b) en de browserextensie (5c) · XP, achievements,
 profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
 easter eggs (fase 7).
