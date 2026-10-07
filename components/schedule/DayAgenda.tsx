@@ -16,8 +16,8 @@ export interface AgendaContext {
   unseen: ReadonlySet<string>;
   markSeen: (lessonId: string) => void;
   open: (lesson: Lesson) => void;
-  /** Huiswerk dat nog moet, voor de slimme tussenuren. */
-  upcomingHomework: readonly Homework[];
+  /** Huiswerk dat nog moet, voor de slimme tussenuren (met je eigen tijd als die er is). */
+  upcomingHomework: readonly (Homework & { minutes?: number })[];
   /** Lessen met huiswerk (voor het icoontje op de kaart). */
   homeworkLessons: ReadonlySet<string>;
 }

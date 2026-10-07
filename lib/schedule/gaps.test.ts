@@ -63,4 +63,10 @@ describe("suggestForGap (slimme tussenuren)", () => {
   it("geeft niets als er niets past", () => {
     expect(suggestForGap(5, list, "2026-10-06")).toBeNull();
   });
+
+  it("rekent met je eigen tijd als die er is", () => {
+    const mine = [{ ...homework("snel", "2026-10-07", "Lees §2.3"), minutes: 60 }];
+    expect(suggestForGap(45, mine, "2026-10-06")).toBeNull();
+    expect(suggestForGap(60, mine, "2026-10-06")?.minutes).toBe(60);
+  });
 });

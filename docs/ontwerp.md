@@ -323,6 +323,41 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Demo:** bij **Instellingen → Ontwikkelaar** verzin je een roosterwijziging (uitval of ander
   lokaal in de komende week) om de detector te zien werken, en zet je alles weer terug.
 
+## Huiswerk (fase 3c)
+
+- **Overzichten:** Vandaag, de volgende schooldag ("Morgen", of na een vrijdag "Maandag"),
+  Komende dagen en Later, met per groep de open tijd. Of als **kanban** (Te doen / Bezig /
+  Klaar): sleep een kaart met muis of vinger (op een telefoon even vasthouden), of gebruik de
+  pijlknoppen op de kaart (ook met het toetsenbord). Naar Klaar slepen is afvinken.
+- **Afvinken** met beloning: de vinkknop veert, het vinkje tekent zichzelf, er spetteren puntjes
+  weg, "+10 XP" vliegt omhoog, met een plop en een trilling. Is alles voor de volgende
+  schooldag af, dan regent het confetti over de hele app en komt er een droge melding (één keer
+  per dag). Sup die danst hoort bij de mascotte in fase 6. XP zelf telt pas mee in fase 6: die
+  rekent het uit met het moment van afvinken dat nu al bewaard wordt.
+- **Alleen op dit apparaat.** Afvinken, "bezig", eigen tijden en mini-stapjes staan lokaal per
+  databron (`sm-huiswerk`). De koppeling met Magister leest alleen (de proxy doet alleen GET),
+  dus Magister zelf merkt niets van je vinkjes. Wat Magister al als afgerond kent, staat
+  meteen op Klaar.
+- **Tijdsschatting per item:** de app schat uit de tekst (per opdracht, per paragraaf, een
+  hoofdstuk lezen, leren voor een toets). Je kunt per vak een standaardtijd kiezen (Instellingen
+  → Huiswerk, of vanuit een item), die geldt voor huiswerk maar niet voor toetsen. Per item kun
+  je de tijd ook zelf zetten; die wint altijd. Ook de slimme tussenuren in het rooster rekenen
+  met jouw tijden en slaan afgevinkt huiswerk over.
+- **Drukte-meter:** de komende vijf schooldagen als staafjes met de open tijd per dag (vrij,
+  rustig tot 30 min, normaal tot een uur, druk tot 100 min, daarboven zwaar). Een zware dag
+  krijgt een zin. Tik op een dag om erheen te scrollen. Bovenaan staat de tijd voor de
+  komende week (niet voor alle vier de weken, dat is vooral schrikken).
+- **"Ik heb geen zin":** kies "Maak het kleiner" (de taak in mini-stapjes: wat uit de opdracht
+  komt, zoals "Lees § 3.2" en "Maak opdracht 4", staat er letterlijk, de rest komt uit
+  `content/copy.ts`; je vinkjes blijven bewaard) of "Alleen 5 minuten": een eigen timer van vijf
+  minuten (geen focusmodus) die het item op Bezig zet. Na vijf minuten een belletje (ook als de
+  app-geluidjes uit staan, maar niet bij "Alles stil") en "Nog 5?".
+- **Vandaag:** de widget "Huiswerk voor morgen" heeft nu ook afvinken en de totale tijd.
+- **Notities** kun je nu bij elke les en toets maken (in het rooster, tik op een les).
+- **Geluid:** de plop en het belletje zijn gesynthetiseerd, net als de walkout. Ze klinken
+  alleen als "Geluidjes in de app" aan staat (standaard uit, zie Instellingen → Geluid).
+- Niet gebouwd (geschrapt): planner, studieplan-generator, focusmodus en streak.
+
 ## Geschrapt (besluit 6 oktober 2026)
 
 Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar
@@ -347,7 +382,6 @@ app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5
 
 ## Nog niet gebouwd
 
-Huiswerk afvinken met beloning, tijdsschatting en "ik heb geen zin" (fase 3c) · vak-detail en
-de calculator achter "Wat moet ik halen?" (fase 4) · koppelen, proxy en CSP (fase 5) · XP,
-achievements, profiel, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
-easter eggs (fase 7).
+Vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) · koppelen, proxy en CSP
+(fase 5) · XP, achievements, profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline,
+meldingen, seizoensthema's en easter eggs (fase 7).

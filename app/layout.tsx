@@ -8,6 +8,7 @@ import { Providers } from "@/components/providers/Providers";
 import { AppShell } from "@/components/shell/AppShell";
 import { MoreSheet } from "@/components/shell/MoreSheet";
 import { ShortcutsSheet } from "@/components/shell/ShortcutsSheet";
+import { ConfettiRain } from "@/components/ui/ConfettiRain";
 import { Toaster } from "@/components/ui/Toaster";
 import { WalkoutOverlay } from "@/components/walkout/WalkoutOverlay";
 import { buildThemeScript } from "@/lib/theme/script";
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <WalkoutOverlay />
           <GoalWatcher />
           <AchievementWatcher />
+          <ConfettiRain />
           <Toaster />
         </Providers>
       </body>

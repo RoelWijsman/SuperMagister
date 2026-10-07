@@ -28,6 +28,8 @@ import { buildIcs } from "@/lib/schedule/ics";
 import { monthGrid } from "@/lib/schedule/month";
 import { defaultFocus, shiftFocus, viewRange, type ScheduleView } from "@/lib/schedule/navigate";
 import { weekStats } from "@/lib/schedule/summary";
+import type { HomeworkItem } from "@/lib/homework/overview";
+import { useResolvedHomework } from "@/lib/homework/use-homework";
 import { homeworkFromLessons, isTestInfoType } from "@/lib/school/derive";
 import type { Lesson } from "@/lib/types";
 import { useCopy } from "@/lib/use-copy";
@@ -58,6 +60,7 @@ const UNIT: Record<ScheduleView, string> = {
 /** Zoveel dagen vooruit houdt de wijzigingen-detector in de gaten. */
 const TRACK_DAYS = 13;
 
+const NO_HOMEWORK: HomeworkItem[] = [];
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const byStart = (a: Lesson, b: Lesson) => a.start.localeCompare(b.start);
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -172,7 +175,9 @@ export function ScheduleView() {
 
   const homework = useMemo(() => homeworkFromLessons(lessons.data ?? []), [lessons.data]);
   const homeworkLessons = useMemo(() => new Set(homework.map((h) => h.lessonId)), [homework]);
-  const upcomingHomework = useMemo(() => homeworkFromLessons(upcoming.data ?? []), [upcoming.data]);
+  const upcomingRaw = useMemo(() => homeworkFromLessons(upcoming.data ?? []), [upcoming.data]);
+  // Met jouw afvinkstatus en eigen tijden (fase 3c), voor de slimme tussenuren.
+  const upcomingHomework = useResolvedHomework(upcomingRaw) ?? NO_HOMEWORK;
 
   const dayOf = useCallback(
     (date: string): ScheduleDay => ({

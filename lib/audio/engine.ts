@@ -2,6 +2,7 @@ import type { CardTier } from "@/lib/calc/tiers";
 import type { SoundEvent } from "@/lib/walkout/plan";
 import { useSettings } from "@/stores/settings";
 import { createMasterChain, playCue, type SoundHandle } from "./synth";
+import { playUiRecipe, type UiSound } from "./ui";
 
 /**
  * De live geluidsmotor. Maakt de AudioContext pas aan bij een tik of klik
@@ -10,6 +11,8 @@ import { createMasterChain, playCue, type SoundHandle } from "./synth";
  */
 let context: AudioContext | null = null;
 let master: GainNode | null = null;
+/** Aparte volumeknop voor de geluidjes in de app (fase 3c). */
+let uiMaster: GainNode | null = null;
 let unsubscribe: (() => void) | null = null;
 
 const MASTER_LEVEL = 0.9;
@@ -31,6 +34,8 @@ export function unlockAudio(): AudioContext | null {
     context = new Ctor({ latencyHint: "interactive" });
     master = createMasterChain(context);
     master.gain.value = volumeFor("walkout") * MASTER_LEVEL;
+    uiMaster = createMasterChain(context);
+    uiMaster.gain.value = volumeFor("ui") * MASTER_LEVEL;
     unsubscribe ??= useSettings.subscribe((state, previous) => {
       if (!master || !context) return;
       if (
@@ -38,6 +43,12 @@ export function unlockAudio(): AudioContext | null {
         state.walkoutSounds !== previous.walkoutSounds
       ) {
         master.gain.setTargetAtTime(volumeFor("walkout") * MASTER_LEVEL, context.currentTime, 0.05);
+      }
+      if (
+        uiMaster &&
+        (state.soundMuted !== previous.soundMuted || state.uiSounds !== previous.uiSounds)
+      ) {
+        uiMaster.gain.setTargetAtTime(volumeFor("ui") * MASTER_LEVEL, context.currentTime, 0.05);
       }
     });
   }
@@ -91,4 +102,18 @@ export function playLiveCue(
 ): SoundHandle | null {
   if (!context || !master || volumeFor("walkout") === 0) return null;
   return playCue(context, master, event, context.currentTime + 0.01, details);
+}
+
+/**
+ * Fase 3c: een geluidje in de app (afvinken, de timer). Roep aan vanuit een
+ * klik of tik; doet niets als "Geluidjes in de app" uit staat.
+ */
+export function playUiSound(sound: UiSound, { essential = false } = {}) {
+  // Een wekker (zoals het einde van de 5 minuten) klinkt ook zonder app-geluidjes,
+  // maar nooit als alles stil staat.
+  if (essential ? useSettings.getState().soundMuted : volumeFor("ui") === 0) return;
+  const ctx = unlockAudio();
+  if (!ctx || !uiMaster) return;
+  const out = essential ? createMasterChain(ctx) : uiMaster;
+  playUiRecipe(ctx, out, sound, ctx.currentTime + 0.01);
 }

@@ -17,7 +17,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | B    | Walkout als video delen                                                                    | ✅ Klaar |
 | 3a   | Vandaag: widgets, dagtijdlijn, nu bezig, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
 | 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
-| 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | Gepland  |
+| 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | ✅ Klaar |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
 | 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | Gepland  |
 | 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
@@ -74,6 +74,17 @@ kunt veilig rondklikken.
   veranderd?** voor de lijst.
 - **Naar je agenda** downloadt vier weken rooster als .ics-bestand voor je agenda-app.
 - In de demo verzin je een roosterwijziging bij **Instellingen → Ontwikkelaar**.
+
+## Huiswerk
+
+- Vink huiswerk af op **Huiswerk** of op **Vandaag**. Alles voor morgen af? Dan regent het
+  confetti. Zet **Instellingen → Geluid → Geluidjes in de app** aan voor de plop.
+- Kies bovenaan **Lijst** of **Kanban** (Te doen / Bezig / Klaar). In de kanban sleep je kaarten
+  of gebruik je de pijltjes.
+- Tik op de tijd (±20 min) om hem aan te passen, of maak hem de standaard voor dat vak. Alle
+  standaarden staan bij **Instellingen → Huiswerk**.
+- **Ik heb geen zin:** knip de taak op in mini-stapjes, of doe alleen vijf minuten met de timer.
+- Je vinkjes blijven op dit apparaat; Magister zelf verandert niet.
 
 ## Walkout en collectie
 

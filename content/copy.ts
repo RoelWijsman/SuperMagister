@@ -203,7 +203,7 @@ export const COPY = {
   // ——— Lege staten (titel\nuitleg) ————————————————————————————————————————
   "leeg.huiswerk": [
     "Geen huiswerk. Tijd voor de bank. 🛋️\nDe komende vier weken staat er niks. Verdacht, maar we klagen niet.",
-    "Geen huiswerk.\nJe hebt nu officieel niks te doen. Eng, hè.",
+    "Geen huiswerk.\nNiet doorvertellen aan je ouders.",
     "Niks te doen.\nJe docenten zijn vergeten huiswerk op te geven. Wij zeggen niks.",
     "Huiswerkvrij.\nGeniet ervan voordat iemand het merkt.",
     "Leeg.\nZelfs de studiewijzer weet het even niet.",
@@ -1013,6 +1013,113 @@ export const COPY = {
     "Rooster geëxporteerd.\nUitval zie je in je agenda als vervallen.",
     "Gedownload.\nVier weken rooster, in één bestand.",
     "Klaar.\nImporteer hem in je agenda en vergeet nooit meer een lokaal.",
+  ],
+
+  // ——— Huiswerk (fase 3c) ————————————————————————————————————————————————
+  /** Alles voor de volgende schooldag is af (titel\nuitleg). {dag} = "morgen" of "maandag". */
+  "huiswerk.allesAf": [
+    "Alles af.\nJe hebt nu officieel niks meer te doen. Eng, hè.",
+    "Alles voor {dag} is af.\nDe rest van de avond is van jou.",
+    "Klaar. Allemaal.\nJe weet nu even niet wat je met jezelf aan moet.",
+    "Niks meer open voor {dag}.\nDit gebeurt een paar keer per jaar. Screenshot maken.",
+    "Alles afgevinkt.\nDe bank roept je naam.",
+  ],
+  /** Onder de drukte-meter, als een dag zwaar wordt. {tijd} = "1u 40m". */
+  "huiswerk.drukte": [
+    "{dag} wordt zwaar: {tijd} huiswerk. Begin er vandaag een stukje van.",
+    "Voor {dag} moet er {tijd} af. Dat is een hele film, zonder film.",
+    "{tijd} voor {dag}. Verdeel het, dan voelt het als minder.",
+    "{dag}: {tijd} huiswerk. Je toekomstige zelf hoopt dat je nu begint.",
+    "{tijd} voor {dag}. Niet allemaal op de avond ervoor, als het kan.",
+  ],
+  /** Bovenaan "Ik heb geen zin". */
+  "geenZin.intro": [
+    "Snap ik. Kies er een. Allebei kleiner dan het hele ding.",
+    "Geen zin is ook een gevoel. We gaan er gewoon omheen.",
+    "Je hoeft niet alles. Alleen een begin.",
+    "Beginnen is het zwaarste stuk. Daarna is het gewoon doorgaan.",
+    "Oké. We maken het zo klein dat het bijna zielig is.",
+  ],
+  "geenZin.stapjes": [
+    "Eén stapje tegelijk. Het eerste is bijna te makkelijk.",
+    "Klein gemaakt. Vink ze af, dan voelt het als winnen.",
+    "Niet naar het hele lijstje kijken. Alleen naar het bovenste.",
+    "In hapklare stukjes. Zonder saus, helaas.",
+    "Zo bouwen ze ook piramides, denken we. Stapje voor stapje.",
+  ],
+  /** Vóór de timer van 5 minuten. */
+  "geenZin.timer": [
+    "Vijf minuten. Daarna mag je stoppen. Echt.",
+    "Alleen vijf minuten. Na het belletje mag je weg.",
+    "Vijf minuten, dan ben je vrij. Afspraak is afspraak.",
+    "Doe vijf minuten. Daarna beslis je opnieuw.",
+    "Vijf minuten is korter dan een reclameblok. Je kunt dit.",
+  ],
+  /** Terwijl de timer loopt. */
+  "geenZin.bezig": [
+    "Telefoon weg. Ja, die.",
+    "Je bent bezig. Niet kijken hoe lang nog.",
+    "Gewoon doorgaan. De timer let wel op.",
+    "Dit lijkt verdacht veel op huiswerk maken.",
+    "Niemand ziet het, maar je bent goed bezig.",
+  ],
+  /** De vijf minuten zijn om (titel\nuitleg). */
+  "geenZin.klaar": [
+    "Vijf minuten.\nJe bent officieel begonnen. Nog 5?",
+    "Belletje.\nJe mag stoppen. Of nog 5, nu je toch bezig bent?",
+    "Gehaald.\nHet ergste stuk is voorbij. Nog 5?",
+    "Vijf minuten gedaan.\nDe motor draait. Nog 5?",
+    "Tijd.\nStoppen mag. Doorgaan ook. Nog 5?",
+  ],
+  // Mini-stapjes. Wat uit Magister komt ("Lees § 3.2") staat ertussen.
+  "stapjes.begin": [
+    "Leg je telefoon met het scherm naar beneden.",
+    "Pak je boek. Alleen pakken, verder niks.",
+    "Zet een glas water klaar. Dat is ook voorbereiding.",
+    "Open je schrift op een lege bladzijde.",
+    "Ga zitten waar geen bed in de buurt is.",
+  ],
+  "stapjes.lezen": [
+    "Lees de opdracht één keer. Niks doen, alleen lezen.",
+    "Lees wat er precies moet. Soms is het minder dan je dacht.",
+    "Kijk wat de opdracht vraagt. Hardop mag ook.",
+    "Lees de opdracht en onderstreep wat moet.",
+    "Zoek uit wat er eigenlijk gevraagd wordt.",
+  ],
+  "stapjes.eerste": [
+    "Doe alleen het eerste stukje.",
+    "Maak de eerste vraag. Alleen die.",
+    "Schrijf de eerste zin op. Mag slecht zijn.",
+    "Begin met het makkelijkste stuk.",
+    "Doe het begin. Meer hoeft nu niet.",
+  ],
+  "stapjes.einde": [
+    "Vink het af. Dit is het beste stapje.",
+    "Klaar? Afvinken en weglopen.",
+    "Kijk of je niks vergeten bent. Dan afvinken.",
+    "Stop het in je tas. Dan ligt het morgen niet thuis.",
+    "Afvinken. Plop.",
+  ],
+  "stapjes.toetsStof": [
+    "Zoek op wat je precies moet kennen.",
+    "Kijk welke stof erbij hoort. Niet gokken.",
+    "Schrijf de paragrafen op die in de toets komen.",
+    "Check de studiewijzer. Daar staat het echt.",
+    "Vraag je af: wat moet ik echt weten?",
+  ],
+  "stapjes.toetsSamenvatting": [
+    "Lees de samenvatting. Of maak er een.",
+    "Schrijf de belangrijkste begrippen op een blaadje.",
+    "Maak een spiekbriefje dat je niet gaat gebruiken.",
+    "Zet de formules of woorden op een rij.",
+    "Lees je aantekeningen één keer door.",
+  ],
+  "stapjes.toetsOefenen": [
+    "Maak drie oefenvragen.",
+    "Leg het uit aan je kamerplant.",
+    "Overhoor jezelf met de begrippen.",
+    "Maak een oefentoets. Het is maar een oefentoets.",
+    "Doe de opgaven die je vorige keer fout had.",
   ],
 
   // ——— Video (feature B) ——————————————————————————————————————————————

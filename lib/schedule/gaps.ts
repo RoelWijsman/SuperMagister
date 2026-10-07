@@ -51,16 +51,17 @@ export function freePeriods(lessons: readonly Lesson[]): FreePeriod[] {
 
 /**
  * Slim tussenuur: het huiswerk dat het eerst af moet en in het gat past.
- * Alleen huiswerk voor een volgende dag dat nog niet is afgevinkt.
+ * Alleen huiswerk voor een volgende dag dat nog niet is afgevinkt. Met je eigen
+ * tijd (fase 3c) als die er is, anders de schatting.
  */
-export function suggestForGap(
+export function suggestForGap<T extends Homework & { minutes?: number }>(
   gapMinutes: number,
-  homework: readonly Homework[],
+  homework: readonly T[],
   today: ISODate,
-): { homework: Homework; minutes: number } | null {
+): { homework: T; minutes: number } | null {
   const fitting = homework
     .filter((item) => !item.isDone && item.dueDate > today)
-    .map((item) => ({ homework: item, minutes: estimateMinutes(item) }))
+    .map((item) => ({ homework: item, minutes: item.minutes ?? estimateMinutes(item) }))
     .filter(({ minutes }) => minutes <= gapMinutes)
     .sort((a, b) => a.homework.dueAt.localeCompare(b.homework.dueAt) || b.minutes - a.minutes);
   return fitting[0] ?? null;

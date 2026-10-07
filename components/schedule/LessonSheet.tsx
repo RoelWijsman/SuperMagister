@@ -32,7 +32,7 @@ function Countdown({ date, now }: { date: string; now: Date }) {
   return <p className="font-display text-lg font-semibold text-ink">{line}</p>;
 }
 
-function Notes({ lessonId }: { lessonId: string }) {
+function Notes({ lessonId, test }: { lessonId: string; test: boolean }) {
   const note = useScheduleUi((s) => s.notes[lessonId] ?? "");
   const setNote = useScheduleUi((s) => s.setNote);
   return (
@@ -42,7 +42,11 @@ function Notes({ lessonId }: { lessonId: string }) {
         value={note}
         onChange={(event) => setNote(lessonId, event.target.value)}
         rows={4}
-        placeholder="Wat je nog moet herhalen, welke opgaven lastig waren…"
+        placeholder={
+          test
+            ? "Wat je nog moet herhalen, welke opgaven lastig waren…"
+            : "Wat je niet wilt vergeten van deze les…"
+        }
         className="w-full resize-y rounded-2xl border border-line bg-glass px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-3"
       />
       <span className="mt-1 block text-xs text-ink-3">Blijft op dit apparaat.</span>
@@ -50,7 +54,10 @@ function Notes({ lessonId }: { lessonId: string }) {
   );
 }
 
-/** Fase 3b: alles over één les. Bij een toets: de stof, aftellen en je notities. */
+/**
+ * Fase 3b: alles over één les. Bij een toets: de stof en het aftellen. Notities
+ * kun je bij elke les en toets maken (fase 3c), ze blijven op dit apparaat.
+ */
 export function LessonSheet({
   lesson,
   subject,
@@ -115,7 +122,7 @@ export function LessonSheet({
             </div>
           )}
 
-          {test && <Notes lessonId={lesson.id} />}
+          <Notes lessonId={lesson.id} test={Boolean(test)} />
 
           {homework && (
             <Link

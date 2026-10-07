@@ -18,6 +18,7 @@ import { formatLongDate, formatRelativeDay, nextWeekday, startOfDay, toISODate }
 import { greetingSituation } from "@/lib/greeting";
 import { useNow } from "@/lib/hooks";
 import { getDayStatus } from "@/lib/school/day";
+import { useHomeworkActions, useResolvedHomework } from "@/lib/homework/use-homework";
 import { homeworkFromLessons, testsFromLessons } from "@/lib/school/derive";
 import type { TodayWidgetId } from "@/lib/today/layout";
 import { gradeTrend } from "@/lib/today/trend";
@@ -107,6 +108,9 @@ export function TodayView() {
     return { todays, status, lastBell, upcoming, homework, tests, greeting, nextDay, rides };
   }, [lessons.data, now, account.data, bikeMinutes]);
 
+  const tomorrowHomework = useResolvedHomework(view?.homework);
+  const homeworkActions = useHomeworkActions();
+
   const trend = useMemo(
     () =>
       grades.data && revealed
@@ -150,7 +154,10 @@ export function TodayView() {
     ),
     huiswerk: (
       <HomeworkTomorrowWidget
-        items={view?.homework ?? []}
+        items={tomorrowHomework ?? []}
+        onCheckedChange={(item, checked) =>
+          homeworkActions.setStatus(item, checked ? "klaar" : "todo", tomorrowHomework ?? [])
+        }
         dayLabel={
           view && now ? formatRelativeDay(new Date(`${view.nextDay}T12:00:00`), now) : "morgen"
         }

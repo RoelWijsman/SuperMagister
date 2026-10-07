@@ -1,7 +1,8 @@
 /**
  * Hoe lang duurt dit huiswerk ongeveer? Een eerlijke gok op basis van de
  * tekst uit Magister: per opdracht, per paragraaf, of leren voor een toets.
- * Fase 3b gebruikt hem voor slimme tussenuren; fase 3c bouwt erop verder.
+ * Fase 3b gebruikt hem voor slimme tussenuren, fase 3c voor de tijd per item
+ * en de drukte per dag (met je eigen tijden erbovenop, zie homeworkMinutes).
  */
 
 const PER_TASK = 4;
@@ -39,4 +40,34 @@ export function estimateMinutes(homework: { text: string; isTest: boolean }): nu
   }
 
   return FALLBACK;
+}
+
+/** Grenzen voor een tijd die je zelf instelt. */
+export const OWN_MIN = 5;
+export const OWN_MAX = 240;
+
+export interface MinutesPrefs {
+  /** Je eigen tijd per huiswerkitem. */
+  items: Readonly<Record<string, number>>;
+  /** Je standaardtijd per vak (voor huiswerk, niet voor toetsen). */
+  subjects: Readonly<Record<string, number>>;
+}
+
+export type MinutesSource = "eigen" | "vak" | "schatting";
+
+const own = (minutes: number) => Math.min(OWN_MAX, Math.max(OWN_MIN, Math.round(minutes / 5) * 5));
+
+/**
+ * De tijd voor één item: je eigen tijd wint, dan je standaard voor het vak
+ * (niet bij leren voor een toets), en anders de schatting uit de tekst.
+ */
+export function homeworkMinutes(
+  homework: { id: string; subjectId: string | null; text: string; isTest: boolean },
+  prefs: MinutesPrefs,
+): { minutes: number; source: MinutesSource } {
+  const mine = prefs.items[homework.id];
+  if (mine !== undefined) return { minutes: own(mine), source: "eigen" };
+  const subject = homework.subjectId ? prefs.subjects[homework.subjectId] : undefined;
+  if (subject !== undefined && !homework.isTest) return { minutes: own(subject), source: "vak" };
+  return { minutes: estimateMinutes(homework), source: "schatting" };
 }

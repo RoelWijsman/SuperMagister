@@ -25,6 +25,7 @@ import {
   type WalkoutSpeed,
 } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
+import { HomeworkSettings } from "./HomeworkSettings";
 import { ScheduleDevTools } from "./ScheduleDevTools";
 import { SubjectSettings } from "./SubjectSettings";
 import { ThemePicker } from "./ThemePicker";
@@ -260,6 +261,14 @@ export function SettingsView() {
         </Section>
 
         <Section
+          id="huiswerk"
+          title="Huiswerk"
+          description="Hoe lang je meestal bezig bent per vak. Geldt voor huiswerk, niet voor leren voor een toets. Bij Schatting haalt de app het uit de opdracht. Per opdracht aanpassen kan op de huiswerkpagina."
+        >
+          <HomeworkSettings />
+        </Section>
+
+        <Section
           id="walkout"
           title="Walkout"
           description="Elk nieuw cijfer komt binnen als verzamelkaart, met een eigen walkout."
@@ -340,7 +349,7 @@ export function SettingsView() {
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
             eigen account.
           </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.3 · fase 3b: Rooster</p>
+          <p className="mt-3 text-xs text-ink-3">Versie 0.3 · fase 3c: Huiswerk</p>
         </Section>
       </div>
     </>
