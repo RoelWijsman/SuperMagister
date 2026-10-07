@@ -9,7 +9,7 @@ import { togglePrivacyWithFeedback } from "./PrivacyToggle";
 
 /**
  * Globale sneltoetsen: Ctrl/⌘ K (command palette), 1–7 (pagina's),
- * P (privacymodus) en ? (overzicht). Fase 3 voegt ← → en F toe.
+ * P (privacymodus) en ? (overzicht). ← → zitten in het rooster zelf.
  */
 export function KeyboardShortcuts() {
   const router = useRouter();

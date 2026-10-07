@@ -16,7 +16,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | A    | Gok je cijfer: het gokmoment midden in de walkout                                          | ✅ Klaar |
 | B    | Walkout als video delen                                                                    | ✅ Klaar |
 | 3a   | Vandaag: widgets, dagtijdlijn, nu bezig, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
-| 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | Gepland  |
+| 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | Gepland  |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
 | 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | Gepland  |
@@ -63,6 +63,17 @@ kunt veilig rondklikken.
   toetsen van de komende twee weken (tik op een stip voor de stof).
 - **Fietsweer** en **vakanties**: stel je woonplaats, je richting naar school, je fietstijd en je
   vakantieregio in bij **Instellingen → Vandaag**.
+
+## Rooster
+
+- Kies bovenaan **Dag**, **Week**, **Lijst** of **Maand**. Op je telefoon veeg je door de dagen,
+  op een computer blader je met ← en →.
+- Uitval krijgt een stempel, tussenuren een suggestie voor huiswerk dat precies past, en toetsen
+  gloeien (tik erop voor de stof, het aftellen en je notities).
+- Is er iets veranderd sinds je laatste bezoek, dan zie je een banner. Tik op **Wat is er
+  veranderd?** voor de lijst.
+- **Naar je agenda** downloadt vier weken rooster als .ics-bestand voor je agenda-app.
+- In de demo verzin je een roosterwijziging bij **Instellingen → Ontwikkelaar**.
 
 ## Walkout en collectie
 

@@ -637,6 +637,19 @@
   }
 }
 
+/* Fase 3b: een gewijzigde les pulseert tot je hem gezien hebt. */
+@keyframes changed-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--sm-warn) 70%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px color-mix(in oklab, var(--sm-warn) 85%, transparent),
+      0 0 18px -2px color-mix(in oklab, var(--sm-warn) 60%, transparent);
+  }
+}
+
 /* Fase 3a: de toets-radar veegt rond. */
 @keyframes radar-sweep {
   to {

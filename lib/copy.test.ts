@@ -100,6 +100,8 @@ describe("humorbijbel: regels voor alle teksten", () => {
       "dagen",
       "vakantie",
       "datum",
+      "schatting",
+      "wijzigingen",
     ]);
     const unknown = allVariants.flatMap(({ key, text }) =>
       [...text.matchAll(/\{(\w+)\}/g)]

@@ -6,13 +6,10 @@ import { useIsApple } from "@/lib/hooks";
 import { useUi } from "@/stores/ui";
 import { NAV_ITEMS } from "./nav";
 
-function Row({ keys, label, soon }: { keys: string[]; label: string; soon?: string }) {
+function Row({ keys, label }: { keys: string[]; label: string }) {
   return (
     <li className="flex items-center justify-between gap-4 py-2.5">
-      <span className={soon ? "text-ink-3" : "text-ink"}>
-        {label}
-        {soon && <span className="ml-2 text-xs">({soon})</span>}
-      </span>
+      <span className="text-ink">{label}</span>
       <span className="flex shrink-0 gap-1">
         {keys.map((key) => (
           <Kbd key={key}>{key}</Kbd>
@@ -38,7 +35,7 @@ export function ShortcutsSheet() {
         <Row keys={["P"]} label="Privacymodus aan/uit" />
         <Row keys={["?"]} label="Dit overzicht" />
         <Row keys={["Esc"]} label="Sluiten" />
-        <Row keys={["←", "→"]} label="Vorige / volgende dag" soon="fase 3" />
+        <Row keys={["←", "→"]} label="Rooster: vorige / volgende dag, week of maand" />
       </ul>
     </Sheet>
   );

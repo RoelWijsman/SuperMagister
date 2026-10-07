@@ -25,6 +25,7 @@ import {
   type WalkoutSpeed,
 } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
+import { ScheduleDevTools } from "./ScheduleDevTools";
 import { SubjectSettings } from "./SubjectSettings";
 import { ThemePicker } from "./ThemePicker";
 import { TodaySettings } from "./TodaySettings";
@@ -330,6 +331,7 @@ export function SettingsView() {
               Stijlgids
             </LinkButton>
           </div>
+          <ScheduleDevTools />
         </Section>
 
         <Section id="over" title="Over SuperMagister">
@@ -338,7 +340,7 @@ export function SettingsView() {
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
             eigen account.
           </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.3 · fase 3a: Vandaag</p>
+          <p className="mt-3 text-xs text-ink-3">Versie 0.3 · fase 3b: Rooster</p>
         </Section>
       </div>
     </>

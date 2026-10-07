@@ -6,6 +6,7 @@ import { CardCanvas } from "@/components/cards/CardCanvas";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { CollectionSamples } from "./CollectionSamples";
 import { GuessSamples } from "./GuessSamples";
+import { ScheduleSamples } from "./ScheduleSamples";
 import { TodaySamples } from "./TodaySamples";
 import { VideoSamples } from "./VideoSamples";
 import { WalkoutScrubber } from "./WalkoutScrubber";
@@ -110,6 +111,13 @@ export function StyleguideView() {
           note="Fase 3a: de widgets met een vaste, verzonnen dinsdag (met tussenuur, uitval en een lokaalwijziging). Op Vandaag zelf versleep je ze via Indelen."
         >
           <TodaySamples />
+        </Block>
+
+        <Block
+          title="Rooster"
+          note="Fase 3b: lescards, een hele dag, de week en de wijzigingen, met een vaste, verzonnen week. Alles is aan te tikken."
+        >
+          <ScheduleSamples />
         </Block>
 
         <Block

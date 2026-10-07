@@ -20,7 +20,7 @@ import {
   parseISODate,
   startOfDay,
 } from "@/lib/date";
-import { hourLabel } from "@/components/schedule/LessonRow";
+import { hourLabel } from "@/lib/schedule/summary";
 import type { Homework } from "@/lib/types";
 import { useCopy, useCopyParts } from "@/lib/use-copy";
 

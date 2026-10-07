@@ -285,6 +285,44 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Voor de CSP in fase 5:** `connect-src` moet `https://api.open-meteo.com` en
   `https://geocoding-api.open-meteo.com` toestaan.
 
+## Rooster (fase 3b)
+
+- **Vier weergaven.** Dag (standaard op een telefoon, vegen voor de vorige of volgende
+  schooldag), week (standaard vanaf 768 px: kolommen op een tijdas met een live nu-lijn), lijst
+  (de week dag voor dag) en maand (stipjes in vakkleur voor toetsen; tik op een dag voor de
+  dagweergave). Je eigen keuze blijft bewaard (`sm-rooster`). De pijltjes links en rechts
+  bladeren per dag, week of maand, ook met ← en → op het toetsenbord. In het weekend opent het
+  rooster op maandag. Een link met `?dag=2026-10-09` springt naar die dag.
+- **Lescards** in vakkleur met icoon, lokaal, docent en lesuur, plus icoontjes voor huiswerk en
+  toetsen. In de weekweergave een kleine variant (vakcode, begintijd en lokaal).
+- **Uitval:** grijs, doorgestreept en een schuine stempel "VERVALLEN". De eerste keer valt die
+  er met een klap op, daarna staat hij er gewoon (per les onthouden). Valt het eerste uur uit:
+  "Uitslapen! 😴" met de nieuwe begintijd; het laatste uur: "Vroeg naar huis! 🏠". Allebei met een
+  klein confettimoment, één keer per dag. Een gat door uitval heet "Tussenuur! ☕". In de
+  weekweergave zegt de stempel het al, daar tekenen we alleen de echte gaten.
+- **Slimme tussenuren:** gaten van 40 minuten of meer tussen je eerste en laatste les, met het
+  huiswerk dat er het eerst moet zijn en in het gat past (op basis van de tijdsschatting uit
+  `lib/homework/estimate.ts`). Zonder passend huiswerk een vrije-tijdzin. Geen "start focus".
+- **Wijzigingen-detector:** per databron een snapshot van de komende twee weken in IndexedDB
+  (`rooster:<bron>`). Bij elke verversing vergelijken we: uitval, gaat toch door, ander lokaal,
+  andere tijd, andere docent, extra les en verdwenen les. De eerste keer telt alles wat al
+  afwijkt (uitval en lokaalwijzigingen). Een banner bovenaan noemt het aantal nieuwe
+  wijzigingen; "Wat is er veranderd?" toont ze in gewone taal ("Do 5e uur: Frans vervalt") met
+  de datum, en een tik springt naar die dag. Een gewijzigde les pulseert tot hij 2,5 seconde in
+  beeld is geweest.
+- **Toetsen** gloeien op hun kaart met een 📝-label. Tik voor de stof, het aftellen en je eigen
+  notities (blijven op dit apparaat). Geen studieplan (geschrapt).
+- **Weekbelasting:** per dag een kleurbalk (vrij, rustig, normaal, druk, zwaar) uit lesuren,
+  huiswerk (1,5 per opdracht) en toetsen (4 per toets). Vanaf drie toetsen in een week:
+  "⚠️ Drukke week: 3 toetsen". In de dagweergave is de balk ook de dagkiezer.
+- **Samenvattingen:** per dag "6 uur · 08:30–14:50 · 1 toets · 2× huiswerk", per week
+  "Deze week: 31 lessen, 2 uitgevallen, 4 tussenuren", en de langste (slak) en kortste (haas)
+  dag van de week.
+- **Exporteren:** "Naar je agenda" maakt een .ics met vier weken rooster (vanaf maandag van deze
+  week), in de tijdzone Europe/Amsterdam. Uitval staat erin als vervallen.
+- **Demo:** bij **Instellingen → Ontwikkelaar** verzin je een roosterwijziging (uitval of ander
+  lokaal in de komende week) om de detector te zien werken, en zet je alles weer terug.
+
 ## Geschrapt (besluit 6 oktober 2026)
 
 Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar
@@ -309,7 +347,7 @@ app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5
 
 ## Nog niet gebouwd
 
-Rooster met alle weergaven (fase 3b) · huiswerk afvinken met beloning, tijdsschatting en "ik heb
-geen zin" (fase 3c) · vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) ·
-koppelen, proxy en CSP (fase 5) · XP, achievements, profiel, quests en recaps (fase 6) · PWA,
-offline, meldingen, seizoensthema's en easter eggs (fase 7).
+Huiswerk afvinken met beloning, tijdsschatting en "ik heb geen zin" (fase 3c) · vak-detail en
+de calculator achter "Wat moet ik halen?" (fase 4) · koppelen, proxy en CSP (fase 5) · XP,
+achievements, profiel, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
+easter eggs (fase 7).

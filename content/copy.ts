@@ -929,6 +929,92 @@ export const COPY = {
     "{aantal} {dagen} tot {datum}. Daarna de langste zomer van je leven.",
   ],
 
+  // ——— Rooster (fase 3b) ———————————————————————————————————————————————
+  /** Onder "Uitslapen! 😴": je eerste les is nu later. */
+  "uitval.uitslapen": [
+    "Je eerste les is om {tijd}. Je kussen heeft gewonnen.",
+    "Pas om {tijd} naar school. Snooze met een goed geweten.",
+    "Eerste uur weg. Om {tijd} begint het echte werk.",
+    "Je wekker mag een uur later. Hij weet het nog niet.",
+    "Om {tijd} pas. Ontbijt met zitten, voor één keer.",
+  ],
+  /** Onder "Vroeg naar huis! 🏠": je laatste les is eerder klaar. */
+  "uitval.vroeg": [
+    "Om {tijd} ben je klaar. De fietsenstalling is nog leeg.",
+    "Vrij om {tijd}. De middag is van jou.",
+    "Laatste uur weg. Om {tijd} sta je buiten.",
+    "Om {tijd} naar huis. Tegenwind telt vandaag niet.",
+    "Klaar om {tijd}. Niet te hard juichen in de gang.",
+  ],
+  /** Onder "Tussenuur! ☕": een gat door uitval. */
+  "uitval.tussenuur": [
+    "De les valt uit. De aula verwacht je.",
+    "Opeens vrij. De tosti weet het al.",
+    "Uitval in het midden. Een ingebouwde pauze.",
+    "Geen les. Wel school. Het blijft een raar concept.",
+    "Een gat in je rooster. Je mag hem zelf vullen.",
+  ],
+  /** Slim tussenuur: huiswerk dat precies past. */
+  "tussenuur.suggestie": [
+    "{minuten} min vrij: je {vak}-huiswerk (±{schatting} min) past hier precies.",
+    "{minuten} minuten. Genoeg voor {vak} (±{schatting} min). Daarna ben je er vanaf.",
+    "Je hebt {minuten} min. {vak} kost ±{schatting} min. Dat is wiskunde, en het klopt.",
+    "{minuten} min in de aula, of {vak} af (±{schatting} min). Je toekomstige zelf kiest het tweede.",
+    "Tussenuur van {minuten} min. Ideaal moment voor {vak} (±{schatting} min).",
+  ],
+  "tussenuur.vrij": [
+    "{minuten} min vrij en geen huiswerk dat past. Zeldzaam. Geniet.",
+    "{minuten} minuten niks. De aula is van jou.",
+    "{minuten} min vrij. Tosti of telefoon, het zijn allebei keuzes.",
+    "{minuten} minuten zonder plan. Soms is dat het plan.",
+    "{minuten} min. Niks dat past. Even helemaal niks dan.",
+  ],
+  /** Onder "⚠️ Drukke week: 3 toetsen". */
+  "rooster.druk": [
+    "Plan je avonden. Of in elk geval een paar.",
+    "Begin vroeg. De week begint toch al.",
+    "Eén toets per keer. Dan valt het mee.",
+    "Drukke week. Volgende week is er weer een andere.",
+    "Slaap genoeg. Dat is ook leren, zeggen ze.",
+  ],
+  /** Banner bovenaan het rooster. */
+  "rooster.wijzigingen": [
+    "{aantal} {wijzigingen} sinds je laatste bezoek.",
+    "Je rooster is veranderd. {aantal} {wijzigingen}.",
+    "{aantal} {wijzigingen} in je rooster. Even kijken voordat je naar het verkeerde lokaal loopt.",
+    "Nieuw in je rooster: {aantal} {wijzigingen}.",
+    "Magister heeft geschoven. {aantal} {wijzigingen}.",
+  ],
+  "rooster.wijzigingen.leeg": [
+    "Niks veranderd. Je rooster zit stil.",
+    "Geen wijzigingen. Alles staat waar het stond.",
+    "Rustig rooster. Geen verrassingen.",
+    "Alles zoals gepland. Verdacht, maar fijn.",
+    "Niks nieuws. Het lokaal staat er nog.",
+  ],
+  /** Ontwikkelaar (demo): een verzonnen roosterwijziging. {wat} = "Do 3e uur: Frans vervalt". */
+  "toast.roosterWijziging": [
+    "Roosterwijziging verzonnen.\n{wat}. Kijk maar in je rooster.",
+    "Er is iets geschoven.\n{wat}. Het rooster weet het al.",
+    "Nepwijziging klaar.\n{wat}. Alleen in de demo, gelukkig.",
+    "Rooster aangepast.\n{wat}. De detector gaat het merken.",
+    "Even gerommeld.\n{wat}. Open je rooster en zie het knipperen.",
+  ],
+  "toast.roosterTerug": [
+    "Rooster teruggezet.\nAlles staat weer waar het stond.",
+    "Terug naar normaal.\nGeen verzonnen uitval meer.",
+    "Rooster schoon.\nDe detector begint opnieuw.",
+    "Alles hersteld.\nAlsof er nooit iets gebeurd is.",
+    "Teruggezet.\nHet lokaal staat er weer.",
+  ],
+  "toast.ics": [
+    "Rooster gedownload.\nOpen het bestand en je agenda weet alles.",
+    "Agendabestand klaar.\nJe telefoon weet nu ook waar je moet zijn.",
+    "Rooster geëxporteerd.\nUitval zie je in je agenda als vervallen.",
+    "Gedownload.\nVier weken rooster, in één bestand.",
+    "Klaar.\nImporteer hem in je agenda en vergeet nooit meer een lokaal.",
+  ],
+
   // ——— Video (feature B) ——————————————————————————————————————————————
   "video.voortgang": [
     "Pixels in de goede volgorde zetten…",

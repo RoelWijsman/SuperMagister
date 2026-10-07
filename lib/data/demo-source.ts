@@ -1,5 +1,6 @@
 import { toISODate } from "@/lib/date";
 import { buildDemoDataset, type DemoDataset } from "@/lib/demo";
+import { applyTweaks, readTweaks } from "@/lib/demo/tweaks";
 import type { DateRange } from "@/lib/types";
 import type { SchoolDataSource } from "./source";
 
@@ -29,7 +30,12 @@ export function createDemoSource(now: () => Date = () => new Date()): SchoolData
     getSubjects: async () => (await dataset()).subjects,
     getPeriods: async () => (await dataset()).periods,
     getGrades: async () => (await dataset()).grades,
-    getLessons: async (range) => (await dataset()).lessons.filter((l) => inRange(l.date, range)),
+    getLessons: async (range) =>
+      applyTweaks(
+        (await dataset()).lessons.filter((l) => inRange(l.date, range)),
+        // Gesimuleerde roosterwijzigingen (Instellingen > Ontwikkelaar).
+        typeof window === "undefined" ? [] : readTweaks(),
+      ),
     getAbsences: async (range) => (await dataset()).absences.filter((a) => inRange(a.date, range)),
     getInitialPackIds: async () => (await dataset()).packGradeIds,
     getInitialGuesses: async () => (await dataset()).guesses,
