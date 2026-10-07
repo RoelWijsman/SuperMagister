@@ -15,7 +15,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 2    | Cijferonthulling: walkout, pack-opening, kaarten, geluid, oefenmodus, collectie            | ✅ Klaar |
 | A    | Gok je cijfer: het gokmoment midden in de walkout                                          | ✅ Klaar |
 | B    | Walkout als video delen                                                                    | ✅ Klaar |
-| 3a   | Vandaag: widgets, laadbalk, dagtijdlijn, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
+| 3a   | Vandaag: widgets, dagtijdlijn, nu bezig, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
 | 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | Gepland  |
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | Gepland  |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
@@ -59,9 +59,8 @@ kunt veilig rondklikken.
 - Alles op **Vandaag** is een widget. Tik op **Indelen** om ze te verslepen, uit of aan te zetten
   of breder en smaller te maken. Met het toetsenbord: Tab naar de greep, spatie om op te pakken,
   pijltjes om te verplaatsen, spatie om neer te zetten.
-- De **laadbalk** laat zien hoeveel van je schooldag erop zit, de **dagtijdlijn** je lessen met
-  uitval en tussenuren, en de **toets-radar** je toetsen van de komende twee weken (tik op een
-  stip voor de stof).
+- De **dagtijdlijn** laat je lessen zien met uitval en tussenuren, en de **toets-radar** je
+  toetsen van de komende twee weken (tik op een stip voor de stof).
 - **Fietsweer** en **vakanties**: stel je woonplaats, je richting naar school, je fietstijd en je
   vakantieregio in bij **Instellingen → Vandaag**.
 

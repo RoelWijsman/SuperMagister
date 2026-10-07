@@ -637,13 +637,7 @@
   }
 }
 
-/* Fase 3a: de laadbalk "downloadt" en de toets-radar veegt rond. */
-@keyframes download-stripes {
-  to {
-    background-position: 17px 0;
-  }
-}
-
+/* Fase 3a: de toets-radar veegt rond. */
 @keyframes radar-sweep {
   to {
     transform: rotate(1turn);

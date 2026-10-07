@@ -251,15 +251,10 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Widgetbord.** Alle blokken op Vandaag zijn widgets. Via "Indelen" versleep je ze (muis,
   touch en toetsenbord met dnd-kit: spatie oppakken, pijltjes, spatie neerzetten, met
   Nederlandse meldingen voor schermlezers), zet je ze uit (en via de balk bovenaan weer aan) en
-  kies je per widget een breedte: smal, half, breed of de hele rij, voor zover hij dat aankan
-  (de laadbalk is altijd de hele rij). De indeling staat lokaal (`sm-vandaag`); de pure logica in
-  `lib/today/layout.ts` vult nieuwe widgets uit latere versies vanzelf aan. In de bewerkmodus
+  kies je per widget een breedte: smal, half, breed of de hele rij, voor zover hij dat aankan.
+  De indeling staat lokaal (`sm-vandaag`); de pure logica in `lib/today/layout.ts` vult nieuwe
+  widgets uit latere versies vanzelf aan en ruimt geschrapte widgets op. In de bewerkmodus
   doet de inhoud van de widgets even niet mee (`inert`), zodat je niets per ongeluk aantikt.
-- **Schooldag-laadbalk:** van de eerste tot de laatste les die doorgaat (valt het eerste uur
-  uit, dan begint je dag later). Lessen zijn stukken van de balk die vollopen, met bewegende
-  downloadstreepjes; pauzes en tussenuren zijn gestreept. "Schooldag 64% geladen · nog 2u 14m",
-  voor schooltijd "Schooldag 0% · start om 08:30", daarna "Download voltooid ✅" met één keer per
-  dag een klein feestje, en zonder school "Volgende schooldag start morgen 08:30".
 - **Nu bezig** (al uit fase 1): vak, lokaal, docentcode, een ring met de minuten tot de bel, en de
   volgende les met een knipperend bolletje bij een lokaalwijziging.
 - **Dagtijdlijn** vervangt het lijstje lessen: blokken in vakkleur op een tijdas, uitval
@@ -304,6 +299,10 @@ verwees, laten we het weg of vervangen we het door iets wat nog wel bestaat.
   jaartitels daarover (zoals "Focusmonster" en "Gevaarlijk Gefocust").
 - **Streak** (huiswerk op tijd), ook de streak-bevriezer, streak-achievements, de streak-slide in
   Wrapped, de streak in XP en quests, en de "Op tijd-streak" bij aanwezigheid.
+- **Schooldag-laadbalk** ("Schooldag 64% geladen", besluit 7 oktober 2026, na fase 3a): de widget
+  op Vandaag met het "Download voltooid"-moment is weer weg. Ook later: de balk
+  "zomervakantie.exe — 78%" op de laatste schooldag (feature C) vervalt (de countdown in lessen
+  blijft), en de laadbalk-scène in de Studio komt er niet.
 
 Blijft wel: de **reeks** (RKS) op de kaarten uit fase 2. Dat is een reeks voldoendes per vak, geen
 app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5-minutentimer.

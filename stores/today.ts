@@ -10,17 +10,13 @@ import {
   type TodayLayout,
   type TodayWidgetId,
 } from "@/lib/today/layout";
-import type { ISODate } from "@/lib/types";
 
 interface TodayState {
   layout: TodayLayout;
-  /** Op welke dag de laadbalk al "Download voltooid" vierde (één keer per dag). */
-  celebrated: ISODate | null;
   move: (active: TodayWidgetId, over: TodayWidgetId) => void;
   toggle: (id: TodayWidgetId) => void;
   resize: (id: TodayWidgetId) => void;
   reset: () => void;
-  celebrate: (day: ISODate) => void;
 }
 
 /** Fase 3a: de indeling van Vandaag, lokaal bewaard. */
@@ -28,26 +24,25 @@ export const useToday = create<TodayState>()(
   persist(
     (set) => ({
       layout: DEFAULT_LAYOUT,
-      celebrated: null,
       move: (active, over) => set((s) => ({ layout: moveWidget(s.layout, active, over) })),
       toggle: (id) => set((s) => ({ layout: toggleWidget(s.layout, id) })),
       resize: (id) => set((s) => ({ layout: nextSize(s.layout, id) })),
       reset: () => set({ layout: DEFAULT_LAYOUT }),
-      celebrate: (day) => set({ celebrated: day }),
     }),
     {
       name: STORAGE_KEYS.today,
-      version: 1,
+      // Versie 2: de geschrapte laadbalk en zijn feestvlag gaan ook uit de opslag.
+      version: 2,
+      migrate: (persisted) => ({
+        layout: normalizeLayout((persisted as Partial<Pick<TodayState, "layout">> | null)?.layout),
+      }),
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ layout: s.layout, celebrated: s.celebrated }),
-      merge: (persisted, current) => {
-        const value = (persisted ?? {}) as Partial<Pick<TodayState, "layout" | "celebrated">>;
-        return {
-          ...current,
-          layout: normalizeLayout(value.layout),
-          celebrated: typeof value.celebrated === "string" ? value.celebrated : null,
-        };
-      },
+      partialize: (s) => ({ layout: s.layout }),
+      // normalizeLayout ruimt ook oude, geschrapte widgets op (zoals de laadbalk).
+      merge: (persisted, current) => ({
+        ...current,
+        layout: normalizeLayout((persisted as Partial<Pick<TodayState, "layout">> | null)?.layout),
+      }),
     },
   ),
 );

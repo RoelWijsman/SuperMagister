@@ -1,7 +1,7 @@
 import type { Lesson } from "@/lib/types";
 
 /**
- * Fase 3a: een schooldag in stukken, voor de dagtijdlijn en de laadbalk.
+ * Fase 3a: een schooldag in stukken, voor de dagtijdlijn.
  * Lessen, uitval, pauzes en tussenuren, op volgorde van tijd.
  */
 
@@ -42,56 +42,4 @@ export function daySegments(lessons: readonly Lesson[]): DaySegment[] {
     cursor = cursor === null ? end : Math.max(cursor, end);
   }
   return segments;
-}
-
-export interface LoadSegment extends DaySegment {
-  /** Plek op de balk, als deel van de schooldag (0–1). */
-  from: number;
-  to: number;
-}
-
-export interface SchoolDayLoad {
-  /** Voor de eerste les, onderweg, klaar, of vandaag geen school. */
-  state: "voor" | "bezig" | "klaar" | "vrij";
-  /** Hoeveel van de schooldag erop zit, 0–100 (naar beneden afgerond). */
-  percent: number;
-  /** Minuten tot de laatste bel (0 als je klaar bent). */
-  minutesLeft: number;
-  /** Begin van de eerste les en einde van de laatste die doorgaan. */
-  start: Date | null;
-  end: Date | null;
-  segments: LoadSegment[];
-}
-
-/**
- * De schooldag als downloadbalk: van de eerste tot de laatste les die
- * doorgaat. Valt het eerste uur uit, dan begint je dag later.
- */
-export function schoolDayLoad(lessons: readonly Lesson[], now: Date): SchoolDayLoad {
-  const all = daySegments(lessons);
-  const first = all.findIndex((segment) => segment.kind === "les");
-  const last = all.findLastIndex((segment) => segment.kind === "les");
-  if (first === -1) {
-    return { state: "vrij", percent: 0, minutesLeft: 0, start: null, end: null, segments: [] };
-  }
-  const parts = all.slice(first, last + 1);
-  const start = parts[0]!.start;
-  const end = parts.at(-1)!.end;
-  const span = end - start;
-  const t = now.getTime();
-  const segments = parts.map((part) => ({
-    ...part,
-    from: (part.start - start) / span,
-    to: (part.end - start) / span,
-  }));
-  const state = t < start ? "voor" : t >= end ? "klaar" : "bezig";
-  const fraction = Math.min(1, Math.max(0, (t - start) / span));
-  return {
-    state,
-    percent: state === "klaar" ? 100 : Math.floor(fraction * 100),
-    minutesLeft: state === "klaar" ? 0 : Math.ceil((end - Math.max(t, start)) / 60_000),
-    start: new Date(start),
-    end: new Date(end),
-    segments,
-  };
 }

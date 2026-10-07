@@ -11,8 +11,10 @@ import {
 } from "./layout";
 
 describe("indeling van Vandaag", () => {
-  it("begint met de laadbalk bovenaan en alle widgets aan", () => {
-    expect(DEFAULT_LAYOUT.order[0]).toBe("laadbalk");
+  it("begint met Nu bezig bovenaan en alle widgets aan", () => {
+    expect(DEFAULT_LAYOUT.order[0]).toBe("nu");
+    // De schooldag-laadbalk is geschrapt (besluit 7 oktober 2026).
+    expect(TODAY_WIDGETS).not.toContain("laadbalk");
     expect([...DEFAULT_LAYOUT.order].sort()).toEqual([...TODAY_WIDGETS].sort());
     expect(DEFAULT_LAYOUT.hidden).toEqual([]);
     for (const id of TODAY_WIDGETS) {
@@ -43,7 +45,7 @@ describe("indeling van Vandaag", () => {
     }
     expect([...seen].sort()).toEqual([...WIDGET_SIZES.nu].sort());
     expect(layout.sizes.nu).toBe(DEFAULT_LAYOUT.sizes.nu);
-    expect(nextSize(DEFAULT_LAYOUT, "laadbalk").sizes.laadbalk).toBe("full");
+    expect(nextSize(nextSize(DEFAULT_LAYOUT, "tijdlijn"), "tijdlijn").sizes.tijdlijn).toBe("full");
   });
 });
 
@@ -67,6 +69,13 @@ describe("normalizeLayout (opgeslagen indeling)", () => {
   });
 
   it("negeert een maat die een widget niet aankan", () => {
-    expect(normalizeLayout({ sizes: { laadbalk: "sm" } }).sizes.laadbalk).toBe("full");
+    expect(normalizeLayout({ sizes: { tijdlijn: "sm" } }).sizes.tijdlijn).toBe("full");
+  });
+
+  it("ruimt de geschrapte laadbalk op uit een oude indeling", () => {
+    const layout = normalizeLayout({ order: ["laadbalk", "trend"], hidden: ["laadbalk"] });
+    expect(layout.order).not.toContain("laadbalk");
+    expect(layout.order[0]).toBe("trend");
+    expect(layout.hidden).toEqual([]);
   });
 });

@@ -2,13 +2,11 @@
 
 import { useMemo } from "react";
 import { CountdownWidget } from "@/components/today/CountdownWidget";
-import { LoadBarWidget } from "@/components/today/LoadBarWidget";
 import { RadarWidget } from "@/components/today/RadarWidget";
 import { TimelineWidget } from "@/components/today/TimelineWidget";
 import { TrendWidget } from "@/components/today/TrendWidget";
 import { WeatherWidget } from "@/components/today/WeatherWidget";
 import { useSubjectAppearance } from "@/lib/data/hooks";
-import { schoolDayLoad } from "@/lib/school/day-parts";
 import { gradeTrend } from "@/lib/today/trend";
 import type { Lesson, LessonStatus, NumericGrade, Test } from "@/lib/types";
 
@@ -73,12 +71,6 @@ const grades: NumericGrade[] = [6.1, 6.6, 6.4, 7.2, 7.8].map((value, i) => ({
   isSufficient: value >= 5.5,
 }));
 
-const STATES = [
-  { label: "Voor schooltijd", time: "07:50" },
-  { label: "Onderweg", time: "11:05" },
-  { label: "Download voltooid", time: "15:10" },
-] as const;
-
 /** Stijlgids: de widgets van Vandaag (fase 3a) met een vaste, verzonnen dag. */
 export function TodaySamples() {
   const subjects = useSubjectAppearance();
@@ -87,20 +79,6 @@ export function TodaySamples() {
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-4">
-        {STATES.map(({ label, time }) => (
-          <div key={label}>
-            <p className="mb-2 text-sm text-ink-3">{label}</p>
-            <LoadBarWidget
-              load={schoolDayLoad(lessons, at(time))}
-              upcoming={null}
-              now={at(time)}
-              subject={subjects.get}
-              preview
-            />
-          </div>
-        ))}
-      </div>
       <TimelineWidget lessons={lessons} now={noon} subject={subjects.get} isLoading={false} />
       <div className="grid gap-4 md:grid-cols-2">
         <RadarWidget tests={tests} now={noon} subject={subjects.get} isLoading={false} />

@@ -5,7 +5,6 @@
  */
 
 export const TODAY_WIDGETS = [
-  "laadbalk",
   "nu",
   "pack",
   "tijdlijn",
@@ -23,7 +22,6 @@ export type WidgetSize = "sm" | "md" | "lg" | "full";
 
 /** Welke maten een widget aankan; de eerste is de standaard. */
 export const WIDGET_SIZES: Readonly<Record<TodayWidgetId, readonly WidgetSize[]>> = {
-  laadbalk: ["full"],
   nu: ["md", "sm", "lg"],
   pack: ["md", "lg", "full"],
   tijdlijn: ["full", "lg"],
@@ -35,7 +33,6 @@ export const WIDGET_SIZES: Readonly<Record<TodayWidgetId, readonly WidgetSize[]>
 };
 
 export const WIDGET_LABELS: Readonly<Record<TodayWidgetId, string>> = {
-  laadbalk: "Schooldag-laadbalk",
   nu: "Nu bezig",
   pack: "Nieuwe cijfers",
   tijdlijn: "Dagtijdlijn",

@@ -1,8 +1,8 @@
 # SuperMagister: bouwopdracht
 
-> **Let op (6 oktober 2026):** wekkeradvies, tas-inpaklijst, planner, studieplan-generator,
-> focusmodus en streak zijn geschrapt, nu en in latere fases. Zie "Geschrapt" in
-> `docs/ontwerp.md`. De opdracht hieronder is verder ongewijzigd.
+> **Let op (6 en 7 oktober 2026):** wekkeradvies, tas-inpaklijst, planner, studieplan-generator,
+> focusmodus, streak en de schooldag-laadbalk (ook "zomervakantie.exe") zijn geschrapt, nu en in
+> latere fases. Zie "Geschrapt" in `docs/ontwerp.md`. De opdracht hieronder is verder ongewijzigd.
 
 Bouw "SuperMagister": een webapp die de Magister-leerlingomgeving vervangt door iets dat mooi, supersnel en vooral leuk is. Speels, vol kleine verrassingen en beloningsmomenten, maar nooit in de weg: het is een tool die je elke dag gebruikt.
 

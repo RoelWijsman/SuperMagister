@@ -107,7 +107,7 @@ export function StyleguideView() {
       <div className="mb-5 space-y-5">
         <Block
           title="Vandaag"
-          note="Fase 3a: de widgets met een vaste, verzonnen dinsdag (met pauze, tussenuur, uitval en een lokaalwijziging). Op Vandaag zelf versleep je ze via Indelen."
+          note="Fase 3a: de widgets met een vaste, verzonnen dinsdag (met tussenuur, uitval en een lokaalwijziging). Op Vandaag zelf versleep je ze via Indelen."
         >
           <TodaySamples />
         </Block>

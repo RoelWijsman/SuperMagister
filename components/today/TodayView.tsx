@@ -18,7 +18,6 @@ import { formatLongDate, formatRelativeDay, nextWeekday, startOfDay, toISODate }
 import { greetingSituation } from "@/lib/greeting";
 import { useNow } from "@/lib/hooks";
 import { getDayStatus } from "@/lib/school/day";
-import { schoolDayLoad } from "@/lib/school/day-parts";
 import { homeworkFromLessons, testsFromLessons } from "@/lib/school/derive";
 import type { TodayWidgetId } from "@/lib/today/layout";
 import { gradeTrend } from "@/lib/today/trend";
@@ -27,7 +26,6 @@ import { useCopy } from "@/lib/use-copy";
 import { useSettings } from "@/stores/settings";
 import { CountdownWidget } from "./CountdownWidget";
 import { HomeworkTomorrowWidget } from "./ListWidgets";
-import { LoadBarWidget } from "./LoadBarWidget";
 import { NowWidget } from "./NowWidget";
 import { PackWidget } from "./PackWidget";
 import { RadarWidget } from "./RadarWidget";
@@ -69,7 +67,9 @@ export function TodayView() {
     const todayIso = toISODate(now);
     const todays = lessons.data.filter((l) => l.date === todayIso).sort(byStart);
     const status = getDayStatus(todays, now);
-    const load = schoolDayLoad(todays, now);
+    const active = todays.filter((l) => l.status !== "uitval");
+    /** De laatste bel van vandaag (voor het weekend-aftellen op vrijdag). */
+    const lastBell = active.length > 0 ? new Date(active.at(-1)!.end) : null;
     const upcoming =
       lessons.data
         .filter((l) => l.status !== "uitval" && new Date(l.start) > now && l.date !== todayIso)
@@ -83,19 +83,19 @@ export function TodayView() {
 
     // Fietsweer: vandaag zolang je nog op school moet zijn, anders de volgende schooldag.
     const rideDay =
-      load.state === "voor" || load.state === "bezig"
+      lastBell && now < lastBell
         ? todays
         : upcoming && new Date(upcoming.start).getTime() - now.getTime() < FORECAST_DAYS * 864e5
           ? lessons.data.filter((l) => l.date === upcoming.date)
           : [];
     const rides = rideTimes(rideDay, bikeMinutes);
 
-    const firstToday = todays.find((l) => l.status !== "uitval");
+    const firstToday = active[0];
     const greeting = account.data
       ? greetingSituation({
           now,
           firstName: account.data.firstName,
-          lessonsToday: todays.filter((l) => l.status !== "uitval").length,
+          lessonsToday: active.length,
           lessonsLeft: status.lessonsLeft,
           testsToday,
           firstLessonStart: firstToday ? new Date(firstToday.start) : null,
@@ -104,7 +104,7 @@ export function TodayView() {
         })
       : null;
 
-    return { todays, status, load, upcoming, homework, tests, greeting, nextDay, rides };
+    return { todays, status, lastBell, upcoming, homework, tests, greeting, nextDay, rides };
   }, [lessons.data, now, account.data, bikeMinutes]);
 
   const trend = useMemo(
@@ -128,14 +128,6 @@ export function TodayView() {
   }, [editing]);
 
   const widgets: Record<TodayWidgetId, React.ReactNode> = {
-    laadbalk: (
-      <LoadBarWidget
-        load={view?.load ?? null}
-        upcoming={view?.upcoming ?? null}
-        now={now}
-        subject={subjects.get}
-      />
-    ),
     nu: (
       <NowWidget
         status={view?.status ?? null}
@@ -170,7 +162,7 @@ export function TodayView() {
     countdowns: (
       <CountdownWidget
         now={view ? now : null}
-        lastBellToday={view?.load.end ?? null}
+        lastBellToday={view?.lastBell ?? null}
         examYear={Boolean(account.data?.isExamYear)}
       />
     ),

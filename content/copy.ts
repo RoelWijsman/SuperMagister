@@ -764,39 +764,6 @@ export const COPY = {
     "{aantal} {kaarten} in je album. Plakken hoeft niet.",
   ],
   // ——— Vandaag (fase 3a) ———————————————————————————————————————————————
-  /** Laadbalk, onder "Schooldag 0% · start om 08:30". */
-  "laadbalk.voor": [
-    "Download start om {tijd}. Een snellere verbinding is helaas niet beschikbaar.",
-    "In de wachtrij. Start om {tijd}.",
-    "Nog niet begonnen. De bel weet hoe laat: {tijd}.",
-    "Om {tijd} gaat de download van start. Ontbijt is aanbevolen.",
-    "Pakketje staat klaar. Downloaden begint om {tijd}.",
-  ],
-  /** Laadbalk, onder "Schooldag 64% geladen · nog 2u 14m". */
-  "laadbalk.bezig": [
-    "Niet afsluiten tijdens het downloaden.",
-    "Geschatte resterende tijd. Deze keer klopt hij wel.",
-    "Download loopt. De wifi van school doet niet mee, wij wel.",
-    "Elke bel is een vinkje. Je bent goed bezig.",
-    "Laden. Net zo snel als de printer in de mediatheek.",
-  ],
-  /** Laadbalk, onder "Download voltooid ✅". */
-  "laadbalk.klaar": [
-    "Schooldag geïnstalleerd. Opnieuw opstarten is niet nodig.",
-    "100%. Je mag de bel nu officieel negeren.",
-    "Alle lessen binnen. Geen virussen gevonden.",
-    "Klaar. Een hele schooldag overleefd. Applaus.",
-    "Download voltooid. Uitpakken kan morgen.",
-  ],
-  /** Laadbalk, onder "Volgende schooldag start morgen 08:30". */
-  "laadbalk.vrij": [
-    "Tot die tijd valt er niks te downloaden.",
-    "De server van school ligt even plat. Gelukkig.",
-    "Geen lessen in de wachtrij.",
-    "Even geen updates. Geniet ervan.",
-    "Magister heeft ook vrij. Bijna.",
-  ],
-
   "trend.omhoog": [
     "Het gaat de goede kant op. De lijn bevestigt het.",
     "Stijgende lijn. Je docenten merken het ook.",
