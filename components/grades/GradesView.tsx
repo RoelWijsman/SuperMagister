@@ -1,70 +1,36 @@
 "use client";
 
-import { Gift, Lock } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { Calculator, Gauge, Gift, SlidersHorizontal } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { SubjectBadge } from "@/components/subjects/SubjectBadge";
+import { GuesserPanel } from "@/components/guess/GuesserPanel";
 import { Button } from "@/components/ui/Button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { LoadingQuip } from "@/components/ui/LoadingQuip";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { Tilt } from "@/components/ui/Tilt";
-import { formatGrade, gradeTone } from "@/lib/calc/average";
-import { overallAverage, summarizeSubject } from "@/lib/calc/summary";
-import { cn } from "@/lib/cn";
-import { useGrades, usePeriods, useRevealState, useSubjectAppearance } from "@/lib/data/hooks";
-import { toISODate } from "@/lib/date";
-import type { Grade } from "@/lib/types";
+import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import type { CopyKey } from "@/content/copy";
+import { overallAverage } from "@/lib/calc/summary";
+import { useRevealState, useSubjectAppearance } from "@/lib/data/hooks";
+import { toISODate } from "@/lib/date";
+import { useIsClient } from "@/lib/hooks";
 import { useCopy, useCopyNodes } from "@/lib/use-copy";
+import { useGradesStore, type GradesTab } from "@/stores/grades";
 import { useUi } from "@/stores/ui";
-import { GuesserPanel } from "@/components/guess/GuesserPanel";
-import { GradeValue, TONE_TEXT } from "./GradeValue";
+import { CalculatorSheet } from "./CalculatorSheet";
+import { ExamPanel } from "./ExamPanel";
+import { GradeValue } from "./GradeValue";
+import { GradeTimeline, InsightsPanel, PeriodChart, RankingList } from "./OverviewParts";
+import { PromotionMeter } from "./PromotionMeter";
+import { PromotionSheet } from "./PromotionSheet";
+import { SimulatorSheet } from "./SimulatorSheet";
+import { SubjectCard } from "./SubjectCard";
+import { useGradeData, usePeriodList, usePromotionResult } from "./useGradeData";
 
-const PILL_TONE = {
-  good: "bg-[color-mix(in_oklab,var(--sm-good)_16%,transparent)]",
-  warn: "bg-[color-mix(in_oklab,var(--sm-warn)_16%,transparent)]",
-  bad: "bg-[color-mix(in_oklab,var(--sm-bad)_16%,transparent)]",
-} as const;
-
-function GradePill({ grade }: { grade: Grade }) {
-  if (grade.kind === "text") {
-    return (
-      <span className="sensitive grid h-7 min-w-9 place-items-center rounded-lg bg-glass-strong px-1.5 text-sm font-semibold text-ink-2">
-        {grade.value}
-      </span>
-    );
-  }
-  const tone = gradeTone(grade.value);
-  const counts = grade.countsTowardAverage && grade.weight > 0;
-  return (
-    <span
-      title={`${grade.description} · ${counts ? `weging ${grade.weight}` : "telt niet mee"}`}
-      className={cn(
-        "sensitive grid h-7 min-w-9 place-items-center rounded-lg px-1.5 text-sm font-semibold tabular-nums",
-        PILL_TONE[tone],
-        TONE_TEXT[tone],
-        !counts && "line-through opacity-50",
-      )}
-    >
-      {formatGrade(grade.value)}
-    </span>
-  );
-}
-
-function LockedPill({ count }: { count: number }) {
-  return (
-    <span
-      title="Nog niet onthuld: open je pack"
-      className="flex h-7 items-center gap-1 rounded-lg bg-[color-mix(in_oklab,var(--sm-accent)_18%,transparent)] px-2 text-xs font-semibold text-accent-ink"
-    >
-      <Lock size={12} strokeWidth={2.6} aria-hidden />
-      {count}
-    </span>
-  );
-}
+export type GradesTool = "calculator" | "simulator" | "overgang";
+const TOOLS: readonly GradesTool[] = ["calculator", "simulator", "overgang"];
 
 function subtitleKey(average: number | null, privacy: boolean): CopyKey | null {
   if (average === null) return null;
@@ -74,39 +40,54 @@ function subtitleKey(average: number | null, privacy: boolean): CopyKey | null {
 }
 
 /**
- * Cijferoverzicht per vak. Niet-onthulde cijfers blijven op slot tot je je
- * pack opent. Fase 4 voegt vak-detail, calculator, simulator en meer toe.
+ * Fase 4: Cijfers. Vakken, ranglijst, periodes, tijdlijn en (in de bovenbouw)
+ * het examen, met bovenaan de overgangsmeter en inzichten. De calculator, de
+ * simulator en de overgangsmeter openen via `?tool=`, zodat de walkout en de
+ * command palette er direct naartoe kunnen (`?tool=calculator&vak=wisa`).
  */
 export function GradesView() {
   const params = useSearchParams();
-  const focus = params.get("vak");
-  const grades = useGrades();
-  const periods = usePeriods();
+  const router = useRouter();
+  const pathname = usePathname();
+  const tool = params.get("tool") as GradesTool | null;
+  const toolSubject = params.get("vak");
+  const focus = tool ? null : toolSubject;
+  const isClient = useIsClient();
+
+  const data = useGradeData();
+  const periods = usePeriodList();
   const subjects = useSubjectAppearance();
-  const { revealed, pack } = useRevealState();
+  const { pack } = useRevealState();
   const { openPack } = useWalkoutActions();
   const privacy = useUi((s) => s.privacy);
+  const storedTab = useGradesStore((s) => s.tab);
+  const setTab = useGradesStore((s) => s.setTab);
+  const promotion = usePromotionResult(data);
 
-  const summaries = useMemo(() => {
-    if (!grades.data) return [];
-    return subjects.subjects
-      .filter((s) => s.hasGrades)
-      .map((s) => ({ subject: s, ...summarizeSubject(s.id, grades.data, revealed) }));
-  }, [grades.data, subjects.subjects, revealed]);
+  const hasPta = Boolean(data?.visible.some((grade) => grade.isPTA));
+  const showExam = Boolean(data?.isExamYear || hasPta);
+  const tabs = useMemo<TabItem<GradesTab>[]>(
+    () => [
+      { value: "vakken", label: "Vakken" },
+      { value: "ranglijst", label: "Ranglijst" },
+      { value: "periodes", label: "Periodes" },
+      { value: "tijdlijn", label: "Tijdlijn" },
+      ...(showExam ? [{ value: "examen" as const, label: "Examen" }] : []),
+    ],
+    [showExam],
+  );
+  const wanted = isClient ? storedTab : "vakken";
+  const tab = tabs.some((t) => t.value === wanted) ? wanted : "vakken";
+  const showTab = focus ? "vakken" : tab;
 
+  const summaries = useMemo(
+    () => data?.subjects.map((s) => ({ average: data.averages.get(s.id) ?? null })) ?? [],
+    [data],
+  );
   const overall = overallAverage(summaries);
   const averagedCount = summaries.filter((s) => s.average !== null).length;
   const today = toISODate(new Date());
-  const currentPeriod = periods.data?.find((p) => p.start <= today && today <= p.end);
-
-  useEffect(() => {
-    if (!focus || summaries.length === 0) return;
-    document
-      .getElementById(`vak-${focus}`)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [focus, summaries.length]);
-
-  const loading = !grades.data || !subjects.isReady || !revealed;
+  const currentPeriod = periods.find((p) => p.start <= today && today <= p.end);
   const subtitle = useCopyNodes(
     subtitleKey(overall, privacy),
     { aantal: String(averagedCount) },
@@ -114,12 +95,36 @@ export function GradesView() {
   );
   const locked = useCopy(pack.length > 0 ? "pack.slot" : null);
 
+  useEffect(() => {
+    if (!focus || !data) return;
+    document
+      .getElementById(`vak-${focus}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focus, data]);
+
+  const openTool = (next: GradesTool, subjectId?: string) =>
+    router.replace(`${pathname}?tool=${next}${subjectId ? `&vak=${subjectId}` : ""}`, {
+      scroll: false,
+    });
+  const closeTool = () => router.replace(pathname, { scroll: false });
+  const activeTool = tool && TOOLS.includes(tool) ? tool : null;
+
   return (
     <>
       <PageHeader
         eyebrow={currentPeriod ? `${currentPeriod.name} loopt` : "Cijfers"}
         title="Cijfers"
         subtitle={subtitle ?? undefined}
+        actions={
+          <>
+            <Button variant="primary" icon={Calculator} onClick={() => openTool("calculator")}>
+              Wat moet ik halen?
+            </Button>
+            <Button variant="glass" icon={SlidersHorizontal} onClick={() => openTool("simulator")}>
+              Simulator
+            </Button>
+          </>
+        }
       />
 
       {pack.length > 0 && (
@@ -140,7 +145,7 @@ export function GradesView() {
         </GlassPanel>
       )}
 
-      {loading ? (
+      {!data ? (
         <>
           <LoadingQuip topic="cijfers" className="mb-3" />
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -157,69 +162,97 @@ export function GradesView() {
           </div>
         </>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {summaries.map(({ subject, average, count, lockedCount, latest }) => {
-            const look = subjects.get(subject.id);
-            const isFocus = subject.id === focus;
-            return (
-              <li key={subject.id} id={`vak-${subject.id}`} className="scroll-mt-28">
-                <Tilt className="h-full">
-                  <GlassPanel
-                    className={cn(
-                      "relative h-full overflow-hidden",
-                      isFocus &&
-                        "shadow-[inset_0_0_0_1.5px_color-mix(in_oklab,var(--sm-accent)_60%,transparent),var(--sm-shadow)]",
-                    )}
+        <>
+          <div className="mb-6 grid gap-4 lg:grid-cols-2">
+            {promotion && (
+              <GlassPanel as="section" aria-labelledby="meter-titel">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <h2
+                    id="meter-titel"
+                    className="flex items-center gap-2 font-display text-lg font-semibold text-ink"
                   >
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full opacity-25 blur-2xl"
-                      style={{ background: look.color }}
-                    />
-                    <div className="relative flex items-center gap-3">
-                      <SubjectBadge subject={look} size="lg" />
-                      <div className="min-w-0">
-                        <h2 className="truncate font-semibold text-ink">{subject.name}</h2>
-                        <p className="text-sm text-ink-3">
-                          {count} {count === 1 ? "cijfer" : "cijfers"}
-                          {subject.isCore && " · kernvak"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="relative mt-4 flex items-end justify-between gap-3">
-                      {average !== null ? (
-                        <GradeValue
-                          value={average}
-                          className="font-display text-5xl leading-none font-semibold tracking-tight"
-                        />
-                      ) : (
-                        <span className="font-display text-3xl leading-none font-semibold text-ink-3">
-                          {count > 0 ? "V/G" : "—"}
-                        </span>
-                      )}
-                      <span className="text-xs text-ink-3">
-                        {average !== null ? "gemiddeld" : "beoordelingen"}
+                    <Gauge size={18} aria-hidden className="text-accent-ink" />
+                    {promotion.exam ? "Slaagmeter" : "Overgangsmeter"}
+                    {promotion.exam && (
+                      <span className="font-sans text-sm font-normal whitespace-nowrap text-ink-3">
+                        op je SE
                       </span>
-                    </div>
-                    <div className="relative mt-4 flex flex-wrap items-center gap-1.5">
-                      {latest.map((grade) => (
-                        <GradePill key={grade.id} grade={grade} />
-                      ))}
-                      {lockedCount > 0 && <LockedPill count={lockedCount} />}
-                    </div>
-                  </GlassPanel>
-                </Tilt>
-              </li>
-            );
-          })}
-        </ul>
+                    )}
+                  </h2>
+                  <Button variant="ghost" size="sm" onClick={() => openTool("overgang")}>
+                    Details en normen
+                  </Button>
+                </div>
+                <PromotionMeter
+                  result={promotion.result}
+                  exam={promotion.exam}
+                  subjectName={(id) => subjects.get(id).name}
+                />
+              </GlassPanel>
+            )}
+            <InsightsPanel data={data} periods={periods} subject={subjects.get} />
+          </div>
+
+          <Tabs
+            id="cijfers-weergave"
+            value={showTab}
+            onValueChange={setTab}
+            items={tabs}
+            aria-label="Weergave"
+            className="mb-5 max-w-full overflow-x-auto"
+          />
+
+          {showTab === "vakken" && (
+            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {data.subjects.map((subject) => (
+                <li key={subject.id} id={`vak-${subject.id}`} className="scroll-mt-28">
+                  <SubjectCard
+                    subject={subject}
+                    look={subjects.get(subject.id)}
+                    grades={data.bySubject.get(subject.id) ?? []}
+                    average={data.averages.get(subject.id) ?? null}
+                    locked={data.locked.get(subject.id) ?? 0}
+                    focused={subject.id === focus}
+                    onOpenPack={openPack}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+          {showTab === "ranglijst" && <RankingList data={data} subject={subjects.get} />}
+          {showTab === "periodes" && (
+            <GlassPanel>
+              <PeriodChart data={data} periods={periods} subject={subjects.get} />
+            </GlassPanel>
+          )}
+          {showTab === "tijdlijn" && <GradeTimeline data={data} subject={subjects.get} />}
+          {showTab === "examen" && <ExamPanel data={data} subject={subjects.get} />}
+
+          <div className="mt-6">
+            <GuesserPanel />
+          </div>
+        </>
       )}
 
-      {!loading && (
-        <div className="mt-6">
-          <GuesserPanel />
-        </div>
-      )}
+      <CalculatorSheet
+        open={activeTool === "calculator"}
+        onClose={closeTool}
+        data={data}
+        subject={subjects.get}
+        initialSubject={activeTool === "calculator" ? toolSubject : null}
+      />
+      <SimulatorSheet
+        open={activeTool === "simulator"}
+        onClose={closeTool}
+        data={data}
+        subject={subjects.get}
+      />
+      <PromotionSheet
+        open={activeTool === "overgang"}
+        onClose={closeTool}
+        data={data}
+        subject={subjects.get}
+      />
     </>
   );
 }

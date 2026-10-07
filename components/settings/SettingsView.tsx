@@ -349,7 +349,7 @@ export function SettingsView() {
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
             eigen account.
           </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.3 · fase 3c: Huiswerk</p>
+          <p className="mt-3 text-xs text-ink-3">Versie 0.4 · fase 4: Cijfers</p>
         </Section>
       </div>
     </>

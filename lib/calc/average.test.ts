@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Grade } from "@/lib/types";
-import { formatGrade, gradeTone, roundHalfUp, weightedAverage } from "./average";
+import { numeric as num, text } from "@/lib/test-utils/grade";
+import { formatGrade, gradeTone, reportGrade, roundHalfUp, weightedAverage } from "./average";
 
 function numeric(value: number, weight: number, extra: Partial<Grade> = {}): Grade {
   return {
@@ -76,5 +77,43 @@ describe("gradeTone", () => {
     expect(gradeTone(6.44)).toBe("warn");
     expect(gradeTone(6.45)).toBe("good");
     expect(gradeTone(9.9)).toBe("good");
+  });
+});
+
+describe("lastige gevallen voor het gemiddelde", () => {
+  it("negeert V, G en O, ook als er alleen beoordelingen zijn", () => {
+    expect(weightedAverage([text("V"), text("G"), text("O")])).toBeNull();
+    expect(weightedAverage([text("O"), num(6.5, 2)])).toBe(6.5);
+  });
+
+  it("telt een cijfer met weging 0 niet mee, ook niet als het het enige is", () => {
+    expect(weightedAverage([num(3.1, 0)])).toBeNull();
+    expect(weightedAverage([num(3.1, 0), num(7, 1)])).toBe(7);
+  });
+
+  it("telt cijfers die niet meetellen niet mee (oefentoetsen)", () => {
+    expect(weightedAverage([num(1, 3, { countsTowardAverage: false })])).toBeNull();
+  });
+
+  it("geeft null voor een vak zonder cijfers", () => {
+    expect(weightedAverage([])).toBeNull();
+  });
+
+  it("werkt met halve wegingen", () => {
+    expect(weightedAverage([num(6, 0.5), num(8, 1.5)])).toBeCloseTo(7.5, 10);
+  });
+});
+
+describe("reportGrade (rapportcijfer)", () => {
+  it("rondt af zoals je het ziet: eerst op één decimaal, dan op een heel cijfer", () => {
+    expect(reportGrade(5.45)).toBe(6);
+    expect(reportGrade(5.449)).toBe(5);
+    expect(reportGrade(6.5)).toBe(7);
+    expect(reportGrade(6.449999999999999)).toBe(7);
+  });
+
+  it("blijft tussen 1 en 10", () => {
+    expect(reportGrade(0.4)).toBe(1);
+    expect(reportGrade(10)).toBe(10);
   });
 });

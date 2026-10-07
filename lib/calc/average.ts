@@ -22,6 +22,14 @@ export function roundHalfUp(value: number, decimals = 1): number {
   return Math.round(cleaned * factor + 1e-7) / factor;
 }
 
+/**
+ * Rapportcijfer: het gemiddelde zoals je het ziet (één decimaal), afgerond op
+ * een heel cijfer. Een 5,45 staat er als 5,5 en wordt dus een 6.
+ */
+export function reportGrade(average: number): number {
+  return Math.min(10, Math.max(1, roundHalfUp(roundHalfUp(average, 1), 0)));
+}
+
 /** "7,8" — met decimale komma, zoals op school. */
 export function formatGrade(value: number, decimals = 1): string {
   return roundHalfUp(value, decimals).toFixed(decimals).replace(".", ",");

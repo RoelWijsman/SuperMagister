@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  Calculator,
+  Gauge,
   Gift,
   Keyboard,
   Sparkles,
@@ -9,6 +11,7 @@ import {
   Paintbrush,
   Plug,
   Shield,
+  SlidersHorizontal,
   Sun,
   type LucideIcon,
 } from "lucide-react";
@@ -27,7 +30,6 @@ import { notify } from "@/lib/notify";
 import { applyThemeVars } from "@/lib/theme/apply";
 import { getPreset, THEME_PRESETS } from "@/lib/theme/themes";
 import { useSettings } from "@/stores/settings";
-import { toast } from "@/stores/toast";
 import { useUi } from "@/stores/ui";
 
 export type PalettePage = "root" | "themes";
@@ -128,17 +130,10 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
         id: "intent-halen",
         group: "Snel",
         title: `Wat moet ik halen voor ${subject.name}?`,
-        subtitle: "De calculator komt in fase 4. Nu: je cijfers voor dit vak",
+        subtitle: "De calculator, met dit vak al ingevuld",
         keywords: [query],
         icon: <SubjectBadge subject={subject} />,
-        run: () => {
-          go(`/cijfers?vak=${subject.id}`);
-          toast({
-            emoji: "🧮",
-            title: "De calculator komt in fase 4",
-            description: `Hier zie je alvast je cijfers voor ${subject.name}.`,
-          });
-        },
+        run: () => go(`/cijfers?tool=calculator&vak=${subject.id}`),
       });
     } else if (intent) {
       const date = parseISODate(intent.date);
@@ -207,7 +202,7 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
           subtitle: subject.hasGrades ? "Cijfers en gemiddelde" : "Rooster",
           keywords: [subject.code],
           icon: <SubjectBadge subject={look} />,
-          run: () => go(subject.hasGrades ? `/cijfers?vak=${subject.id}` : "/rooster"),
+          run: () => go(subject.hasGrades ? `/cijfers/${subject.id}` : "/rooster"),
         });
       }
       for (const item of homework.data ?? []) {
@@ -226,6 +221,33 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
     }
 
     commands.push(
+      {
+        id: "cijfers-calculator",
+        group: "Cijfers",
+        title: "Wat moet ik halen?",
+        subtitle: "De calculator: kies een vak, een doel en de weging",
+        keywords: ["calculator", "halen", "doel", "gemiddelde", "rekenen"],
+        icon: <IconBox icon={Calculator} />,
+        run: () => go("/cijfers?tool=calculator"),
+      },
+      {
+        id: "cijfers-simulator",
+        group: "Cijfers",
+        title: "Simulator",
+        subtitle: "Denkbeeldige cijfers, en zien wat er gebeurt",
+        keywords: ["wat als", "simuleren", "proberen"],
+        icon: <IconBox icon={SlidersHorizontal} />,
+        run: () => go("/cijfers?tool=simulator"),
+      },
+      {
+        id: "cijfers-overgang",
+        group: "Cijfers",
+        title: "Overgangsmeter",
+        subtitle: "Ga je over? En welke vakken maken het verschil",
+        keywords: ["overgaan", "slagen", "zakken", "bespreekgeval", "normen", "tekortpunten"],
+        icon: <IconBox icon={Gauge} />,
+        run: () => go("/cijfers?tool=overgang"),
+      },
       {
         id: "actie-thema",
         group: "Acties",

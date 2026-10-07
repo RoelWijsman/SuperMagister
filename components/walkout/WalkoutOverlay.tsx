@@ -771,7 +771,12 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
             onReplay={replay}
             onWhatToGet={(card) => {
               close();
-              router.push(card.isPractice ? "/cijfers" : `/cijfers?vak=${card.subjectId}`);
+              // Direct naar de calculator, met het vak al ingevuld.
+              router.push(
+                card.isPractice
+                  ? "/cijfers?tool=calculator"
+                  : `/cijfers?tool=calculator&vak=${card.subjectId}`,
+              );
             }}
             onMakeVideo={() => setVideo({ card: entry.card, guess: currentGuess })}
             autoAdvance={autoAdvance && !isLast && resting}

@@ -1122,6 +1122,192 @@ export const COPY = {
     "Doe de opgaven die je vorige keer fout had.",
   ],
 
+  // ——— Cijfers (fase 4) ————————————————————————————————————————————————————
+  /** Calculator: dit cijfer heb je minimaal nodig. */
+  "calc.mogelijk": [
+    "Haal een {nodig} en je staat op een {doel}.",
+    "Minimaal een {nodig}. Dan sta je op een {doel}.",
+    "Een {nodig} is genoeg voor een {doel}. Niet minder, wel meer.",
+    "{nodig}. Dat is het getal. Dan sta je op een {doel}.",
+    "Met een {nodig} kom je op een {doel}. Te doen.",
+  ],
+  /** Calculator: zelfs een 1,0 is genoeg (titel\nuitleg). */
+  "calc.binnen": [
+    "Al binnen. 😎\nZelfs met een 1,0 sta je nog op een {doel}.",
+    "Je staat er al. 😎\nDeze toets krijgt je niet meer onder de {doel}.",
+    "Binnen. 😎\nJe mag een 1,0 halen. Doe het niet.",
+    "Geen zorgen. 😎\nOok met een 1,0 blijf je op een {doel}.",
+    "Al geregeld. 😎\nDeze toets is bonus.",
+  ],
+  /** Calculator: zelfs een 10 is niet genoeg (titel\nuitleg). */
+  "calc.onmogelijk": [
+    "Onmogelijk. 😬\nZelfs een 10 brengt je niet op een {doel}. Met de toets erna wel dichterbij.",
+    "Dat gaat niet lukken. 😬\nMet één toets kom je niet op een {doel}. Wel een flink stuk.",
+    "Wiskundig uitgesloten. 😬\nEen 10 is niet genoeg. Een lager doel wel.",
+    "Zelfs een 10 is te weinig. 😬\nKies een lager doel, of reken met een zwaardere toets.",
+    "Niet met deze toets. 😬\nDe {doel} komt pas in zicht met meer cijfers.",
+  ],
+  /** Calculator: de volgende toets heeft weging 0 (titel\nuitleg). */
+  "calc.teltNiet": [
+    "Deze toets telt niet mee.\nWeging 0 verandert niets aan je gemiddelde. Oefenen mag wel.",
+    "Weging 0.\nWat je ook haalt, je gemiddelde blijft staan.",
+    "Telt niet.\nEen oefentoets. Geen druk, wel nuttig.",
+    "Geen weging.\nDeze is voor de oefening, niet voor het rapport.",
+    "Dit is een oefenrondje.\nJe gemiddelde kijkt niet mee.",
+  ],
+  /** Het omgekeerde: met dit cijfer sta je op… */
+  "calc.omgekeerd": [
+    "Met een {cijfer} sta je dan op een {gem}.",
+    "Haal je een {cijfer}, dan wordt je gemiddelde een {gem}.",
+    "Een {cijfer} erbij? Dan sta je op een {gem}.",
+    "Een {cijfer} maakt er een {gem} van.",
+    "Met een {cijfer} kom je uit op een {gem}.",
+  ],
+  "simulator.intro": [
+    "Wat als? Voeg cijfers toe en kijk wat er gebeurt. Er wordt niks opgeslagen.",
+    "Speel met cijfers die er nog niet zijn. De echte blijven gewoon staan.",
+    "Denkbeeldige cijfers, echte gevolgen. Voor de meter dan.",
+    "Hier mag je jezelf een 10 geven. Alleen hier.",
+    "Probeer het uit. Resetten kan altijd, Magister merkt niks.",
+  ],
+  // Overgangsmeter, onder de status.
+  "overgang.over": [
+    "Je gaat over. Zeg het nog niet hardop, dan horen de cijfers het.",
+    "Over, op deze cijfers. De zomer is in zicht.",
+    "Alles binnen de normen. De rapportvergadering wordt saai, voor jou.",
+    "Je staat erover. Rustig blijven, nog even volhouden.",
+    "Over. Niemand hoeft een vergadering over je te houden.",
+  ],
+  "overgang.bespreek": [
+    "Bespreekgeval. Er wordt over je vergaderd. Geef ze iets goeds om over te praten.",
+    "Net over de grens. Eén vak omhoog en het is opgelost.",
+    "Op het randje. De docenten gaan stemmen. Maak het ze makkelijk.",
+    "Bespreekzone. Niet fijn, wel te redden. Hieronder staat welk vak het verschil maakt.",
+    "Je bent een agendapunt. Nog tijd om dat te veranderen.",
+  ],
+  "overgang.gevaar": [
+    "Gevarenzone. Nog niet te laat, wel tijd voor een plan.",
+    "Zo ga je niet over. Hieronder staat welk vak het meest helpt.",
+    "Rood licht. Eén of twee vakken omhoog en het ziet er heel anders uit.",
+    "Dit is de gevarenzone. Praat met je mentor, die wil dit ook oplossen.",
+    "Niet goed, wel te draaien. Begin bij het vak bovenaan de lijst.",
+  ],
+  "overgang.onbekend": [
+    "Nog niets om mee te rekenen. Eerst cijfers, dan conclusies.",
+    "Nog geen gemiddelden. De meter wacht geduldig.",
+    "Geen cijfers, geen oordeel. Voor nu.",
+    "Leeg. Open je pack, dan kan de meter iets.",
+    "Nog geen data. De meter zit in de wachtkamer.",
+  ],
+  "examen.over": [
+    "Op je SE sta je geslaagd. Het centraal examen moet het nog bevestigen.",
+    "Geslaagd, op deze cijfers. Het CE heeft nog een woordje mee te spreken.",
+    "Je SE zegt: geslaagd. Nu het CE nog. Geen druk.",
+    "Op papier geslaagd. Het CE maakt het echt.",
+    "Je SE is op orde. Laat de vlag nog even in de kast.",
+  ],
+  "examen.gevaar": [
+    "Op je SE zou je nu zakken. Het CE kan veel goedmaken. Hieronder staat waar.",
+    "Gevarenzone. Nog geen vlag, wel een plan. Begin bij het vak bovenaan.",
+    "Zo red je het nog niet. Je mentor denkt graag mee.",
+    "Je SE is krap. Het CE telt bij de meeste vakken voor de helft. Kansen genoeg.",
+    "Zakken ligt op de loer. Nog tijd om dat te veranderen.",
+  ],
+  // Inzichten in gewone taal.
+  "inzicht.stijgt": [
+    "{vak} gaat al {aantal} toetsen op rij omhoog. Je docent heeft het ook gezien.",
+    "{aantal} keer op rij beter voor {vak}. Dat is geen toeval meer, dat is een trend.",
+    "{vak}: {aantal} toetsen op rij omhoog. Niemand vraagt hoe. Gewoon doorgaan.",
+    "{vak} klimt al {aantal} toetsen. De grafiek wijst naar rechtsboven, zoals het hoort.",
+    "{aantal} toetsen op rij hoger bij {vak}. Je bent op dreef. Niet te hard zeggen.",
+  ],
+  "inzicht.daalt": [
+    "{vak} zakt al {aantal} toetsen. De calculator laat zien wat de volgende moet worden.",
+    "{aantal} keer op rij lager bij {vak}. Niet erg, wel een seintje.",
+    "{vak} gaat al {aantal} toetsen omlaag. Tijd voor een plan. Een klein plan.",
+    "{vak} glijdt al {aantal} toetsen af. Eén goede toets draait het om.",
+    "{aantal} toetsen omlaag voor {vak}. Vraag je docent wat er mist. Die weet het.",
+  ],
+  "inzicht.randje": [
+    "{vak} staat op een {cijfer}. Een voldoende, met de nadruk op net.",
+    "{vak}: {cijfer}. Je balanceert op de 5,5. Niet gaan wiebelen.",
+    "{vak} op {cijfer}. Eén mindere toets en het wordt rood.",
+    "Een {cijfer} voor {vak}. Voldoende, maar niet om over op te scheppen.",
+    "{vak} staat op {cijfer}. De volgende toets telt, letterlijk.",
+  ],
+  "inzicht.jaarOmhoog": [
+    "Je gemiddelde is sinds periode 1 met {verschil} gestegen. Gewoon beter geworden.",
+    "+{verschil} sinds periode 1. Je bent officieel aan het groeien.",
+    "Je staat gemiddeld {verschil} hoger dan in periode 1. Iemand let op.",
+    "Sinds periode 1 gemiddeld {verschil} erbij. Zo werkt dat dus.",
+    "{verschil} hoger dan in periode 1. De rapportvergadering gaat het merken.",
+  ],
+  "inzicht.jaarOmlaag": [
+    "Je gemiddelde is sinds periode 1 {verschil} gezakt. Er is nog tijd.",
+    "{verschil} lager dan in periode 1. Een paar goede toetsen en het is weg.",
+    "Sinds periode 1 gemiddeld {verschil} eraf. Kijk welk vak trekt.",
+    "Je staat {verschil} lager dan in periode 1. Niet fijn, wel te repareren.",
+    "-{verschil} sinds periode 1. De simulator laat zien wat helpt.",
+  ],
+  "inzicht.dag": [
+    "Je hoogste cijfers haal je op {dag}: gemiddeld een {cijfer}. Plan je toetsen daar.",
+    "Op {dag} scoor je het best: gemiddeld {cijfer}. Niemand weet waarom.",
+    "{dag} is jouw dag: gemiddeld een {cijfer}. Statistisch gezien.",
+    "Toetsen op {dag}: gemiddeld {cijfer}. Je beste dag. Wij noemen het geen bijgeloof.",
+    "Gemiddeld een {cijfer} op {dag}. De rest van de week mag een voorbeeld nemen.",
+  ],
+  "inzicht.beste": [
+    "{vak} is je beste vak: gemiddeld een {cijfer}.",
+    "Je sterkste vak? {vak}, met een {cijfer}. Geen discussie.",
+    "{vak} staat bovenaan met een {cijfer}. Stabiel.",
+    "Met een {cijfer} is {vak} je paradepaardje.",
+    "Gemiddeld een {cijfer} voor {vak}. Dat vak heb je onder controle.",
+  ],
+  "inzicht.negens": [
+    "Al {aantal} keer een 9 of hoger dit jaar. Je docenten hebben het druk met jou.",
+    "{aantal} negens of hoger. Die mogen in een lijstje.",
+    "Dit jaar al {aantal} keer 9+. Dat gebeurt niet per ongeluk.",
+    "{aantal} cijfers van 9 of meer. Je hebt een collectie.",
+    "Al {aantal} keer een 9 of hoger. Niet te vaak zeggen, dan klinkt het als opscheppen.",
+  ],
+  // Cijfertijdlijn: mijlpalen in het verhaal.
+  "tijdlijn.eerste": [
+    "Het eerste cijfer van het jaar. {vak}, een {cijfer}. Hier begint het.",
+    "Startschot: een {cijfer} voor {vak}.",
+    "Zo begon het: {vak}, {cijfer}. Niemand wist wat er ging komen.",
+    "Cijfer één. {vak}. Een {cijfer}. Het jaar is begonnen.",
+    "Het allereerste: een {cijfer} voor {vak}. Nog alles mogelijk.",
+  ],
+  "tijdlijn.hoogste": [
+    "Je hoogste cijfer van het jaar: een {cijfer} voor {vak}.",
+    "Piek bereikt. {vak}, {cijfer}. Inlijsten.",
+    "Dit is de top: een {cijfer} voor {vak}. Tot nu toe.",
+    "Een {cijfer} voor {vak}. Hoger kwam je dit jaar niet.",
+    "Hoogtepunt: {vak}, {cijfer}. Die mag je onthouden.",
+  ],
+  "tijdlijn.negen": [
+    "Je eerste 9 van het jaar. {vak}, een {cijfer}.",
+    "Eerste negen binnen: {vak}. Dat smaakt naar meer.",
+    "{vak} levert je eerste 9+: een {cijfer}.",
+    "Een {cijfer} voor {vak}. De eerste negen. Er volgen er hopelijk meer.",
+    "Daar is hij: je eerste 9. {vak}, {cijfer}.",
+  ],
+  "tijdlijn.comeback": [
+    "Comeback. Van een {vorig} naar een {cijfer} voor {vak}.",
+    "Na een {vorig} kwam een {cijfer}. {vak} had je onderschat.",
+    "{vak}: eerst een {vorig}, toen een {cijfer}. Zo doe je dat.",
+    "Van {vorig} naar {cijfer} voor {vak}. Plot twist.",
+    "Een {vorig}, en daarna een {cijfer}. {vak} kreeg een tweede seizoen.",
+  ],
+  /** Vak-detail zonder cijfers (titel\nuitleg). */
+  "cijfers.vakLeeg": [
+    "Nog geen cijfers.\nDit vak wacht nog op zijn eerste toets.",
+    "Leeg.\nDe docent heeft nog niets ingevoerd. Geniet ervan.",
+    "Geen cijfers.\nGeen cijfers, geen gemiddelde, geen zorgen.",
+    "Nog niks.\nHet eerste cijfer komt vanzelf. Of niet vanzelf.",
+    "Stil hier.\nDit vak heeft nog geen mening over je.",
+  ],
+
   // ——— Video (feature B) ——————————————————————————————————————————————
   "video.voortgang": [
     "Pixels in de goede volgorde zetten…",

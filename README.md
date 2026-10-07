@@ -18,7 +18,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 3a   | Vandaag: widgets, dagtijdlijn, nu bezig, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
 | 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | ✅ Klaar |
-| 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | Gepland  |
+| 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | ✅ Klaar |
 | 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | Gepland  |
 | 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                          | Gepland  |
@@ -86,6 +86,19 @@ kunt veilig rondklikken.
 - **Ik heb geen zin:** knip de taak op in mini-stapjes, of doe alleen vijf minuten met de timer.
 - Je vinkjes blijven op dit apparaat; Magister zelf verandert niet.
 
+## Cijfers
+
+- Op **Cijfers** zie je per vak je gemiddelde en een trendlijntje. Tik op een vak voor de grafiek,
+  al je cijfers en het gemiddelde per periode.
+- **Wat moet ik halen?** rekent uit welk cijfer je nodig hebt voor je doel, en andersom wat een
+  cijfer met je gemiddelde doet. Ook via Ctrl+K ("wat moet ik halen voor wiskunde") en via de
+  knop in de walkout bij een onvoldoende.
+- De **Simulator** laat je denkbeeldige cijfers toevoegen; de overgangsmeter beweegt mee.
+- De **Overgangsmeter** (in een examenklas: Slaagmeter) zegt of je overgaat en welke vakken het
+  verschil maken. Stel de normen van je school in via **Details en normen**.
+- Verder: een ranglijst, periodes vergelijken, je cijfers als tijdlijn en, in de bovenbouw, je
+  SE en combinatiecijfer.
+
 ## Walkout en collectie
 
 - Op **Vandaag** ligt je pack met nieuwe cijfers. Open het en elk cijfer krijgt een walkout: tik om
@@ -122,7 +135,9 @@ en `→` om te bladeren, `F` om om te draaien, `Esc` om te sluiten.
 
 ## Koppelen met Magister
 
-Komt in fase 5. Het plan: je logt gewoon in op de site van je eigen school
+Komt in fase 5 (de client in `lib/magister` staat al klaar; hoe hij ophaalt, via de proxy of later
+via een browserextensie, kies je in `lib/magister/config.ts`). Het plan: je logt gewoon in op de
+site van je eigen school
 (`{school}.magister.net`) en klikt daar op een bladwijzer (bookmarklet). Die geeft je sessie via het
 `#`-deel van de link door aan SuperMagister. Je wachtwoord komt nooit in deze app, en er wordt niets
 op een server opgeslagen.

@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   today: "sm-vandaag",
   schedule: "sm-rooster",
   homework: "sm-huiswerk",
+  grades: "sm-cijfers",
 } as const;
 
 /** Prefix voor alles wat in IndexedDB staat (via idb-keyval). */

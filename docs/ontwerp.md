@@ -65,6 +65,15 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - Huiswerk en toetsen worden afgeleid uit lessen (`lib/school/derive.ts`), net als bij Magister.
 - Welke cijfers al onthuld zijn, staat per databron in IndexedDB. Niet-onthulde cijfers tellen nog
   nergens mee, zodat gemiddeldes je pack niet verklappen.
+- **Magister-client (voorbereid in fase 4).** `lib/magister/client.ts` praat alleen met een
+  _transport_. Welke transport, staat op één plek: `TRANSPORT` in `lib/magister/config.ts`.
+  Nu is dat `"proxy"`: GET-verzoeken naar de eigen route `/api/magister/...` met het token in
+  `Authorization` en de school in `X-Magister-School` (gecontroleerd op
+  `^[a-z0-9-]+\.magister\.net$`, paden alleen letters, cijfers, `-`, `_` en `/`). Later kan het
+  `"extensie"` worden (een browserextensie); die transport bestaat al en zegt eerlijk dat de
+  extensie er nog niet is. De rest van de app merkt van zo'n wissel niets. Fouten worden
+  `MagisterError`s met een code (`verlopen`, `geen-toegang`, `netwerk`, …) en bevatten nooit het
+  token. De paden uit de opdracht staan in `lib/magister/endpoints.ts`.
 
 ## Teksten en humor (aanvulling)
 
@@ -358,6 +367,57 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   alleen als "Geluidjes in de app" aan staat (standaard uit, zie Instellingen → Geluid).
 - Niet gebouwd (geschrapt): planner, studieplan-generator, focusmodus en streak.
 
+## Cijfers (fase 4)
+
+- **Overzicht:** per vak een kaart met het gewogen gemiddelde (rood onder 5,5, oranje tot 6,5,
+  groen daarboven), een trendlijntje van de laatste cijfers met de 5,5 als stippellijn, het aantal
+  cijfers en de laatste vijf. Wat nog in je pack zit, staat er geblurd bij met "Open je pack".
+  Tik op een vak voor het vak-detail (`/cijfers/{vak}`).
+- **Tabbladen:** Vakken, Ranglijst (op gemiddelde, met ↑↓ en het verschil dat het laatste cijfer
+  maakte), Periodes (periode 1, 2 en 3 per vak als balken, één kleur die per periode voller wordt,
+  met de 5,5 en een tabelweergave), Tijdlijn (al je cijfers per maand als verhaal, met mijlpalen:
+  je eerste cijfer, je eerste 9, comebacks en je hoogste cijfer) en Examen (alleen in een
+  examenklas, of als er PTA-cijfers zijn).
+- **Vak-detail:** een grafiek van alle cijfers in de tijd (grotere stip = zwaardere toets, een open
+  ring telt niet mee), de lijn van je gemiddelde tot dan toe en de 5,5-lijn, met tooltip en
+  tabel. Daarnaast het gemiddelde per periode, het SE (als er PTA-cijfers zijn) en alle cijfers
+  met omschrijving, datum, weging en PTA.
+- **"Wat moet ik halen?"-calculator:** kies een vak, een doel en de weging van de volgende toets
+  (standaard de weging die bij dat vak het vaakst voorkomt). Het benodigde cijfer staat groot in
+  beeld, met "Al binnen. 😎", "Onmogelijk. 😬" of "telt niet mee" (weging 0) als dat zo is. Hij
+  gokt niet op afronding: 5,45 is geen 5,5. Daaronder het omgekeerde: "Met een 7,0 sta je dan op
+  een 5,6". Vakken met alleen V/G staan er niet in. Te openen vanaf Cijfers, het vak-detail, de
+  walkout (bij een onvoldoende, met het vak al ingevuld) en Ctrl+K.
+- **Simulator:** voeg denkbeeldige cijfers toe (vak, cijfer met een slider, weging, en in een
+  examenklas of het voor je SE telt). Het gemiddelde per vak en de overgangsmeter bewegen live
+  mee. Er wordt niets opgeslagen; Reset haalt alles weg.
+- **Overgangsmeter:** "Over ✅", "Bespreekgeval ⚠️" of "Gevarenzone ❌", met een wijzer, de
+  tekortpunten, het aantal onvoldoendes en het gemiddelde, en precies welke vakken het verschil
+  maken: een tekort dat je status verbetert als het een 6 wordt, of een vak op het randje dat je
+  status verslechtert als het een punt zakt. De normen zijn in te stellen: vrije tekortpunten,
+  maximaal aantal tekortpunten en onvoldoendes, laagste cijfer, kernvakken (Ne/En/Wi) met eigen
+  grenzen, een gemiddelde-eis bij tekorten en de marge voor een bespreekgeval. Presets:
+  Veelvoorkomend, Streng, Ruim en de Slaag-zakregeling (een schatting op je SE; geen
+  bespreekgeval). In een examenklas staat standaard de slaag-zakregeling aan en heet het de
+  Slaagmeter.
+- **Afronden:** een rapportcijfer is je gemiddelde zoals je het ziet (één decimaal), afgerond op
+  een heel cijfer: 5,45 wordt 5,5 wordt 6. Het SE-cijfer heeft één decimaal; een vak zonder
+  centraal examen krijgt dat SE-cijfer, afgerond op een heel cijfer, als eindcijfer (die dubbele
+  afronding is hier de regel).
+- **Bovenbouw:** per vak de PTA-kolommen apart, het SE onafgerond (drie decimalen) en afgerond, en
+  het combinatiecijfer: het afgeronde gemiddelde van de afgeronde eindcijfers van de vakken die
+  je kiest, ongeldig met een onderdeel onder de 4. De app stelt maatschappijleer, profielwerkstuk,
+  ckv en dergelijke voor. De demo heeft die vakken niet (extra demovakken zouden de kleuren van
+  bestaande vakken verschuiven); kies er zelf een paar om het te proberen.
+- **Inzichten** in gewone taal, uit je onthulde cijfers: een vak dat al minstens drie toetsen op
+  rij stijgt of daalt, een vak op het randje (5,5 of 5,6), je gemiddelde tegenover periode 1, de
+  dag van de week met je hoogste cijfers, je beste vak en je aantal negens.
+- **Rekenlogica** staat in `lib/calc` (gemiddelde, afronding, "wat moet ik halen", overgangsnormen,
+  SE en combinatiecijfer, periodes, ranglijst, simulator, inzichten, tijdlijn), met Vitest-tests
+  voor de lastige gevallen: V/G/O, cijfers die niet meetellen, weging 0 en een vak zonder cijfers.
+- Alles telt alleen met onthulde cijfers. Je normen, tabblad en combinatievakken staan lokaal
+  (`sm-cijfers`).
+
 ## Geschrapt (besluit 6 oktober 2026)
 
 Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar
@@ -382,6 +442,6 @@ app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5
 
 ## Nog niet gebouwd
 
-Vak-detail en de calculator achter "Wat moet ik halen?" (fase 4) · koppelen, proxy en CSP
-(fase 5) · XP, achievements, profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline,
-meldingen, seizoensthema's en easter eggs (fase 7).
+Koppelen, proxy-route, parsers en CSP (fase 5; de client staat klaar) · XP, achievements,
+profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
+easter eggs (fase 7).

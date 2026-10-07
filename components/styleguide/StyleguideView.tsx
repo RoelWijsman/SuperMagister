@@ -5,6 +5,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { CollectionSamples } from "./CollectionSamples";
+import { GradeSamples } from "./GradeSamples";
 import { GuessSamples } from "./GuessSamples";
 import { HomeworkSamples } from "./HomeworkSamples";
 import { ScheduleSamples } from "./ScheduleSamples";
@@ -126,6 +127,13 @@ export function StyleguideView() {
           note="Fase 3c: de vinkknop, de drukte-meter, huiswerkkaarten, de kanban en de 'ik heb geen zin'-knop. Afvinken blijft hier op de pagina."
         >
           <HomeworkSamples />
+        </Block>
+
+        <Block
+          title="Cijfers"
+          note="Fase 4: de stapper, het trendlijntje, de overgangsmeter in drie standen en de vakgrafiek, met verzonnen cijfers."
+        >
+          <GradeSamples />
         </Block>
 
         <Block
