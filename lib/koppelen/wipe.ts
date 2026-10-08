@@ -12,7 +12,7 @@ import { useScheduleTracker, useScheduleUi } from "@/stores/schedule";
 /**
  * Ontkoppelen: alles van je echte Magister-account gaat van dit apparaat af.
  * De opgehaalde data (cache), welke cijfers je al zag, je gokken, het
- * roostersnapshot, je notities, vitrine en afgevinkt huiswerk. De demo en je
+ * roostersnapshot, je notities, vitrine en afgevinkt huiswerk. Je
  * instellingen blijven staan. Het token wist de aanroeper (de sessie).
  */
 export async function wipeMagisterData(): Promise<void> {

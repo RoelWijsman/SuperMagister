@@ -9,6 +9,7 @@ import { GradeSamples } from "./GradeSamples";
 import { GuessSamples } from "./GuessSamples";
 import { HomeworkSamples } from "./HomeworkSamples";
 import { LinkSamples } from "./LinkSamples";
+import { OnboardingSamples } from "./OnboardingSamples";
 import { ScheduleSamples } from "./ScheduleSamples";
 import { TodaySamples } from "./TodaySamples";
 import { VideoSamples } from "./VideoSamples";
@@ -167,9 +168,16 @@ export function StyleguideView() {
 
         <Block
           title="Koppelen"
-          note="Fase 5b en 5c: de chip in drie standen, de bladwijzer-stappen, de extensie (in de stand van deze browser: installeren, klaar of gekoppeld), het plakveld, foutmeldingen, de gemiddelde-waarschuwing en de sheet om opnieuw te koppelen. Verzonnen school; hier koppel je niets."
+          note="Fase 5: de chip in drie standen, de bladwijzer-stappen, het plakveld, foutmeldingen, de gemiddelde-waarschuwing en de sheet om opnieuw te koppelen. Verzonnen school; hier koppel je niets."
         >
           <LinkSamples />
+        </Block>
+
+        <Block
+          title="Onboarding"
+          note="De eerste keer openen: de mini-animaties van de drie uitlegkaarten. De knop start de hele onboarding opnieuw."
+        >
+          <OnboardingSamples />
         </Block>
       </div>
 

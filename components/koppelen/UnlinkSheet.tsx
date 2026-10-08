@@ -34,8 +34,7 @@ export function UnlinkSheet({
         <li>je notities en wat je hebt afgevinkt</li>
       </ul>
       <p className="mt-4 text-sm text-ink-3">
-        Je instellingen en de demo blijven staan. Koppel je later opnieuw, dan krijg je weer een
-        welkomstpack.
+        Je instellingen blijven staan. Koppel je later opnieuw, dan krijg je weer een welkomstpack.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
         <Button

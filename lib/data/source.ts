@@ -13,15 +13,15 @@ import type {
 } from "@/lib/types";
 
 /**
- * Alles wat de app aan schooldata nodig heeft. De demo levert dit uit
- * lib/demo; de Magister-bron (fase 5) praat via de client met Magister.
+ * Alles wat de app aan schooldata nodig heeft. De Magister-bron praat via
+ * de client met Magister; zonder koppeling is er een lege bron.
  * Componenten praten nooit direct met een bron, alleen via lib/data/hooks.
  */
 export interface SchoolDataSource {
-  /** Uniek per bron, account en schooljaar, bijv. "demo" of "magister:school:12345". */
+  /** Uniek per bron, account en schooljaar, bijv. "magister:school:12345" (of "leeg"). */
   id: string;
-  kind: "demo" | "magister";
-  /** Voor de chip in de shell: "DEMO" of de schoolnaam. */
+  kind: "leeg" | "magister";
+  /** Voor de chip in de shell: de schoolnaam. */
   label: string;
   getAccount(): Promise<Account>;
   getSubjects(): Promise<Subject[]>;
@@ -34,7 +34,7 @@ export interface SchoolDataSource {
   getAbsences(range: DateRange): Promise<Absence[]>;
   /** Cijfers die bij de eerste keer openen nog in een pack zitten. */
   getInitialPackIds(): Promise<string[]>;
-  /** Gokken van vóór de eerste keer openen (alleen de demo heeft er een paar). */
+  /** Gokken van vóór de eerste keer openen (meestal geen). */
   getInitialGuesses(): Promise<Record<string, GuessRecord>>;
   /** Onze gemiddelden naast die van Magister (alleen bij een echte koppeling). */
   getAverageChecks?(): Promise<AverageCheck[]>;

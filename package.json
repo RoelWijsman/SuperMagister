@@ -12,9 +12,7 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "extension:zip": "node scripts/extensie-zip.mjs",
-    "extension:icons": "node scripts/extensie-iconen.mjs"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "engines": {
     "node": ">=20.9"

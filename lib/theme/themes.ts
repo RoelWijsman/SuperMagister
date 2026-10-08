@@ -8,8 +8,6 @@ export interface ThemePreset extends CustomTheme {
   id: PresetThemeId;
   name: string;
   tagline: string;
-  /** Vanaf welk level vrij te spelen (fase 6). Ontbreekt = altijd beschikbaar. */
-  unlockLevel?: number;
 }
 
 const preset = (

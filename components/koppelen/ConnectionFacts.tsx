@@ -5,7 +5,7 @@ import { useLastUpdated } from "@/lib/data/hooks";
 import { formatTime } from "@/lib/date";
 import { useNow } from "@/lib/hooks";
 import { formatMoment } from "@/lib/koppelen/format";
-import { getSessionStore, useSession, useSessionStatus } from "@/lib/koppelen/runtime";
+import { useSession, useSessionStatus } from "@/lib/koppelen/runtime";
 import type { SessionStatus } from "@/lib/koppelen/session";
 
 export const STATUS_TONE: Record<SessionStatus, string> = {
@@ -36,8 +36,6 @@ export function useConnectionStatusText(): { status: SessionStatus; text: string
   const status = useSessionStatus();
   const { session } = useSession();
   const until = session?.expiresAt ? formatTime(new Date(session.expiresAt)) : null;
-  if (status === "geldig" && getSessionStore().autoRenews())
-    return { status, text: "vernieuwt zichzelf" };
   switch (status) {
     case "geldig":
       return { status, text: until ? `geldig tot ${until}` : "geldig" };

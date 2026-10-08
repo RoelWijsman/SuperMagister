@@ -9,20 +9,21 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 
 ## Status
 
-| Stap | Inhoud                                                                                     | Status   |
-| ---- | ------------------------------------------------------------------------------------------ | -------- |
-| 1    | Fundament: design system, thema's, demo-data, app-shell, paginatransities, command palette | ✅ Klaar |
-| 2    | Cijferonthulling: walkout, pack-opening, kaarten, geluid, oefenmodus, collectie            | ✅ Klaar |
-| A    | Gok je cijfer: het gokmoment midden in de walkout                                          | ✅ Klaar |
-| B    | Walkout als video delen                                                                    | ✅ Klaar |
-| 3a   | Vandaag: widgets, dagtijdlijn, nu bezig, toets-radar, fietsweer, aftellen, trend           | ✅ Klaar |
-| 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
-| 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | ✅ Klaar |
-| 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | ✅ Klaar |
-| 5    | Koppeling: extensie, bookmarklet, koppelpagina, proxy en echte data                        | 5c klaar |
-| 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
-| C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                          | Gepland  |
-| 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid         | Gepland  |
+| Stap | Inhoud                                                                                 | Status     |
+| ---- | -------------------------------------------------------------------------------------- | ---------- |
+| 1    | Fundament: design system, thema's, app-shell, paginatransities, command palette        | ✅ Klaar   |
+| 2    | Cijferonthulling: walkout, pack-opening, kaarten, geluid, oefenmodus, collectie        | ✅ Klaar   |
+| A    | Gok je cijfer: het gokmoment midden in de walkout                                      | ✅ Klaar   |
+| B    | Walkout als video delen                                                                | ✅ Klaar   |
+| 3a   | Vandaag: widgets, dagtijdlijn, nu bezig, toets-radar, fietsweer, aftellen, trend       | ✅ Klaar   |
+| 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export | ✅ Klaar   |
+| 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                     | ✅ Klaar   |
+| 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten       | ✅ Klaar   |
+| 5    | Koppeling: bladwijzer, plakken, koppelpagina, proxy en echte data                      | ✅ Klaar   |
+| —    | Onboarding: de eerste keer openen, van intro tot je welkomstpack                       | Bezig      |
+| 6    | Gamification: XP, levels, quests, mascotte, weekrecap, Wrapped                         | Vervallen  |
+| C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                      | Geparkeerd |
+| 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid     | Gepland    |
 
 De volledige opdracht staat in [docs/bouwopdracht.md](docs/bouwopdracht.md), de aanvulling met de
 humorbijbel en de features A, B en C in [docs/aanvulling.md](docs/aanvulling.md), en de gemaakte
@@ -37,9 +38,10 @@ npm install
 npm run dev
 ```
 
-Open daarna [http://localhost:3000](http://localhost:3000). De app start in demo-modus: je kijkt mee
-met Daan Visser uit 5 havo op het (niet-bestaande) Noorderlicht College. Alles is verzonnen, dus je
-kunt veilig rondklikken.
+Open daarna [http://localhost:3000](http://localhost:3000). De eerste keer krijg je een korte
+uitleg (de onboarding) die eindigt met koppelen aan je eigen Magister. Er is geen demo: zonder
+koppeling vraagt elke pagina met schooldata of je wilt koppelen. Tijdens het bouwen kun je bij
+**Instellingen → Ontwikkelaar** koppelen met de geanonimiseerde testbestanden.
 
 ### Handige commando's
 
@@ -73,7 +75,6 @@ kunt veilig rondklikken.
 - Is er iets veranderd sinds je laatste bezoek, dan zie je een banner. Tik op **Wat is er
   veranderd?** voor de lijst.
 - **Naar je agenda** downloadt vier weken rooster als .ics-bestand voor je agenda-app.
-- In de demo verzin je een roosterwijziging bij **Instellingen → Ontwikkelaar**.
 
 ## Huiswerk
 
@@ -108,23 +109,20 @@ kunt veilig rondklikken.
 - **Gok je cijfer:** vlak voor de flip hangt het silhouet gloeiend in beeld en vraagt de kaart
   "Wat heb je?". Sleep omhoog of omlaag om de teller te laten rollen en laat los om vast te zetten.
   Niet gokken? Tik onderaan op "Overslaan, ik ben er klaar voor (ben ik niet)". Precies goed?
-  HELDERZIENDE. Bij **Cijfers** zie je wat
-  voor gokker je bent, bij **Prestaties** wat je ermee verdiende. Liever alleen bij de laatste
+  HELDERZIENDE. Bij **Cijfers** zie je wat voor gokker je bent. Liever alleen bij de laatste
   kaart, of helemaal niet? **Instellingen → Walkout → Gokken.**
 - **Walkout als video:** tik op het eindscherm van een walkout op **Maak video**, of in de
   collectie op **Video**. Standaard in mysterie-modus: de video stopt op het vraagteken en vraagt
   "Raad mijn cijfer.". Zonder mysterie zie je je gok rollen en daarna de flip. Kies 9:16 of 1:1,
   een sticker over je cijfer en of je naam erop staat; daarna delen of downloaden.
 - Alle soorten kaarten bekijken? Kies **Oefen een walkout** in Instellingen of via Ctrl/⌘ K.
-- Het startpack van de demo nog een keer openen? **Instellingen → Walkout → Pack opnieuw
-  dichtplakken.**
 
 ## Sneltoetsen
 
 | Toets       | Actie                          |
 | ----------- | ------------------------------ |
 | `Ctrl/⌘ K`  | Zoeken en commando's           |
-| `1` t/m `7` | Naar een pagina                |
+| `1` t/m `6` | Naar een pagina                |
 | `P`         | Privacymodus aan/uit           |
 | `?`         | Overzicht van alle sneltoetsen |
 
@@ -133,22 +131,23 @@ hele punt), `Enter` om vast te zetten. In de walkout: `→` om over te slaan of 
 om te sluiten. In de kaartviewer: `←`
 en `→` om te bladeren, `F` om om te draaien, `Esc` om te sluiten.
 
+## Onboarding
+
+De eerste keer dat je SuperMagister opent, loop je in een paar stappen door de app: een korte
+intro, drie uitlegkaarten (de walkout, gokken en je dag in één oogopslag), je thema, je woonplaats
+en vakantieregio (mag ook later), koppelen met Magister, je welkomstpack en een paar tips.
+
+- Vegen op je telefoon, `←`/`→` en `Enter` op een computer. **Overslaan** staat er altijd.
+- Sluit je de app halverwege, dan ga je de volgende keer verder waar je was.
+- Opnieuw bekijken? **Instellingen → Over → Onboarding opnieuw bekijken.**
+
 ## Koppelen
 
 Koppel je eigen Magister op de pagina **Koppelen** (in het menu onder **Meer**, of via de chip
 linksonder). Je wachtwoord vul je nooit in SuperMagister in: je logt in bij Magister zelf, en
 SuperMagister krijgt alleen een tijdelijke sleutel (een token) van ongeveer een uur.
 
-**Met de extensie (Chrome en Edge, de makkelijkste manier)**
-
-1. Installeer de SuperMagister-extensie (zie [Browserextensie](#browserextensie)).
-2. Open je eigen Magister en log in. De extensie koppelt vanzelf.
-3. Klaar. De extensie houdt je koppeling vers: je hoeft nooit meer opnieuw te koppelen. Het token
-   blijft in de extensie en komt nooit op een server.
-
-De bladwijzer en het plakveld hieronder blijven werken, voor telefoons en andere browsers.
-
-**Met de bladwijzer (op een computer)**
+**Met de bladwijzer (de gewone manier)**
 
 1. Sleep op de pagina **Koppelen** de knop **SuperMagister** naar je bladwijzerbalk. Zie je die
    balk niet? Druk op `Ctrl+Shift+B` (op een Mac `⌘+Shift+B`).
@@ -176,82 +175,25 @@ de bladwijzer in de adresbalk en tik erop.
 - Zolang de app open is, haalt hij elk kwartier nieuwe gegevens op (en als je terugkomt in het
   tabblad, maar niet vaker). Wat is opgehaald, blijft op dit apparaat staan. Zo zie je je laatste
   stand ook als je koppeling verlopen is ("laatste update 14:02").
-- Met de bladwijzer of het plakveld: vijf minuten voor het verlopen krijg je een seintje. Is hij
-  verlopen, dan vraagt de app je vriendelijk om opnieuw te koppelen: in Magister nog een keer op de
-  bladwijzer klikken. Met de extensie gebeurt dat vanzelf.
+- Vijf minuten voor het verlopen krijg je een seintje. Is hij verlopen, dan vraagt de app je
+  vriendelijk om opnieuw te koppelen: in Magister nog een keer op de bladwijzer klikken.
 - Rekent Magister een gemiddelde anders uit dan SuperMagister, dan zie je bij dat vak een
   waarschuwingsdriehoekje met uitleg.
-- **Instellingen → Gegevens:** wissel tussen de demo en je eigen Magister, bekijk een eerder
-  schooljaar terug, of **ontkoppel**. Ontkoppelen wist je token en alles van je eigen Magister van
-  dit apparaat. De demo en je eigen gegevens lopen nooit door elkaar.
+- **Instellingen → Gegevens:** bekijk een eerder schooljaar terug, koppel opnieuw of
+  **ontkoppel**. Ontkoppelen wist je token en alles van je eigen Magister van dit apparaat.
 
-Voor ontwikkelaars: hoe de app bij Magister komt (via de extensie of via de eigen proxy), wordt op
-één plek gekozen in `lib/magister/config.ts`, vanzelf op basis van hoe je koppelde. Het adres in de
+Voor ontwikkelaars: de app praat met Magister via de eigen proxy (`/api/magister`, alleen GET);
+dat wordt op één plek geregeld in `lib/magister/config.ts`. Het adres in de
 bladwijzer is het adres waarop de app draait; zet `NEXT_PUBLIC_APP_URL` om een ander adres te
 gebruiken. Bij **Instellingen → Ontwikkelaar** kun je tijdens het bouwen koppelen met de
 geanonimiseerde testbestanden, en zie je bij **Gegevens controleren** wat er binnenkomt.
-
-## Browserextensie
-
-De extensie (Manifest V3, voor Chrome en Edge) staat in de map `extension`. Hij leest je
-Magister-sessie op je eigen Magister, bewaart het token alleen in het geheugen van de browser
-(`chrome.storage.session`) en doet de Magister-verzoeken voor de app. Het token komt zo nooit in de
-app of op een server. Loopt het token bijna af, dan opent hij Magister in een tabblad op de
-achtergrond om een nieuw te halen (hooguit één poging per tien minuten). Vraagt Magister om opnieuw
-in te loggen, dan krijg je een melding. Op het icoon staat het aantal nieuwe cijfers.
-
-**Lokaal laden (om te testen)**
-
-1. Start de app met `npm run dev` (de ontwikkelversie van de extensie werkt met
-   `http://localhost:3000` en `http://localhost:3100`).
-2. Open `chrome://extensions` (in Edge: `edge://extensions`) en zet **Ontwikkelaarsmodus** aan.
-3. Klik op **Uitgepakte extensie laden** en kies de map `extension`.
-4. Open je eigen Magister en log in. De app (op localhost) koppelt vanzelf.
-
-Na een wijziging in de extensie: klik bij de extensie op het rondje (opnieuw laden) en herlaad de
-tabbladen van Magister en de app.
-
-**Inpakken voor de Chrome Web Store**
-
-```bash
-npm run extension:zip -- --app https://jouw-supermagister.nl
-```
-
-Dat maakt `dist/supermagister-extensie-{versie}.zip`, met het echte adres van de app en zonder
-localhost-rechten, tests en bronbestanden. Staat de extensie in de Web Store, zet dan
-`NEXT_PUBLIC_EXTENSION_URL` op de link ernaartoe: dan krijgt de knop **Installeer de extensie** op
-de pagina **Koppelen** die link, met drie simpele stappen. Zonder die link toont de pagina de
-stappen voor de ontwikkelaarsmodus.
-
-**Wat je nodig hebt voor de Chrome Web Store**
-
-- Een ontwikkelaarsaccount bij de Chrome Web Store (eenmalig registratiegeld; Edge Add-ons is
-  gratis).
-- Een openbare privacyverklaring: [`privacy.md`](privacy.md) is daarvoor geschreven. Zet hem
-  online (bijvoorbeeld op je Vercel-domein) en vul een contactadres in.
-- Het icoon van 128 px (`extension/icons/icon-128.png`), minstens één screenshot (1280 × 800 of
-  640 × 400) van de popup en van de app, en een korte beschrijving van het ene doel: "Koppelt
-  SuperMagister met je eigen Magister, zonder wachtwoord."
-- Bij **Privacy** in het dashboard: geen code van buitenaf, geen verkoop of doorgeven van gegevens,
-  en per recht een uitleg:
-
-| Recht                      | Uitleg voor de Web Store                                                                             |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `storage`                  | De Magister-sessie (alleen in het geheugen) en de instellingen van de gebruiker bewaren.             |
-| `notifications`            | Melden dat de gebruiker opnieuw moet inloggen bij Magister, en optioneel dat er een pack klaarstaat. |
-| `alarms`                   | Elk kwartier de sessie vers houden en nieuwe cijfers tellen voor het icoon.                          |
-| `https://*.magister.net/*` | De sessie lezen op de eigen Magister van de gebruiker en diens gegevens ophalen.                     |
-| Het adres van de app       | Met de SuperMagister-app praten in de browser van de gebruiker.                                      |
-
-`npm run extension:icons` tekent de iconen opnieuw uit het logo (`app/icon.svg`).
 
 ## Op Vercel zetten
 
 1. Zet het project in een eigen GitHub-repository.
 2. Ga naar [vercel.com/new](https://vercel.com/new) en importeer de repository.
 3. Vercel herkent Next.js vanzelf. Er zijn geen omgevingsvariabelen nodig. (Wil je dat de
-   bladwijzer een ander adres opent dan waarop de app draait, zet dan `NEXT_PUBLIC_APP_URL`. Staat
-   de extensie in de Web Store, zet dan `NEXT_PUBLIC_EXTENSION_URL`.)
+   bladwijzer een ander adres opent dan waarop de app draait, zet dan `NEXT_PUBLIC_APP_URL`.)
 4. Klik op **Deploy**. Elke push naar je hoofdbranch wordt daarna automatisch gepubliceerd.
 
 ## Techniek in het kort

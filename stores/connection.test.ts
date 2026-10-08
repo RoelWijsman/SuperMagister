@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { activeView, useConnection, type LinkedAccount } from "./connection";
+import { useConnection, type LinkedAccount } from "./connection";
 
 const daan: LinkedAccount = {
   schoolHost: "voorbeeld.magister.net",
@@ -9,13 +9,13 @@ const daan: LinkedAccount = {
 };
 
 beforeEach(() => {
-  useConnection.setState({ account: null, view: "demo", enrollmentId: null });
+  useConnection.setState({ account: null, enrollmentId: null });
 });
 
 describe("useConnection", () => {
-  it("toont na koppelen meteen je eigen Magister", () => {
+  it("bewaart met welk account je gekoppeld bent", () => {
     expect(useConnection.getState().link(daan)).toEqual({ isNew: true });
-    expect(useConnection.getState()).toMatchObject({ account: daan, view: "magister" });
+    expect(useConnection.getState().account).toEqual(daan);
   });
 
   it("weet of je opnieuw koppelt met hetzelfde account", () => {
@@ -23,43 +23,17 @@ describe("useConnection", () => {
     useConnection.getState().setEnrollment(1011);
     expect(
       useConnection.getState().link({ ...daan, linkedAt: "2026-10-08T08:00:00.000Z" }),
-    ).toEqual({
-      isNew: false,
-    });
+    ).toEqual({ isNew: false });
     // Opnieuw koppelen laat je gekozen schooljaar staan.
     expect(useConnection.getState().enrollmentId).toBe(1011);
     expect(useConnection.getState().link({ ...daan, personId: 2001 })).toEqual({ isNew: true });
     expect(useConnection.getState().enrollmentId).toBeNull();
   });
 
-  it("laat de demo staan bij een stille herkoppeling van hetzelfde account", () => {
-    useConnection.getState().link(daan);
-    useConnection.getState().setView("demo");
-    useConnection.getState().link(daan, { show: false });
-    expect(useConnection.getState().view).toBe("demo");
-    // Een nieuw account laat je wel meteen je eigen Magister zien.
-    useConnection.getState().link({ ...daan, personId: 2001 }, { show: false });
-    expect(useConnection.getState().view).toBe("magister");
-  });
-
-  it("wisselt alleen naar Magister als je gekoppeld bent", () => {
-    useConnection.getState().setView("magister");
-    expect(activeView(useConnection.getState())).toBe("demo");
-    useConnection.getState().link(daan);
-    useConnection.getState().setView("demo");
-    expect(activeView(useConnection.getState())).toBe("demo");
-    useConnection.getState().setView("magister");
-    expect(activeView(useConnection.getState())).toBe("magister");
-  });
-
   it("vergeet alles bij ontkoppelen", () => {
     useConnection.getState().link(daan);
     useConnection.getState().setEnrollment(1011);
     useConnection.getState().unlink();
-    expect(useConnection.getState()).toMatchObject({
-      account: null,
-      view: "demo",
-      enrollmentId: null,
-    });
+    expect(useConnection.getState()).toMatchObject({ account: null, enrollmentId: null });
   });
 });

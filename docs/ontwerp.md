@@ -37,30 +37,18 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   wiskunde", "rooster vrijdag") en een themapagina met live voorvertoning. Functies uit latere fases
   staan er al in, gemarkeerd met "fase N".
 
-## Demo-data
+## Demo-data (verwijderd 8 oktober 2026)
 
-- **Daan Visser, 5 havo (examenklas)**, op het fictieve Noorderlicht College: 12 vakken met cijfers
-  plus mentoruur, 61 handgeschreven cijfers, een vast weekrooster en absenties.
-- De cijfers vertellen verhalen: Engels gaat elke toets omhoog, Duits worstelt met een comeback,
-  scheikunde krabbelt op na een 4,9, en wiskunde levert een ICON op.
-- Het eerste pack bevat vier cijfers: 5,2 Duits (brons), 6,8 scheikunde (In Form, comeback),
-  8,1 Engels (In Form, record, reeks) en als laatste 9,7 wiskunde A (ICON).
-- De ICON uit het startpack maakt het verzameldoel "Exacte toppers" af (daarvoor staat de
-  biologietoets H4 op een 8,4 en niet hoger). Zo zie je in de demo ook een doel binnenkomen.
-  "Goudkoorts" blijft bewust open: Duits heeft nog geen gouden kaart.
-- **Kalender.** De demo rekent vanaf vandaag terug in schooldagen (zonder weekend, zomer- en
-  kerstvakantie). Omdat drie periodes cijfers nodig hebben, loopt het demo-schooljaar daardoor
-  over de zomer heen: periode 1 en 2 liggen in het voorjaar, periode 3 is nu. Dat is een bewuste
-  keuze voor een rijke demo.
-- Rond vandaag staan altijd een paar vaste gebeurtenissen: vandaag een lokaalwijziging en het
-  laatste uur uitval, morgen het eerste uur uitval ("uitslapen") en een toets, en toetsen verspreid
-  over de komende twee weken. Hetzelfde vak heeft nooit twee toetsen binnen 10 dagen.
-- Deterministisch: dezelfde dag geeft dezelfde data, en cijfers houden op elke dag hun id en waarde.
+De demo (Daan Visser op het fictieve Noorderlicht College, `lib/demo`) is weg. Zonder koppeling is
+er een lege bron (`lib/data/empty-source.ts`) en vraagt elke pagina met schooldata om te koppelen
+(`components/koppelen/LinkGate.tsx`); Koppelen, Instellingen en de stijlgids blijven open. Om te
+bouwen en te testen is er de **voorbeelddata** (zie 5b): de geanonimiseerde testbestanden via de
+echte koppelroute.
 
 ## Datalaag
 
-- `SchoolDataSource` (`lib/data/source.ts`) is het contract. De demo-bron levert alles uit
-  `lib/demo`; de Magister-bron (fase 5) praat via de proxy, met een cache ervoor. Componenten
+- `SchoolDataSource` (`lib/data/source.ts`) is het contract. De Magister-bron (fase 5) praat via
+  de proxy, met een cache ervoor; zonder koppeling is er een lege bron. Componenten
   gebruiken alleen de hooks uit `lib/data/hooks.ts`.
 - Huiswerk en toetsen worden afgeleid uit lessen (`lib/school/derive.ts`), net als bij Magister.
 - Welke cijfers al onthuld zijn, staat per databron in IndexedDB. Niet-onthulde cijfers tellen nog
@@ -69,9 +57,8 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   _transport_. Welke transport, staat op één plek: `TRANSPORT` in `lib/magister/config.ts`.
   Nu is dat `"proxy"`: GET-verzoeken naar de eigen route `/api/magister/...` met het token in
   `Authorization` en de school in `X-Magister-School` (gecontroleerd op
-  `^[a-z0-9-]+\.magister\.net$`, paden alleen letters, cijfers, `-`, `_` en `/`). Sinds 5c kan
-  het ook `"extensie"` zijn (de browserextensie); dat volgt vanzelf uit hoe je koppelde. De rest
-  van de app merkt van zo'n wissel niets. Fouten worden
+  `^[a-z0-9-]+\.magister\.net$`, paden alleen letters, cijfers, `-`, `_` en `/`). Tijdens het
+  bouwen kan het ook `"voorbeeld"` zijn (de testbestanden). Fouten worden
   `MagisterError`s met een code (`verlopen`, `geen-toegang`, `netwerk`, …) en bevatten nooit het
   token. De paden uit de opdracht staan in `lib/magister/endpoints.ts`.
 
@@ -210,7 +197,7 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   al behaald was, leggen we stil vast.
 - **Privacy.** Een gok op een cijfer dat je nog niet hebt onthuld, telt nergens mee; anders zou
   de statistiek je pack verraden. De grafiek en de strook vervagen in de privacymodus.
-- **Demo.** Daan heeft 38 eerdere gokken: een bescheiden pessimist, een orakel bij wiskunde A en
+- **Demo** (vervallen met de demo). Daan had 38 eerdere gokken: een bescheiden pessimist, een orakel bij wiskunde A en
   een muntje bij Duits. Precies goed komt er niet in voor, zodat je "Verdacht" bij het eerste
   pack zelf kunt halen. "Pack opnieuw dichtplakken" zet ook de gokken en meldingen terug.
 - **Hydratie.** Schooldata komt alleen in de browser binnen. De datahooks geven daarom tijdens de
@@ -329,7 +316,7 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   dag van de week.
 - **Exporteren:** "Naar je agenda" maakt een .ics met vier weken rooster (vanaf maandag van deze
   week), in de tijdzone Europe/Amsterdam. Uitval staat erin als vervallen.
-- **Demo:** bij **Instellingen → Ontwikkelaar** verzin je een roosterwijziging (uitval of ander
+- **Demo** (vervallen met de demo): bij **Instellingen → Ontwikkelaar** verzon je een roosterwijziging (uitval of ander
   lokaal in de komende week) om de detector te zien werken, en zet je alles weer terug.
 
 ## Huiswerk (fase 3c)
@@ -468,8 +455,8 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   `Accept` door (geen cookies, geen doorverwijzingen volgen), nooit loggen of opslaan. Fouten:
   401 en een doorverwijzing worden "verlopen", 403, 404, 429 met "probeer over X seconden",
   5xx "Magister plat", time-out na 15 seconden.
-- **Databron** (`lib/magister/source.ts`): levert precies dezelfde types als de demo, via de
-  client (dus de transport: proxy, of de extensie sinds 5c). Zuinig: schooljaren, vakken en cijfers
+- **Databron** (`lib/magister/source.ts`): levert de types uit `lib/types.ts`, via de
+  client (dus de proxy). Zuinig: schooljaren, vakken en cijfers
   worden 30 seconden gedeeld in plaats van dubbel opgevraagd. Het welkomstpack zijn de laatste
   vijf echte cijfers (zonder Inh en vrijstellingen); de rest is bij de eerste koppeling al
   onthuld. Sinds 5b zit hij in de app (zie hieronder).
@@ -479,11 +466,9 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Eén plek voor het token** (`lib/koppelen/session.ts`): bewaren (alleen in sessionStorage van
   het tabblad, nooit in localStorage of op een server), verlopen (`expires_at`, of een 401) en
   opnieuw koppelen. Open tabbladen delen de sessie via een BroadcastChannel: een nieuw tabblad
-  vraagt erom, opnieuw koppelen en ontkoppelen gelden overal tegelijk. Een bron die het token zelf
-  kan vernieuwen (de extensie, fase 5c) meldt zich met `setRenewer`; dan vernieuwt de app stil en
-  blijft de "Opnieuw koppelen"-sheet weg. De rest van de app vraagt alleen `get()`.
-- **Alle wegen eindigen op dezelfde plek** (`lib/koppelen/link.ts`): bookmarklet, plakveld,
-  voorbeelddata en de extensie (5c). Eerst `/api/account` om te kijken of het token werkt en wie
+  vraagt erom, opnieuw koppelen en ontkoppelen gelden overal tegelijk. De rest van de app vraagt alleen `get()`.
+- **Alle wegen eindigen op dezelfde plek** (`lib/koppelen/link.ts`): bookmarklet, plakveld
+  en voorbeelddata. Eerst `/api/account` om te kijken of het token werkt en wie
   je bent, dan pas bewaren. Een ander account dan hiervoor? Dan gaat eerst alles van het vorige
   account van dit apparaat af. Het welkomstpack werkt daardoor voor elke weg hetzelfde.
 - **Bookmarklet** (`lib/koppelen/bookmarklet.ts`): zoekt in sessionStorage de sleutel
@@ -521,25 +506,26 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   in de collectie (met het schooljaar op de kaart) en worden daarna nooit meer een pack, ook niet
   als een oud jaar pas later binnenkomt (`withHistoryRevealed`). Het pack wacht op de eerdere
   jaren, zodat een laat schooljaar geen pack van honderd kaarten wordt.
-- **Demo en echt nooit door elkaar:** alles wat per databron wordt bewaard, staat onder het id van
-  de bron (`demo` of `magister:{school}:{persoon}`): onthulde cijfers, gokken, vitrine, gemelde
+- **Per account en jaar apart:** alles wat per databron wordt bewaard, staat onder het id van
+  de bron (`magister:{school}:{persoon}`): onthulde cijfers, gokken, vitrine, gemelde
   doelen en prestaties, huiswerkvinkjes, combinatiecijfer, roostersnapshot en nu ook de
-  roosternotities en stempels (die waren nog gedeeld; oude notities horen bij de demo). Tijdens
-  de hydratie is de bron altijd de demo zonder data, zodat server en browser hetzelfde tekenen; de
+  roosternotities en stempels (die waren nog gedeeld). Tijdens
+  de hydratie is de bron altijd leeg, zodat server en browser hetzelfde tekenen; de
   chip blijft tot dan onzichtbaar.
 - **Schooljaren:** automatisch het huidige; in Instellingen kies je een eerder jaar. Zo'n jaar
   krijgt een eigen bron-id (`…:{schooljaar}`), heeft geen pack, en de chip zegt welk jaar je
   bekijkt.
 - **Ontkoppelen** (`lib/koppelen/wipe.ts`): token weg in alle tabbladen, alle IndexedDB-sleutels
   van `magister:`-bronnen, de per-bron-gegevens in localStorage en de queries in het geheugen.
-  Terug naar de demo.
+  Daarna vraagt de app weer om te koppelen.
 - **Gemiddelden:** wijkt Magisters VG-kolom (afgerond op één decimaal) af van het onze, dan staat
   er bij dat vak een driehoekje: "Magister rekent hier anders, check je cijferoverzicht", met per
   periode beide gemiddelden en de gebruikelijke oorzaken. Niet zolang er cijfers van dat vak in je
   pack zitten: Magisters gemiddelde zou je nieuwe cijfer verraden.
-- **Koppelpagina:** bovenaan de plek voor de extensie (nog een aankondiging), daaronder
-  "Andere manieren": de bladwijzer met drie geanimeerde stapjes en stappen voor de telefoon, en
-  het plakveld met een nagebootst schermpje van de ontwikkelaarstools.
+- **Koppelpagina:** de status, dan "Zo koppel je": de bladwijzer met drie geanimeerde stapjes,
+  daaronder drie genummerde stappen (knop slepen, Magister openen, op de bladwijzer klikken), een
+  uitklapper "Wat doet die bladwijzer precies?" en stappen voor de telefoon. Daaronder "Lukt het
+  niet met de bladwijzer?": het plakveld met een nagebootst schermpje van de ontwikkelaarstools.
 - **Voorbeelddata** (alleen tijdens het bouwen, Instellingen → Ontwikkelaar): koppelt met de
   geanonimiseerde testbestanden via de transport `"voorbeeld"`, zodat de hele route te testen is
   zonder echt account. Met een knop om de koppeling te laten verlopen.
@@ -549,74 +535,30 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   niet in een frame, `upgrade-insecure-requests` in productie. Stijlen mogen inline (Framer
   Motion). Daardoor wordt elke pagina per verzoek gerenderd.
 
-## Browserextensie (fase 5c)
+## Browserextensie (fase 5c, verwijderd 8 oktober 2026)
 
-- **De hoofdmanier van koppelen.** Manifest V3 voor Chrome en Edge, in `extension/`, in gewoon
-  JavaScript zonder bouwstap: de map is direct als uitgepakte extensie te laden. De logica staat in
-  losse scripts (`extension/shared/*.js`) die Vitest test door ze te draaien zoals de browser dat
-  doet (`extension/test/`).
-- **Token ophalen:** een content script op `*.magister.net` (niet op `accounts.magister.net`) leest
-  de sessie precies zoals de bookmarklet (eerst `oidc.user:…`, anders elke sleutel met een
-  `access_token`) en geeft hem aan de background zodra Magister opent en elke keer dat Magister
-  het token ververst (eerst om de twee tellen, daarna elk half uur, en bij terugkomen in het
-  tabblad). De background neemt alleen een sessie aan van de school waar het bericht vandaan komt.
-- **Bewaren:** het token staat alleen in `chrome.storage.session` (geheugen, weg als de browser
-  sluit), nooit gelogd. In `chrome.storage.local` alleen niet-geheime dingen: de school, je
-  meldingkeuze, het pack-aantal en wanneer je ontkoppelde.
-- **Het token blijft in de extensie.** De opdracht liet de keuze: de app vraagt "het token of de
-  status" op. We kozen de status. De app krijgt alleen of je gekoppeld bent, de school, het
-  verloopmoment en je persoon-id; in de sessie van de app staat een vast teken
-  (`EXTENSION_TOKEN`). Alle Magister-verzoeken gaan via de background
-  (`extension/shared/magister-api.js`, dezelfde regels en foutcodes als de proxy). Zo komt het
-  token nooit in de app of op een server, en ook niet binnen bereik van een script op de pagina.
-- **De brug** (`extension/content/app.js` ↔ `lib/extensie/bridge.ts`): window.postMessage op de
-  pagina van de app, alleen van hetzelfde venster en domein, in een vast formaat met versienummer
-  (`supermagister-app` / `supermagister-extensie`, versie 1; een test bewaakt dat app en extensie
-  gelijk blijven). Vragen: ping, status, get, vernieuw, ontkoppel, hervat, pack. De extensie meldt
-  zelf: aanwezig, status en ontkoppeld (via een poort naar de background). De background neemt
-  alleen vragen aan van de adressen van de app (`shared/config.js`).
-- **De transport wisselt vanzelf** (`lib/magister/config.ts`): koppelde je via de extensie, dan
-  gaan verzoeken via de extensie; anders via de proxy, zoals in 5b. De rest van de app merkt
-  niets.
-- **Samenwerken** (`components/koppelen/ExtensionLink.tsx`, beslissingen in
-  `lib/extensie/sync.ts`): de app zoekt de extensie, koppelt vanzelf als de extensie je sessie heeft
-  (met welkomstpack bij een nieuw account; een bestaande koppeling stapt stil over), houdt het
-  verloopmoment bij en meldt zich bij de token-laag als bron die zelf vernieuwt. Daardoor blijven
-  de "bijna verlopen"-melding en de "Opnieuw koppelen"-sheet weg. Ontkoppel je in de extensie, dan
-  ontkoppelt de app ook (ook later, als de app toen niet open stond: de extensie onthoudt wanneer).
-  Ontkoppel je in de app, dan stopt de extensie ook, en koppelt hij niet vanzelf opnieuw tot je op
-  "Weer automatisch koppelen" klikt.
-- **Vernieuwen** (`extension/shared/renew.js`, `background.js`): binnen 5 minuten voor het
-  verlopen, na een 401, of als de app open staat zonder sessie. Eerst vragen we open
-  Magister-tabbladen om hun (door Magister zelf verse) sessie; anders opent de extensie
-  `{school}/magister/#/vandaag` in een tabblad op de achtergrond (`active: false`), wacht hooguit 45
-  seconden op het nieuwe token en sluit het weer. Komt dat tabblad op `accounts.magister.net`
-  uit, dan niet opnieuw proberen maar de melding "Log even opnieuw in bij Magister"; tikken laat
-  het tabblad zien. Hooguit één poging per 10 minuten, ook over herstarts van de service worker
-  heen. Zonder koppeling in deze browsersessie doet de extensie niets uit zichzelf.
-- **Badge en melding:** elk kwartier (`chrome.alarms`) het token vers houden en de laatste cijfers
-  tellen. De app geeft door hoeveel er in je pack zitten en wat het nieuwste cijfer is dat hij kent;
-  de extensie telt alles wat Magister daarna invoerde erbij. Optioneel (standaard uit) de melding
-  "Er staat een pack voor je klaar".
-- **Popup:** donker, aurora en glas, zoals de app. Status ("Gekoppeld met {school} · vernieuwt
-  automatisch" of "Niet gekoppeld: open Magister en log in"), een droge regel eronder
-  (`shared/teksten.js`, vijf varianten per situatie), het pack, en de knoppen Open SuperMagister,
-  Open Magister en Ontkoppelen.
-- **Rechten:** `storage`, `notifications` en `alarms`, plus host-rechten voor `*.magister.net` en het
-  adres van de app. `alarms` stond niet in het lijstje van de opdracht, maar is nodig voor de
-  verversing elk kwartier. Geen `tabs`-recht nodig: de host-rechten zijn genoeg om de adressen van
-  Magister-tabbladen te zien. Geen web-accessible resources en geen externe berichten.
-- **Ontwikkelversie en Web Store:** het manifest in de map heeft `http://localhost/*` (en de
-  background accepteert alleen poort 3000 en 3100). `npm run extension:zip -- --app https://…`
-  (`scripts/extensie-zip.mjs`) maakt de versie voor de Web Store: localhost eruit, het echte adres
-  erin, zonder tests en bronbestanden. De iconen tekent `scripts/extensie-iconen.mjs` uit het logo:
-  vol op 48 en 128 px, plat (één kleur, grotere ster, zonder stipje) op 16 en 32.
-- **Koppelpagina:** bovenaan de extensie in vier standen: gekoppeld via de extensie, de extensie
-  staat klaar (of vraagt om inloggen, of staat op pauze), installeren in drie stappen (Web Store als
-  `NEXT_PUBLIC_EXTENSION_URL` gezet is, anders de ontwikkelaarsmodus), of op een telefoon en in
-  andere browsers een verwijzing naar de bladwijzer en het plakveld.
-- **Privacy:** `privacy.md` beschrijft welke gegevens, waarom en waar, en per recht waarvoor; klaar
-  om (met een contactadres) te publiceren voor de Web Store.
+De extensie is gebouwd, goedgekeurd en daarna op verzoek helemaal weer verwijderd: de map
+`extension/`, `lib/extensie/`, de extensie-transport, het stil vernieuwen (`setRenewer`), de
+scripts voor de Web Store en `privacy.md`. De bladwijzer is de hoofdmanier van koppelen, met het
+plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de bladwijzer.
+
+## Onboarding
+
+- **Eén keer, de eerste keer** (`stores/onboarding.ts`, `components/onboarding/`): intro (logo,
+  ±4 s, tikken slaat over), drie uitlegkaarten met een mini-animatie (een stukje walkout, het
+  gokmoment, een dag met uitval en afgevinkt huiswerk), thema, woonplaats en vakantieregio (mag
+  "Later"), koppelen, het welkomstpack met walkout, en klaar met tips.
+- **Koppelen is de echte stap:** geen demo om op terug te vallen. De koppelstap legt de bladwijzer
+  uit met dezelfde kaart als `/koppelen` (plakken klapt uit onder "Lukt het niet?"). Zonder
+  koppeling is er geen "Verder"-knop en doen `→` en vegen niets; **Overslaan** kan altijd. Zodra
+  je gekoppeld bent (ook in het tabblad dat de bladwijzer opende, via het storage-event) gaat hij
+  vanzelf door naar je welkomstpack.
+- **Voortgang** staat in localStorage (`sm-onboarding`): sluit je halverwege, dan ga je verder
+  waar je was. Wie de app al gebruikte (er staan al `sm-`-sleutels), krijgt hem niet ongevraagd.
+  Opnieuw bekijken via Instellingen → Over.
+- Vegen op aanraakschermen, `←`/`→`/`Enter` op een computer, werkt met minder beweging en op
+  smalle telefoons. Disclaimer: "SuperMagister is onofficieel. Je gegevens blijven op je eigen
+  apparaat."
 
 ## Geschrapt (besluit 6 oktober 2026)
 
@@ -637,11 +579,15 @@ verwees, laten we het weg of vervangen we het door iets wat nog wel bestaat.
   "zomervakantie.exe — 78%" op de laatste schooldag (feature C) vervalt (de countdown in lessen
   blijft), en de laadbalk-scène in de Studio komt er niet.
 
+- **Fase 6, gamification** (besluit 8 oktober 2026): geen XP, levels, quests, profiel,
+  aanwezigheid, mascotte Sup, weekrecap of Wrapped. Wat er al was (XP, achievements, de pagina
+  Prestaties) blijft in de code maar staat standaard uit: Instellingen → Ontwikkelaar → "Prestaties
+  en XP tonen". Feature C (laatste schooldag) is geparkeerd.
+- **De demo en de browserextensie** (8 oktober 2026), zie hierboven.
+
 Blijft wel: de **reeks** (RKS) op de kaarten uit fase 2. Dat is een reeks voldoendes per vak, geen
 app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5-minutentimer.
 
 ## Nog niet gebouwd
 
-XP, achievements,
-profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
-easter eggs (fase 7).
+PWA, offline, meldingen, seizoensthema's en easter eggs (fase 7).

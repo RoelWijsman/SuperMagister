@@ -1,5 +1,7 @@
 "use client";
 
+import { useGamification } from "@/lib/use-gamification";
+import { cn } from "@/lib/cn";
 import { Target, Trophy } from "lucide-react";
 import { useMemo } from "react";
 import { LinkButton } from "@/components/ui/Button";
@@ -70,6 +72,7 @@ export function GuesserPanel() {
     ? GUESSER_TITLES[profile.type].replace("{klas}", account.data?.className ?? "je klas")
     : "Nog geen gokkerstype";
   const unlocked = achievements.filter((a) => a.unlockedAt).length;
+  const gamification = useGamification();
 
   return (
     <GlassPanel
@@ -96,9 +99,11 @@ export function GuesserPanel() {
             </h2>
           )}
         </div>
-        <LinkButton href="/prestaties" variant="glass" size="sm" icon={Trophy}>
-          {unlocked}/{achievements.length} prestaties
-        </LinkButton>
+        {gamification && (
+          <LinkButton href="/prestaties" variant="glass" size="sm" icon={Trophy}>
+            {unlocked}/{achievements.length} prestaties
+          </LinkButton>
+        )}
       </div>
 
       {empty ? (
@@ -109,14 +114,19 @@ export function GuesserPanel() {
 
       {entries && count > 0 && (
         <>
-          <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <dl
+            className={cn(
+              "mt-5 grid grid-cols-2 gap-3",
+              gamification ? "sm:grid-cols-4" : "sm:grid-cols-3",
+            )}
+          >
             <Stat label="Gokken" value={String(count)} />
             <Stat
               label="Gemiddeld ernaast"
               value={profile ? formatGrade(profile.meanAbsError) : "–"}
             />
             <Stat label="Precies goed" value={`${profile?.exact ?? 0}×`} />
-            <Stat label="Verdiend" value={`${xp} XP`} />
+            {gamification && <Stat label="Verdiend" value={`${xp} XP`} />}
           </dl>
           {subjects && <p className="mt-4 font-medium text-ink">{subjects}</p>}
           <div className="mt-5">

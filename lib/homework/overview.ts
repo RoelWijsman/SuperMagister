@@ -9,8 +9,8 @@ import { homeworkMinutes, type MinutesSource } from "./estimate";
  */
 
 /**
- * XP per afgevinkt item. Fase 6 telt ze op uit het moment van afvinken
- * (doneAt); hier vliegen ze alvast omhoog.
+ * XP per afgevinkt item: vliegt omhoog bij het afvinken, alleen als prestaties
+ * aan staan (Instellingen > Ontwikkelaar; fase 6 is vervallen).
  */
 export const HOMEWORK_XP = 10;
 

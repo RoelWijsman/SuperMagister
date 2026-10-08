@@ -55,6 +55,11 @@ export interface SettingsValues {
   bikeMinutes: number;
   /** Fase 3a: regio voor de schoolvakanties. */
   holidayRegion: HolidayRegion;
+  /**
+   * Prestaties en XP tonen (Instellingen > Ontwikkelaar). Fase 6 is vervallen;
+   * wat er al was, staat standaard uit maar blijft bestaan.
+   */
+  gamification: boolean;
 }
 
 interface SettingsActions {
@@ -90,6 +95,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   bikeHeading: "O",
   bikeMinutes: 15,
   holidayRegion: "midden",
+  gamification: false,
 };
 
 const SETTINGS_VERSION = 2;

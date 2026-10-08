@@ -12,7 +12,7 @@ import type { LinkMethod } from "./session";
 import { wipeMagisterData } from "./wipe";
 
 /**
- * Koppelen, op één manier voor alle wegen erheen: de extensie (5c), de
+ * Koppelen, op één manier voor alle wegen erheen: de
  * bookmarklet, het plakveld en de voorbeelddata. Eerst kijken of het token
  * werkt en wie je bent, dan pas bewaren. Een ander account dan hiervoor? Dan
  * gaan eerst de gegevens van het vorige account van dit apparaat af.
@@ -77,10 +77,8 @@ export function failLink(method: LinkMethod, failure: LinkFailure) {
 export async function completeLink(
   session: MagisterSession,
   method: LinkMethod,
-  /** Op de achtergrond (de extensie): geen melding en geen wissel van weergave, behalve bij een nieuw account. */
-  { background = false }: { background?: boolean } = {},
 ): Promise<LinkSuccess | null> {
-  if (!background) useLinkFlow.setState({ status: "bezig", method, result: null, failure: null });
+  useLinkFlow.setState({ status: "bezig", method, result: null, failure: null });
   try {
     const client = createMagisterClient(createTransport(() => session, transportFor(method)));
     const account = parseAccount(await client.account(), {
@@ -95,16 +93,13 @@ export async function completeLink(
     if (other) await wipeMagisterData();
 
     getSessionStore().set({ ...session, method });
-    const { isNew } = useConnection.getState().link(
-      {
-        schoolHost: session.schoolHost,
-        personId: account.id,
-        name: account.fullName || account.firstName,
-        linkedAt: new Date().toISOString(),
-        ...(method === "voorbeeld" ? { sample: true } : {}),
-      },
-      { show: !background },
-    );
+    const { isNew } = useConnection.getState().link({
+      schoolHost: session.schoolHost,
+      personId: account.id,
+      name: account.fullName || account.firstName,
+      linkedAt: new Date().toISOString(),
+      ...(method === "voorbeeld" ? { sample: true } : {}),
+    });
 
     const result = {
       isNew,
@@ -112,7 +107,6 @@ export async function completeLink(
       firstName: account.firstName || account.fullName,
       school: account.schoolName,
     };
-    if (background && !isNew) return result;
     useLinkFlow.setState({ status: "gelukt", method, result, failure: null });
     if (isNew)
       notify(
@@ -123,7 +117,7 @@ export async function completeLink(
     else notify("toast.weerGekoppeld", {}, { tone: "success" });
     return result;
   } catch (error) {
-    if (!background) failLink(method, failureOf(error));
+    failLink(method, failureOf(error));
     return null;
   }
 }

@@ -3,7 +3,6 @@
 import { KeyRound, ServerOff, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { BookmarkletCard } from "./BookmarkletCard";
-import { ExtensionCard } from "./ExtensionCard";
 import { LinkStatusPanel } from "./LinkStatusPanel";
 import { PasteCard } from "./PasteCard";
 
@@ -35,9 +34,8 @@ function SectionTitle({ children, hint }: { children: string; hint: string }) {
 }
 
 /**
- * /koppelen: de extensie bovenaan (de hoofdmanier, fase 5c), daaronder de
- * bladwijzer en het plakveld als reserve voor telefoons en andere browsers.
- * Elke manier eindigt op dezelfde plek: lib/koppelen/link.ts.
+ * /koppelen: de bladwijzer is de manier om te koppelen; het plakveld is de
+ * reserve als die niet werkt. Beide eindigen op dezelfde plek: lib/koppelen/link.ts.
  */
 export function ConnectView() {
   return (
@@ -50,18 +48,15 @@ export function ConnectView() {
       <div className="space-y-8">
         <LinkStatusPanel />
 
-        <section aria-labelledby="extensie-titel">
-          <SectionTitle hint="Koppelt vanzelf en blijft gekoppeld.">
-            De makkelijkste manier
-          </SectionTitle>
-          <ExtensionCard />
+        <section>
+          <SectionTitle hint="Drie stappen, één keer instellen.">Zo koppel je</SectionTitle>
+          <BookmarkletCard />
         </section>
 
-        <section className="space-y-4">
-          <SectionTitle hint="Voor telefoons en andere browsers. Ze doen precies hetzelfde.">
-            Andere manieren
+        <section>
+          <SectionTitle hint="Bijvoorbeeld op een schoolcomputer die bladwijzers blokkeert.">
+            Lukt het niet met de bladwijzer?
           </SectionTitle>
-          <BookmarkletCard />
           <PasteCard />
         </section>
 

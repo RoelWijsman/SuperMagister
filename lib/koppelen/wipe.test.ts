@@ -63,7 +63,6 @@ beforeEach(() => {
       name: "Daan Visser",
       linkedAt: "2026-10-07T12:00:00.000Z",
     },
-    view: "magister",
     enrollmentId: 1011,
   });
 });
@@ -96,12 +95,8 @@ describe("wipeMagisterData", () => {
     expect(useGuessStore.getState().sourceId).toBe("demo");
   });
 
-  it("ontkoppelt en gaat terug naar de demo", async () => {
+  it("ontkoppelt", async () => {
     await wipeMagisterData();
-    expect(useConnection.getState()).toMatchObject({
-      account: null,
-      view: "demo",
-      enrollmentId: null,
-    });
+    expect(useConnection.getState()).toMatchObject({ account: null, enrollmentId: null });
   });
 });

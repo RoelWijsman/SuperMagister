@@ -140,8 +140,8 @@ export function ExamPanel({
         </div>
         {combination.length === 0 ? (
           <p className="mt-3 text-sm text-ink-3">
-            Nog geen vakken gekozen. In deze demo heeft Daan geen maatschappijleer of
-            profielwerkstuk; kies er zelf een paar om het te proberen.
+            Nog geen vakken gekozen. Staan maatschappijleer of je profielwerkstuk niet in Magister?
+            Kies hierboven welke meetellen.
           </p>
         ) : (
           <div className="sensitive mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">

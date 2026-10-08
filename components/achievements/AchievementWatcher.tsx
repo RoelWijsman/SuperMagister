@@ -5,6 +5,7 @@ import { useDataSource } from "@/lib/data/context";
 import { useGuessEntries } from "@/lib/data/guesses";
 import { guessAchievements } from "@/lib/guess/achievements";
 import { notify } from "@/lib/notify";
+import { useGamification } from "@/lib/use-gamification";
 import { useAchievementStore } from "@/stores/achievements";
 import { useWalkout } from "@/stores/walkout";
 
@@ -19,6 +20,8 @@ export function AchievementWatcher() {
   const announced = useAchievementStore((s) => s.announced[source.id]);
   const markAnnounced = useAchievementStore((s) => s.markAnnounced);
   const achievements = useMemo(() => (entries ? guessAchievements(entries) : null), [entries]);
+  // Staan prestaties uit, dan leggen we ze stil vast: zet je ze later aan, dan geen meldingenregen.
+  const gamification = useGamification();
 
   useEffect(() => {
     if (!achievements || walkoutOpen) return;
@@ -32,6 +35,13 @@ export function AchievementWatcher() {
     }
     const fresh = unlocked.filter((a) => !announced.includes(a.id));
     if (fresh.length === 0) return;
+    if (!gamification) {
+      markAnnounced(
+        source.id,
+        fresh.map((a) => a.id),
+      );
+      return;
+    }
     // Eerst vastleggen (dan draait dit effect opnieuw), daarom geen cleanup voor de timers.
     markAnnounced(
       source.id,
@@ -49,7 +59,7 @@ export function AchievementWatcher() {
         1700 + i * 1200,
       );
     });
-  }, [achievements, walkoutOpen, announced, markAnnounced, source.id]);
+  }, [achievements, walkoutOpen, announced, markAnnounced, source.id, gamification]);
 
   return null;
 }

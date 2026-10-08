@@ -1,4 +1,4 @@
-/** Kleine seeded PRNG (mulberry32): dezelfde seed geeft altijd dezelfde demo. */
+/** Kleine seeded PRNG (mulberry32): dezelfde seed geeft altijd dezelfde reeks. */
 export function createRandom(seed: number) {
   let state = seed >>> 0;
   const next = () => {

@@ -13,7 +13,7 @@ import { useSettings, type WeatherPlace } from "@/stores/settings";
 /** De kompasroos als raster: het midden is je fiets. */
 const ROSE: readonly (Compass | null)[] = ["NW", "N", "NO", "W", null, "O", "ZW", "Z", "ZO"];
 
-function PlaceSearch() {
+export function PlaceSearch() {
   const place = useSettings((s) => s.weatherPlace);
   const set = useSettings((s) => s.set);
   const [query, setQuery] = useState("");

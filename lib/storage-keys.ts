@@ -9,6 +9,8 @@ export const STORAGE_KEYS = {
   grades: "sm-cijfers",
   /** Met welk Magister-account je gekoppeld bent (nooit het token zelf). */
   connection: "sm-koppeling",
+  /** Waar je in de onboarding was, en of hij klaar is. */
+  onboarding: "sm-onboarding",
 } as const;
 
 /** Prefix voor alles wat in IndexedDB staat (via idb-keyval). */

@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, Plug, TimerOff, Unplug } from "lucide-react";
+import { Plug, TimerOff, Unplug } from "lucide-react";
 import { useState } from "react";
 import { ConnectionFacts } from "@/components/koppelen/ConnectionFacts";
 import { UnlinkSheet } from "@/components/koppelen/UnlinkSheet";
@@ -10,7 +10,7 @@ import { Tabs } from "@/components/ui/Tabs";
 import { useEnrollments } from "@/lib/data/hooks";
 import { completeLink } from "@/lib/koppelen/link";
 import { getSessionStore, useSession } from "@/lib/koppelen/runtime";
-import { activeView, useConnection, type DataView } from "@/stores/connection";
+import { useConnection } from "@/stores/connection";
 
 const capitalize = (host: string) => {
   const label = host.split(".")[0] ?? host;
@@ -57,20 +57,19 @@ function YearPicker() {
   );
 }
 
-/** Instellingen > Gegevens: demo of je eigen Magister, schooljaar en ontkoppelen. */
+/** Instellingen > Gegevens: je koppeling, schooljaar en ontkoppelen. */
 export function DataSettings() {
   const account = useConnection((s) => s.account);
-  const view = useConnection(activeView);
-  const setView = useConnection((s) => s.setView);
-  const viaExtension = useSession().session?.method === "extensie";
   const [unlinking, setUnlinking] = useState(false);
 
   if (!account) {
     return (
       <div className="flex flex-wrap items-center gap-3">
-        <Chip tone="warn">Demo</Chip>
-        <p className="min-w-0 flex-1 text-ink-2">Je bekijkt verzonnen data van Daan uit 5 havo.</p>
-        <LinkButton href="/koppelen" variant="glass" icon={Plug}>
+        <Chip tone="warn">Niet gekoppeld</Chip>
+        <p className="min-w-0 flex-1 text-ink-2">
+          Koppel je Magister om je eigen gegevens te zien.
+        </p>
+        <LinkButton href="/koppelen" variant="primary" icon={Plug}>
           Koppelen met Magister
         </LinkButton>
       </div>
@@ -80,40 +79,18 @@ export function DataSettings() {
   const school = capitalize(account.schoolHost);
   return (
     <>
-      <div className="flex flex-col gap-2.5 py-2 sm:flex-row sm:items-center sm:justify-between">
-        <span className="font-medium text-ink">Je bekijkt</span>
-        <Tabs<DataView>
-          id="databron"
-          aria-label="Welke data je bekijkt"
-          size="sm"
-          value={view}
-          onValueChange={setView}
-          items={[
-            { value: "magister", label: `Mijn Magister`, icon: Plug },
-            { value: "demo", label: "Demo", icon: FlaskConical },
-          ]}
-        />
-      </div>
-      <p className="-mt-1 mb-2 text-sm text-ink-3">
-        Demo en je eigen data lopen nooit door elkaar: ze hebben elk hun eigen collectie, gokken en
-        notities.
-      </p>
-
-      <div className="mt-4 rounded-3xl border border-line p-4">
+      <div className="rounded-3xl border border-line p-4">
         <p className="font-semibold text-ink">
           Gekoppeld met {school} <span className="font-normal text-ink-2">als {account.name}</span>
         </p>
-        {view === "magister" && <ConnectionFacts className="mt-3" />}
+        <ConnectionFacts className="mt-3" />
         <p className="mt-3 text-sm text-ink-3">
-          {viaExtension
-            ? "Je koppelt via de extensie: het token blijft daar en vernieuwt zichzelf."
-            : "Je koppeling (het token) staat alleen in dit tabblad en verloopt na ongeveer een uur."}{" "}
-          Wat al is opgehaald, blijft op dit apparaat staan tot je ontkoppelt
-          {viaExtension ? " (dan ontkoppelt de extensie ook)" : ""}.
+          Je koppeling (het token) staat alleen in dit tabblad en verloopt na ongeveer een uur. Wat
+          al is opgehaald, blijft op dit apparaat staan tot je ontkoppelt.
         </p>
       </div>
 
-      {view === "magister" && <YearPicker />}
+      <YearPicker />
 
       <div className="mt-5 flex flex-wrap gap-3">
         <LinkButton href="/koppelen" variant="glass" icon={Plug}>

@@ -11,6 +11,6 @@ export default defineConfig({
     environment: "node",
     // Datums worden in lokale tijd berekend; vastzetten maakt de tests overal gelijk.
     env: { TZ: "Europe/Amsterdam" },
-    include: ["lib/**/*.test.ts", "stores/**/*.test.ts", "extension/**/*.test.ts"],
+    include: ["lib/**/*.test.ts", "stores/**/*.test.ts"],
   },
 });

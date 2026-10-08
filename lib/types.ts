@@ -2,8 +2,7 @@
  * Domeintypes van SuperMagister.
  *
  * De rest van de app kent alleen deze types. Ruwe Magister-responses worden in
- * lib/magister/parsers.ts (fase 5) naar deze vormen omgezet; de demo-data in
- * lib/demo levert ze direct.
+ * lib/magister/parsers.ts (fase 5) naar deze vormen omgezet.
  */
 
 /** Kalenderdatum in lokale tijd, formaat `YYYY-MM-DD`. */

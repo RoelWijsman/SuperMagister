@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type { GuessEntry } from "@/lib/guess/types";
 import { useGuessStore } from "@/stores/guesses";
 import { useDataSource } from "./context";
@@ -22,14 +22,7 @@ export function useGuesses() {
     if (initial.data) void load(source.id, initial.data);
   }, [initial.data, load, source.id]);
 
-  /** Demo: terug naar de gokken van vóór het eerste pack. */
-  const resetGuesses = useCallback(() => {
-    if (!initial.data) return false;
-    useGuessStore.getState().reset(source.id, initial.data);
-    return true;
-  }, [initial.data, source.id]);
-
-  return { guesses, isLoading: !guesses, resetGuesses };
+  return { guesses, isLoading: !guesses };
 }
 
 /**

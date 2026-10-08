@@ -9,8 +9,10 @@ import { createMagisterClient } from "@/lib/magister/client";
 import { createTransport } from "@/lib/magister/config";
 import { createMagisterSource, type MagisterSource } from "@/lib/magister/source";
 import { MagisterError } from "@/lib/magister/transport";
-import { activeView, useConnection } from "@/stores/connection";
-import { createDemoSource } from "./demo-source";
+import { STORAGE_KEYS } from "@/lib/storage-keys";
+import { useConnection } from "@/stores/connection";
+import { useOnboarding } from "@/stores/onboarding";
+import { createEmptySource } from "./empty-source";
 import type { SchoolDataSource } from "./source";
 
 const DataSourceContext = createContext<SchoolDataSource | null>(null);
@@ -66,7 +68,6 @@ function createLiveSource({
   // Rooster en welkomstpack halen vakken, cijfers en eerdere jaren via de cache.
   const via: Partial<Pick<SchoolDataSource, "getSubjects" | "getGrades" | "getHistory">> = {};
   const inner = createMagisterSource({
-    // Proxy of extensie: dat volgt vanzelf uit hoe je gekoppeld bent.
     client: createMagisterClient(createTransport(session, sample ? "voorbeeld" : undefined)),
     schoolHost,
     personId,
@@ -109,26 +110,25 @@ function createLiveSource({
 }
 
 /**
- * Levert de actieve databron: de demo, of je eigen Magister als je gekoppeld
- * bent en dat wilt zien. Tijdens de hydratie altijd de demo (zonder data, zie
+ * Levert de actieve databron: je eigen Magister als je gekoppeld bent, anders
+ * een lege bron. Tijdens de hydratie altijd de lege bron (zie
  * useHydrated), zodat server en browser hetzelfde tekenen.
  */
 export function DataSourceProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const isClient = useIsClient();
-  const [demo] = useState(() => createDemoSource());
-  const wantsMagister = useConnection((s) => activeView(s) === "magister");
+  const [empty] = useState(() => createEmptySource());
   const schoolHost = useConnection((s) => s.account?.schoolHost);
   const personId = useConnection((s) => s.account?.personId);
   const sample = useConnection((s) => s.account?.sample === true);
   const enrollmentId = useConnection((s) => s.enrollmentId);
 
   const source = useMemo(() => {
-    if (!isClient || !wantsMagister || !schoolHost || personId === undefined) return demo;
+    if (!isClient || !schoolHost || personId === undefined) return empty;
     return createLiveSource({ schoolHost, personId, enrollmentId, sample, queryClient });
-  }, [isClient, wantsMagister, schoolHost, personId, enrollmentId, sample, queryClient, demo]);
+  }, [isClient, schoolHost, personId, enrollmentId, sample, queryClient, empty]);
 
-  // Weer een bruikbare sessie (opnieuw gekoppeld, of vernieuwd door de extensie): meteen verversen.
+  // Weer een bruikbare sessie (opnieuw gekoppeld): meteen verversen.
   useEffect(() => {
     if (source.kind !== "magister") return;
     const sessions = getSessionStore();
@@ -143,6 +143,16 @@ export function DataSourceProvider({ children }: { children: ReactNode }) {
       was = now;
     });
   }, [source, queryClient]);
+
+  // Koppelt (of ontkoppelt) een ander tabblad, bijvoorbeeld via de bladwijzer: dit tabblad volgt.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEYS.connection) void useConnection.persist.rehydrate();
+      if (event.key === STORAGE_KEYS.onboarding) void useOnboarding.persist.rehydrate();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   // Een ander tabblad haalde nieuwe data op: die staat al in de cache.
   useEffect(() => {

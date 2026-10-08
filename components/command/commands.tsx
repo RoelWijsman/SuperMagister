@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { NAV_ITEMS } from "@/components/shell/nav";
+import { useNavItems } from "@/components/shell/useNavItems";
 import { togglePrivacyWithFeedback } from "@/components/shell/PrivacyToggle";
 import { SubjectBadge } from "@/components/subjects/SubjectBadge";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
@@ -84,6 +85,7 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
   const { openPack, startPractice } = useWalkoutActions();
   const colorMode = useSettings((s) => s.colorMode);
   const theme = useSettings((s) => s.theme);
+  const navItems = useNavItems();
 
   return useMemo(() => {
     const go = (href: string) => {
@@ -171,7 +173,7 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
       }
     }
 
-    for (const item of NAV_ITEMS) {
+    for (const item of navItems) {
       commands.push({
         id: `pagina-${item.href}`,
         group: "Pagina's",
@@ -335,5 +337,6 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
     startPractice,
     colorMode,
     theme,
+    navItems,
   ]);
 }

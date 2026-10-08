@@ -5,7 +5,6 @@ import { useState } from "react";
 import { AverageWarningPanel } from "@/components/grades/AverageWarning";
 import { StatusDot } from "@/components/koppelen/ConnectionFacts";
 import { DataErrorState } from "@/components/koppelen/DataErrorState";
-import { ExtensionCard } from "@/components/koppelen/ExtensionCard";
 import { LinkSteps } from "@/components/koppelen/LinkSteps";
 import { DevtoolsShot } from "@/components/koppelen/PasteCard";
 import { RelinkSheet } from "@/components/koppelen/RelinkSheet";
@@ -46,8 +45,6 @@ export function LinkSamples() {
         <p className="mb-2 text-sm text-ink-3">De bladwijzer in drie stappen</p>
         <LinkSteps />
       </div>
-
-      <ExtensionCard />
 
       <div>
         <p className="mb-2 text-sm text-ink-3">

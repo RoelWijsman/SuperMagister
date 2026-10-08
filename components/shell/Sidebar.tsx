@@ -10,7 +10,8 @@ import { useIsApple } from "@/lib/hooks";
 import { useUi } from "@/stores/ui";
 import { DataSourceChip } from "./DataSourceChip";
 import { Logo } from "./Logo";
-import { activeNavItem, NAV_ITEMS, type NavItem } from "./nav";
+import { activeNavItem, type NavItem } from "./nav";
+import { useNavItems } from "./useNavItems";
 import { PrivacyToggle } from "./PrivacyToggle";
 
 function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
@@ -54,8 +55,9 @@ export function Sidebar() {
   const active = activeNavItem(pathname);
   const openPalette = useUi((s) => s.setPaletteOpen);
   const isApple = useIsApple();
-  const main = NAV_ITEMS.filter((item) => item.href !== "/instellingen");
-  const settings = NAV_ITEMS.find((item) => item.href === "/instellingen");
+  const navItems = useNavItems();
+  const main = navItems.filter((item) => item.href !== "/instellingen");
+  const settings = navItems.find((item) => item.href === "/instellingen");
 
   return (
     <aside className="fixed inset-y-3 left-3 z-30 hidden w-[var(--sidebar-w)] md:flex lg:inset-y-4 lg:left-4">

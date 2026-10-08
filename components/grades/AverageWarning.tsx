@@ -12,7 +12,7 @@ import { usePeriodList } from "./useGradeData";
 
 /**
  * Per vak de perioden waar Magisters eigen gemiddelde (afgerond op één
- * decimaal) anders is dan het onze. Alleen bij een echte koppeling; de demo
+ * decimaal) anders is dan het onze. Alleen bij een echte koppeling; zonder
  * heeft geen Magister om mee te vergelijken.
  */
 export function useAverageWarnings(): ReadonlyMap<string, AverageCheck[]> {

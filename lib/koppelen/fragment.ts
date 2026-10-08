@@ -1,7 +1,7 @@
 import { SCHOOL_HOST, type MagisterSession } from "@/lib/magister/transport";
 
 /**
- * Het koppel-fragment: zo geeft de bookmarklet (of later de extensie) je
+ * Het koppel-fragment: zo geeft de bookmarklet je
  * sessie door. Alles staat achter het # van de link, nooit in de query
  * string: het fragment gaat niet mee naar een server en komt niet in logs.
  * De app leest het meteen uit en wist het (zie LinkIntake).
@@ -26,7 +26,7 @@ export function toExpiresAt(value: unknown): number | null {
 
 export const normalizeHost = (host: string) => host.trim().toLowerCase();
 
-/** Controleert een sessie van buiten (bookmarklet, plakveld, extensie). */
+/** Controleert een sessie van buiten (bookmarklet of plakveld). */
 export function checkSession(
   input: { token: string; schoolHost: string; expiresAt: number | null },
   now: number,

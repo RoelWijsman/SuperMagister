@@ -163,26 +163,12 @@ describe("createProxyTransport", () => {
 });
 
 describe("één plek om te wisselen", () => {
-  it("gebruikt de proxy, behalve als je via de extensie koppelde", () => {
+  it("gebruikt de proxy, en alleen bij de voorbeeldkoppeling de testbestanden", () => {
     expect(transportFor("bookmarklet")).toBe("proxy");
     expect(transportFor("plakken")).toBe("proxy");
     expect(transportFor(undefined)).toBe("proxy");
-    expect(transportFor("extensie")).toBe("extensie");
     expect(transportFor("voorbeeld")).toBe("voorbeeld");
-  });
-
-  it("wisselt vanzelf mee met hoe je gekoppeld bent", () => {
-    let method: "bookmarklet" | "extensie" = "bookmarklet";
-    const transport = createTransport(() => ({ ...session, method }));
-    expect(transport.kind).toBe("proxy");
-    method = "extensie";
-    expect(transport.kind).toBe("extensie");
-  });
-
-  it("zegt het eerlijk als de extensie er niet is", async () => {
-    const transport = createTransport(() => session, "extensie");
-    expect(transport.kind).toBe("extensie");
-    await expect(transport.get("account")).rejects.toMatchObject({ code: "geen-extensie" });
+    expect(createTransport(() => session).kind).toBe("proxy");
   });
 });
 

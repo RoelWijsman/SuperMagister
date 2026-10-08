@@ -1,5 +1,6 @@
 "use client";
 
+import { useGamification } from "@/lib/use-gamification";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { playUiSound } from "@/lib/audio/engine";
@@ -53,6 +54,7 @@ export function CheckButton({
   className?: string;
 }) {
   const reduced = useReducedMotion();
+  const showXp = useGamification() && xp;
   const [floats, setFloats] = useState<number[]>([]);
   const [pops, setPops] = useState(0);
   const px = size === "sm" ? 26 : 32;
@@ -61,7 +63,7 @@ export function CheckButton({
     const next = !checked;
     checkReward(next);
     if (next) {
-      if (xp) setFloats((list) => [...list, Date.now()]);
+      if (showXp) setFloats((list) => [...list, Date.now()]);
       setPops((n) => n + 1);
     }
     onCheckedChange(next);

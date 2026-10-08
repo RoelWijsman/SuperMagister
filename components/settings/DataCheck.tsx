@@ -38,7 +38,7 @@ function Row({ label, value }: { label: string; value: string }) {
 /**
  * Alleen tijdens het bouwen: wat er van de databron binnenkomt, in getallen.
  * Om na het koppelen te vergelijken met Magister zelf (ook de absenties, die
- * pas in fase 6 een eigen scherm krijgen).
+ * geen eigen scherm hebben).
  */
 export function DataCheck() {
   const [today] = useState(() => startOfDay(new Date()));

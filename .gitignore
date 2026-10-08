@@ -20,8 +20,6 @@
 # production
 /build
 
-# ingepakte extensie (npm run extension:zip)
-/dist/
 
 # misc
 .DS_Store

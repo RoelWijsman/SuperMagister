@@ -1,7 +1,7 @@
 "use client";
 
 import { keepPreviousData, useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { addDays, startOfWeek, toISODate } from "@/lib/date";
 import { useIsClient } from "@/lib/hooks";
 import { unrevealedGrades, withHistoryRevealed } from "@/lib/reveal";
@@ -80,7 +80,7 @@ export function useGrades() {
   );
 }
 
-/** Eerdere schooljaren (alleen bij een echte koppeling; de demo heeft er geen). */
+/** Eerdere schooljaren (alleen bij een echte koppeling). */
 export function useHistory() {
   const source = useDataSource();
   return useHydrated(
@@ -127,7 +127,7 @@ export function useCollectionGrades(): CollectionGrades | null {
   }, [grades.data, history.data, settled]);
 }
 
-/** Onze gemiddelden naast die van Magister. Leeg bij de demo. */
+/** Onze gemiddelden naast die van Magister. Leeg zonder koppeling. */
 export function useAverageChecks() {
   const source = useDataSource();
   return useHydrated(
@@ -139,7 +139,7 @@ export function useAverageChecks() {
   );
 }
 
-/** Wanneer de getoonde data voor het laatst bij Magister is opgehaald. Null bij de demo. */
+/** Wanneer de getoonde data voor het laatst bij Magister is opgehaald. Null zonder koppeling. */
 export function useLastUpdated() {
   const source = useDataSource();
   return useHydrated(
@@ -210,7 +210,7 @@ export function daysRange(from: Date, days: number): DateRange {
  * Laadt welke cijfers al onthuld zijn en geeft de nieuwe (het pack) terug.
  * `revealed` is null zolang IndexedDB nog laadt.
  *
- * De eerste keer (bij de demo, of net gekoppeld) is alles al onthuld behalve
+ * De eerste keer (net gekoppeld) is alles al onthuld behalve
  * het startpack: bij een koppeling het welkomstpack met de laatste vijf
  * cijfers. Cijfers uit eerdere schooljaren worden daarna nooit meer een pack.
  */
@@ -239,14 +239,7 @@ export function useRevealState() {
     () => unrevealedGrades(collection?.all ?? [], revealed),
     [collection, revealed],
   );
-  const resetStore = useReveal((s) => s.reset);
-  /** Plakt het startpack weer dicht. Geeft false als de data er nog niet is. */
-  const resetPack = useCallback(() => {
-    if (!allIds || !packIds.data) return false;
-    resetStore(source.id, allIds, packIds.data);
-    return true;
-  }, [allIds, packIds.data, resetStore, source.id]);
-  return { revealed, pack, isLoading: !revealed, resetPack };
+  return { revealed, pack, isLoading: !revealed };
 }
 
 export interface SubjectAppearance {

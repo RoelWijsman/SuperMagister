@@ -73,23 +73,23 @@ describe("sessionStatus", () => {
 describe("createSessionStore", () => {
   it("bewaart de sessie in sessionStorage en leest hem terug", () => {
     const storage = new MemoryStorage();
-    const first = createSessionStore({ storage, now: () => NOW });
+    const first = createSessionStore({ storage });
     first.set(session());
     expect(JSON.parse(storage.getItem(SESSION_KEY)!)).toMatchObject({ token: TOKEN_A });
-    const again = createSessionStore({ storage, now: () => NOW });
+    const again = createSessionStore({ storage });
     expect(again.get()).toEqual(session());
   });
 
   it("negeert rommel of een verkeerde school in de opslag", () => {
     const storage = new MemoryStorage();
     storage.setItem(SESSION_KEY, "{kapot");
-    expect(createSessionStore({ storage, now: () => NOW }).get()).toBeNull();
+    expect(createSessionStore({ storage }).get()).toBeNull();
     storage.setItem(SESSION_KEY, JSON.stringify(session({ schoolHost: "evil.com" })));
-    expect(createSessionStore({ storage, now: () => NOW }).get()).toBeNull();
+    expect(createSessionStore({ storage }).get()).toBeNull();
   });
 
   it("meldt elke wijziging aan wie luistert", () => {
-    const store = createSessionStore({ storage: new MemoryStorage(), now: () => NOW });
+    const store = createSessionStore({ storage: new MemoryStorage() });
     const listener = vi.fn();
     const stop = store.subscribe(listener);
     store.set(session());
@@ -102,7 +102,7 @@ describe("createSessionStore", () => {
   });
 
   it("onthoudt een 401 alleen voor dat ene token", () => {
-    const store = createSessionStore({ storage: new MemoryStorage(), now: () => NOW });
+    const store = createSessionStore({ storage: new MemoryStorage() });
     store.set(session());
     store.reject(TOKEN_B);
     expect(store.snapshot().rejected).toBe(false);
@@ -114,7 +114,7 @@ describe("createSessionStore", () => {
 
   it("wist alles bij ontkoppelen", () => {
     const storage = new MemoryStorage();
-    const store = createSessionStore({ storage, now: () => NOW });
+    const store = createSessionStore({ storage });
     store.set(session());
     store.clear();
     expect(store.get()).toBeNull();
@@ -127,13 +127,11 @@ describe("createSessionStore", () => {
       const old = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       old.set(session());
       const fresh = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       expect(fresh.get()).toEqual(session());
     });
@@ -143,12 +141,10 @@ describe("createSessionStore", () => {
       const a = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       const b = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       a.set(session());
       a.reject(TOKEN_A);
@@ -163,12 +159,10 @@ describe("createSessionStore", () => {
       const a = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       const b = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       a.set(session());
       expect(b.get()).not.toBeNull();
@@ -181,52 +175,11 @@ describe("createSessionStore", () => {
       const store = createSessionStore({
         storage: new MemoryStorage(),
         channel: channel(),
-        now: () => NOW,
       });
       channel().postMessage({ type: "sessie", session: session({ schoolHost: "evil.com" }) });
       channel().postMessage({ type: "sessie", session: { token: 42 } });
       channel().postMessage("onzin");
       expect(store.get()).toBeNull();
-    });
-  });
-
-  describe("vernieuwen (voor de extensie in 5c)", () => {
-    it("vernieuwt niet vanzelf zonder extensie: dan moet je opnieuw koppelen", async () => {
-      const store = createSessionStore({ storage: new MemoryStorage(), now: () => NOW });
-      store.set(session());
-      expect(store.autoRenews()).toBe(false);
-      expect(await store.renew()).toBe(false);
-    });
-
-    it("laat een bron die zelf vernieuwt het token stil vervangen", async () => {
-      const store = createSessionStore({ storage: new MemoryStorage(), now: () => NOW });
-      store.set(session());
-      store.reject(TOKEN_A);
-      store.setRenewer({
-        method: "extensie",
-        renew: async () => ({
-          token: TOKEN_B,
-          schoolHost: "voorbeeld.magister.net",
-          expiresAt: NOW + 3_600_000,
-        }),
-      });
-      expect(store.autoRenews()).toBe(true);
-      expect(await store.renew()).toBe(true);
-      expect(store.get()).toMatchObject({ token: TOKEN_B, method: "extensie" });
-      expect(store.snapshot().rejected).toBe(false);
-    });
-
-    it("valt terug op opnieuw koppelen als vernieuwen mislukt", async () => {
-      const store = createSessionStore({ storage: new MemoryStorage(), now: () => NOW });
-      store.setRenewer({ method: "extensie", renew: async () => null });
-      expect(await store.renew()).toBe(false);
-      store.setRenewer({
-        method: "extensie",
-        renew: async () => {
-          throw new Error("extensie weg");
-        },
-      });
-      expect(await store.renew()).toBe(false);
     });
   });
 });

@@ -4,7 +4,7 @@ import type { MagisterTransport } from "./transport";
 
 /**
  * De Magister-client. Geeft de ruwe antwoorden terug; de parsers (fase 5)
- * zetten ze om naar de eigen types. Weet niets van proxy of extensie: dat
+ * zetten ze om naar de eigen types. Weet niets van proxy of testbestanden: dat
  * regelt de transport, gekozen in lib/magister/config.ts.
  */
 export function createMagisterClient(transport: MagisterTransport) {

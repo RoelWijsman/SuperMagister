@@ -301,13 +301,6 @@ export const COPY = {
     "{wat} staat gepland voor {fase}.\nEr wordt aan gesleuteld.",
     "Bijna. Nou ja, {fase}.\n{wat} is nog in de maak.",
   ],
-  "toast.packGereset": [
-    "Pack opnieuw dichtgeplakt.\nDe demo-cijfers liggen weer klaar.",
-    "Terug in de verpakking.\nAlsof er nooit iets gebeurd is.",
-    "Pack gereset.\nJe mag weer opnieuw schrikken.",
-    "Dichtgeplakt.\nNiemand hoeft te weten dat je ze al kende.",
-    "Opnieuw verpakt.\nMet dezelfde liefde. En dezelfde cijfers.",
-  ],
   "toast.geenPack": [
     "Geen nieuwe cijfers.\nJe docenten zijn nog aan het nakijken. Of aan de koffie.",
     "Niks om te openen.\nAlles is al onthuld. Probeer de oefenmodus.",
@@ -363,7 +356,7 @@ export const COPY = {
     "Gekoppeld met {school}.\nHoi {naam}. Je welkomstpack ligt klaar.",
     "Je bent binnen.\n{school} is gekoppeld. Er ligt een pack voor je klaar.",
     "Koppeling gelukt.\nZonder wachtwoord. Zo hoort het.",
-    "Welkom, {naam}.\nDaan gaat terug naar de demo. Hij vindt het prima.",
+    "Welkom, {naam}.\nJe eigen rooster, huiswerk en cijfers. Eindelijk mooi.",
     "Gekoppeld.\nJe echte cijfers staan klaar. Dapper.",
   ],
   "toast.weerGekoppeld": [
@@ -375,9 +368,9 @@ export const COPY = {
   ],
   "toast.ontkoppeld": [
     "Ontkoppeld.\nJe gegevens zijn van dit apparaat gewist.",
-    "Ontkoppeld en opgeruimd.\nDaan uit 5 havo neemt het weer over.",
+    "Ontkoppeld en opgeruimd.\nKoppel opnieuw wanneer je wilt.",
     "Alles is weg.\nJe cijfers, je gokken, je notities. Netjes opgeruimd.",
-    "Ontkoppeld.\nNiks meer van jou op dit apparaat. De demo is terug.",
+    "Ontkoppeld.\nNiks meer van jou op dit apparaat. Tot de volgende keer.",
     "Klaar.\nAlsof je hier nooit was. De conciërge heeft geveegd.",
   ],
   "toast.bijnaVerlopen": [
@@ -398,7 +391,7 @@ export const COPY = {
     "Je bent binnen, {naam}.",
     "Gekoppeld. Zonder wachtwoord.",
     "Welkom bij je eigen data, {naam}.",
-    "Gekoppeld met {school}. Daan is opgelucht.",
+    "Gekoppeld met {school}. Eindelijk.",
     "Daar ben je, {naam}.",
   ],
   "koppelen.fout": [
@@ -408,15 +401,74 @@ export const COPY = {
     "Niet gelukt. Nog niet.",
     "Dat werkte niet.",
   ],
-  "koppelen.extensie": [
-    "Eén keer installeren.\nDaarna koppelt hij vanzelf, en blijft hij gekoppeld. Ook na dat ene uur.",
-    "Nooit meer opnieuw koppelen.\nDe extensie ververst je koppeling zelf. Jij doet niks.",
-    "De luie manier.\nInstalleren, Magister openen, klaar. Wij noemen het efficiënt.",
-    "Koppelen zonder bladwijzer.\nDe extensie regelt het, ook als je token verloopt.",
-    "Eén keer klikken, en dan nooit meer.\nGeen bladwijzers slepen, geen tokens plakken.",
-  ],
   // Vaste zin, precies zoals gevraagd: bij een vak waar Magisters gemiddelde anders is.
   "cijfers.magisterAnders": ["Magister rekent hier anders, check je cijferoverzicht."],
+
+  // ——— Onboarding (eerste keer openen) ————————————————————————————————————
+  // Onder het logo in de intro.
+  "onboarding.intro": [
+    "Magister, maar dan leuk.",
+    "Je rooster, huiswerk en cijfers. Met vuurwerk.",
+    "Zelfde school. Betere app.",
+    "Magister, maar dan met een walkout.",
+    "Gemaakt voor de achterste rij.",
+  ],
+  "onboarding.pack": [
+    "Elk nieuw cijfer is een kaart. Brons, zilver, goud, of die ene ICON.",
+    "Eerst de spanning, dan het cijfer. Zoals het hoort.",
+    "Een 5,4 wordt er niet beter van. Wel spannender.",
+    "Je docent voert het in, wij maken er een moment van.",
+    "Magister laat een tabel zien. Wij een stadion.",
+  ],
+  "onboarding.gok": [
+    "Vlak voor de onthulling gok je. Zit je ernaast, dan weet je dat ook.",
+    "Raad je cijfer. Precies goed? Dan ben je officieel helderziend.",
+    "Gok eerst. Dan kun je straks zeggen dat je het wist.",
+    "Optimist of pessimist? Na tien gokken weten we het.",
+    "Hoe goed ken je je eigen cijfers? Spoiler: matig.",
+  ],
+  "onboarding.overzicht": [
+    "Uitval, tussenuren en wat er morgen af moet. Zonder zoeken.",
+    "Eén blik en je weet of je wekker eerder moet.",
+    "Je hele dag op één scherm. Ook het lokaal dat weer is veranderd.",
+    "Huiswerk afvinken voelt hier als winnen. Is het ook.",
+    "Rooster, huiswerk en toetsen. De rest van de agenda mag je zelf houden.",
+  ],
+  "onboarding.thema": [
+    "De hele app kleurt mee. Kies er een, je kunt altijd wisselen.",
+    "Kies je kleur. Het huiswerk blijft hetzelfde, sorry.",
+    "Een thema voor elke stemming. Ook voor maandag.",
+    "Tik er een aan en kijk wat er gebeurt.",
+    "Kies wijs. Of gewoon de mooiste.",
+  ],
+  "onboarding.woonplaats": [
+    "Voor het fietsweer en de vakanties. Je plaats blijft op je apparaat.",
+    "Dan weten we of je tegenwind hebt. Belangrijke informatie.",
+    "Voor het weer onderweg en het aftellen naar de vakantie.",
+    "Zodat de app weet wanneer het herfstvakantie is. En of het regent.",
+    "Optioneel. Maar tegenwind voorspellen is ons ding.",
+  ],
+  "onboarding.koppelen": [
+    "Je logt in bij Magister zelf. Je wachtwoord komt hier nooit.",
+    "Eén keer koppelen en je echte cijfers staan klaar. Eng, hè.",
+    "Eén keer een bladwijzer neerzetten, dan is het klaar. Zonder wachtwoord.",
+    "Koppelen kost een minuut. Daarna nooit meer zoeken in Magister.",
+    "Klik in Magister op je bladwijzer en je bent binnen.",
+  ],
+  "onboarding.eerstePack": [
+    "Hier gebeurt het. Open hem maar.",
+    "Laatste stap. De leukste ook.",
+    "Er ligt iets voor je klaar. Je weet hoe het werkt.",
+    "Tijd voor je eerste walkout. Geluid aan, als het kan.",
+    "Nog één tik en je zit in het stadion.",
+  ],
+  "onboarding.klaar": [
+    "Klaar. Je weet nu meer dan de meeste docenten over deze app.",
+    "Je bent er klaar voor. Magister niet, maar dat is hun probleem.",
+    "Dat was het. Geen toets over deze uitleg, beloofd.",
+    "Klaar. Het lokaal is open, de beamer doet het zelfs.",
+    "Alles staat. Ga je gang.",
+  ],
 
   // ——— Pack en cijfers —————————————————————————————————————————————————————
   "pack.teaser": [
@@ -801,11 +853,11 @@ export const COPY = {
     "{wat}.\nDeze prestatie bestond officieel niet.",
   ],
   "prestaties.binnenkort": [
-    "Je hebt al {xp} XP met gokken.\nLevels, quests en de rest komen in fase 6. Je XP blijft staan.",
-    "{xp} XP verdiend.\nWaar je ze aan uitgeeft, zie je in fase 6. Bewaren mag.",
-    "{xp} XP op de teller.\nDe levelbalk komt in fase 6. Hij gaat alleen omhoog.",
-    "Spaarstand: {xp} XP.\nIn fase 6 worden dit levels. Rente krijg je niet.",
-    "{xp} XP, gewoon door te gokken.\nStraks zijn er levels. Dan telt dit allemaal mee.",
+    "Je hebt {xp} XP met gokken.\nUitgeven kan nergens. Trots zijn mag.",
+    "{xp} XP verdiend.\nPuur voor de eer. Net als een 10 voor tekenen.",
+    "{xp} XP op de teller.\nHij gaat alleen omhoog. Dat is meer dan je van je rooster kunt zeggen.",
+    "Spaarstand: {xp} XP.\nGeen rente, geen winkel, wel een mooi getal.",
+    "{xp} XP, gewoon door te gokken.\nNiemand vroeg erom. Toch fijn.",
   ],
 
   // ——— Collectie ——————————————————————————————————————————————————————————
@@ -1044,21 +1096,6 @@ export const COPY = {
     "Rustig rooster. Geen verrassingen.",
     "Alles zoals gepland. Verdacht, maar fijn.",
     "Niks nieuws. Het lokaal staat er nog.",
-  ],
-  /** Ontwikkelaar (demo): een verzonnen roosterwijziging. {wat} = "Do 3e uur: Frans vervalt". */
-  "toast.roosterWijziging": [
-    "Roosterwijziging verzonnen.\n{wat}. Kijk maar in je rooster.",
-    "Er is iets geschoven.\n{wat}. Het rooster weet het al.",
-    "Nepwijziging klaar.\n{wat}. Alleen in de demo, gelukkig.",
-    "Rooster aangepast.\n{wat}. De detector gaat het merken.",
-    "Even gerommeld.\n{wat}. Open je rooster en zie het knipperen.",
-  ],
-  "toast.roosterTerug": [
-    "Rooster teruggezet.\nAlles staat weer waar het stond.",
-    "Terug naar normaal.\nGeen verzonnen uitval meer.",
-    "Rooster schoon.\nDe detector begint opnieuw.",
-    "Alles hersteld.\nAlsof er nooit iets gebeurd is.",
-    "Teruggezet.\nHet lokaal staat er weer.",
   ],
   "toast.ics": [
     "Rooster gedownload.\nOpen het bestand en je agenda weet alles.",

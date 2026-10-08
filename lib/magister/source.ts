@@ -34,8 +34,7 @@ const isMissing = (error: unknown) =>
 
 /**
  * De databron voor echte Magister-data. Praat alleen via de client (dus via
- * de transport: proxy nu, extensie later) en levert precies dezelfde types als
- * de demo. Zuinig: wat meerdere onderdelen nodig hebben (schooljaren, vakken,
+ * de proxy) en levert de types uit lib/types. Zuinig: wat meerdere onderdelen nodig hebben (schooljaren, vakken,
  * cijfers) wordt kort gedeeld in plaats van dubbel opgevraagd.
  *
  * Een ouder schooljaar bekijken (Instellingen) geeft een eigen bron-id, zodat

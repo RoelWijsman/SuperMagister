@@ -12,7 +12,7 @@ interface GuessState {
   load: (sourceId: string, initial: Readonly<Record<string, GuessRecord>>) => Promise<void>;
   /** Je gokt maar één keer per cijfer: een bestaande gok blijft staan. */
   record: (gradeId: string, record: GuessRecord) => void;
-  /** Demo: terug naar de gokken van vóór het eerste pack. */
+  /** Terug naar de gokken van vóór het eerste pack. */
   reset: (sourceId: string, initial: Readonly<Record<string, GuessRecord>>) => void;
 }
 

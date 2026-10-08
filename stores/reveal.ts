@@ -12,7 +12,7 @@ interface RevealState {
     packIds: readonly string[],
   ) => Promise<void>;
   reveal: (ids: readonly string[]) => void;
-  /** Demo: het startpack weer dichtplakken, zodat je het opnieuw kunt openen. */
+  /** Het startpack weer dichtplakken, zodat je het opnieuw kunt openen. */
   reset: (sourceId: string, allGradeIds: readonly string[], packIds: readonly string[]) => void;
 }
 

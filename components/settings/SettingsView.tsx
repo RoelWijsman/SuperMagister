@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Monitor, PackageOpen, Palette, Sparkles, Sun } from "lucide-react";
+import { Moon, Monitor, Palette, Sparkles, Sun } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
@@ -8,15 +8,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Switch } from "@/components/ui/Switch";
 import { Tabs } from "@/components/ui/Tabs";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
-import { useDataSource } from "@/lib/data/context";
-import { useGuesses } from "@/lib/data/guesses";
-import { useRevealState } from "@/lib/data/hooks";
 import type { GuessMode } from "@/lib/guess/input";
 import { useIsClient } from "@/lib/hooks";
-import { notify } from "@/lib/notify";
 import type { TimeOfDay } from "@/lib/theme/time-of-day";
-import { useAchievementStore } from "@/stores/achievements";
-import { useCollectionStore } from "@/stores/collection";
+import { useOnboarding } from "@/stores/onboarding";
 import {
   useSettings,
   type ColorMode,
@@ -27,7 +22,6 @@ import { useUi } from "@/stores/ui";
 import { DataCheck } from "./DataCheck";
 import { DataSettings, LinkDevTools } from "./DataSettings";
 import { HomeworkSettings } from "./HomeworkSettings";
-import { ScheduleDevTools } from "./ScheduleDevTools";
 import { SubjectSettings } from "./SubjectSettings";
 import { ThemePicker } from "./ThemePicker";
 import { TodaySettings } from "./TodaySettings";
@@ -90,13 +84,10 @@ const SPEED_HINT: Record<WalkoutSpeed, string> = {
   direct: "Meteen naar de onthulling. Voor als je weinig tijd hebt.",
 };
 
-/** De walkout: snelheid, automatisch door, oefenen en (demo) het pack opnieuw. */
+/** De walkout: snelheid, automatisch door en oefenen. */
 function WalkoutSettings() {
   const settings = useSettings();
-  const source = useDataSource();
   const { startPractice } = useWalkoutActions();
-  const { resetPack } = useRevealState();
-  const { resetGuesses } = useGuesses();
 
   return (
     <>
@@ -140,22 +131,6 @@ function WalkoutSettings() {
         <Button variant="glass" icon={Sparkles} onClick={() => startPractice()}>
           Oefen een walkout
         </Button>
-        {source.id === "demo" && (
-          <Button
-            variant="ghost"
-            icon={PackageOpen}
-            onClick={() => {
-              if (!resetPack()) return;
-              // Alles terug naar vóór het startpack: gokken, doelen en prestaties mogen opnieuw.
-              resetGuesses();
-              useCollectionStore.getState().resetAnnounced(source.id);
-              useAchievementStore.getState().resetAnnounced(source.id);
-              notify("toast.packGereset", {}, { emoji: "🎁" });
-            }}
-          >
-            Pack opnieuw dichtplakken
-          </Button>
-        )}
       </div>
     </>
   );
@@ -178,11 +153,7 @@ export function SettingsView() {
     <>
       <PageHeader eyebrow="Alles blijft op dit apparaat" title="Instellingen" />
       <div className="space-y-5">
-        <Section
-          id="thema"
-          title="Thema"
-          description="De hele app kleurt live mee. Later speel je extra thema's vrij met levels."
-        >
+        <Section id="thema" title="Thema" description="De hele app kleurt live mee.">
           <ThemePicker />
         </Section>
 
@@ -319,7 +290,7 @@ export function SettingsView() {
         <Section
           id="gegevens"
           title="Gegevens"
-          description="De demo, of je eigen Magister. Alles wat de app ophaalt, blijft op dit apparaat."
+          description="Je koppeling met Magister. Alles wat de app ophaalt, blijft op dit apparaat."
         >
           <DataSettings />
         </Section>
@@ -337,12 +308,31 @@ export function SettingsView() {
               Stijlgids
             </LinkButton>
           </div>
-          <ScheduleDevTools />
+          <div className="mt-4 border-t border-line pt-2">
+            <Switch
+              label="Prestaties en XP tonen"
+              description="De Prestaties-pagina, prestatiemeldingen en XP bij gokken en afvinken. Uit sinds fase 6 is vervallen."
+              checked={settings.gamification}
+              onCheckedChange={(value) => settings.set("gamification", value)}
+            />
+          </div>
           <LinkDevTools />
           <DataCheck />
         </Section>
 
         <Section id="over" title="Over SuperMagister">
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <p className="min-w-0 flex-1 text-ink-2">
+              De uitleg van de eerste keer: thema, woonplaats, koppelen en een pack.
+            </p>
+            <Button
+              variant="glass"
+              icon={Sparkles}
+              onClick={() => useOnboarding.getState().restart()}
+            >
+              Onboarding opnieuw bekijken
+            </Button>
+          </div>
           <p className="text-sm text-ink-2">
             SuperMagister is een onofficiële app. Hij gebruikt een onofficiële, interne
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je

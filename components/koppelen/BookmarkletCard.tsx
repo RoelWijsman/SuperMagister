@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, ChevronDown, Copy, Plug, Smartphone, Star } from "lucide-react";
+import { Bookmark, ChevronDown, Copy, ExternalLink, Plug, Smartphone, Star } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
@@ -51,6 +51,14 @@ function BookmarkletButton({ code }: { code: string | null }) {
       <Plug size={18} strokeWidth={2.4} aria-hidden />
       SuperMagister
     </a>
+  );
+}
+
+function StepNumber({ n }: { n: number }) {
+  return (
+    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,var(--sm-accent),var(--sm-accent-2))] text-xs font-bold text-on-accent">
+      {n}
+    </span>
   );
 }
 
@@ -107,7 +115,7 @@ function PhoneSteps({ onCopy }: { onCopy: () => void }) {
       </Button>
       <p className="text-sm text-ink-3">
         Werkt het op je telefoon niet? Sommige browsers voeren een bladwijzer met code niet uit
-        vanuit de adresbalk. Koppel dan op een computer, of gebruik de extensie zodra die er is.
+        vanuit de adresbalk. Koppel dan op een computer, of gebruik het plakveld.
       </p>
     </div>
   );
@@ -149,24 +157,77 @@ export function BookmarkletCard() {
             De bladwijzer
           </h3>
           <p className="text-sm text-ink-2">
-            Werkt in elke browser op een computer. Eén keer slepen, daarna is het één klik.
+            Zo koppel je SuperMagister aan je Magister. Eén keer slepen, daarna is het één klik.
           </p>
         </div>
       </div>
 
       <LinkSteps />
 
-      <div className="mt-5 flex flex-col items-start gap-4 rounded-3xl border border-dashed border-line-strong p-4 sm:flex-row sm:items-center">
-        <BookmarkletButton code={code} />
-        <p className="text-sm text-ink-2">
-          Sleep deze knop naar je bladwijzerbalk. Zie je die balk niet? Druk op{" "}
-          <Kbd>{isApple ? "⌘" : "Ctrl"}</Kbd> <Kbd>Shift</Kbd> <Kbd>B</Kbd>.
-        </p>
-      </div>
-      <p className="mt-3 text-sm text-ink-3">
-        De bladwijzer leest alleen je sessie in je eigen Magister en opent dan SuperMagister. Je
-        wachtwoord ziet hij nooit, en hij stuurt niets naar een andere website.
-      </p>
+      <ol className="mt-5 space-y-3">
+        <li className="rounded-3xl border border-dashed border-line-strong p-4">
+          <p className="mb-3 flex items-center gap-2 font-semibold text-ink">
+            <StepNumber n={1} /> Sleep deze knop naar je bladwijzerbalk
+          </p>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <BookmarkletButton code={code} />
+            <p className="text-sm text-ink-2">
+              Houd de knop vast en laat hem los op de balk bovenin je browser. Zie je die balk niet?
+              Druk op <Kbd>{isApple ? "⌘" : "Ctrl"}</Kbd> <Kbd>Shift</Kbd> <Kbd>B</Kbd>.
+            </p>
+          </div>
+        </li>
+        <li className="rounded-3xl border border-line p-4">
+          <p className="mb-3 flex items-center gap-2 font-semibold text-ink">
+            <StepNumber n={2} /> Open Magister en log in
+          </p>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <a
+              href="https://accounts.magister.net/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full glass px-5 font-semibold text-ink hover:bg-glass-hover"
+            >
+              <ExternalLink size={18} strokeWidth={2.2} aria-hidden />
+              Open Magister
+            </a>
+            <p className="text-sm text-ink-2">
+              Gewoon zoals altijd, op de site van je eigen school. Je wachtwoord typ je daar, niet
+              hier.
+            </p>
+          </div>
+        </li>
+        <li className="rounded-3xl border border-line p-4">
+          <p className="flex items-center gap-2 font-semibold text-ink">
+            <StepNumber n={3} /> Klik in Magister op de bladwijzer
+          </p>
+          <p className="mt-2 text-sm text-ink-2">
+            SuperMagister opent en is gekoppeld. Na ongeveer een uur verloopt de koppeling; dan klik
+            je in Magister gewoon nog een keer op de bladwijzer.
+          </p>
+        </li>
+      </ol>
+
+      <details className="mt-4 rounded-3xl border border-line p-4 text-sm text-ink-2">
+        <summary className="cursor-pointer font-semibold text-ink">
+          Wat doet die bladwijzer precies?
+        </summary>
+        <ul className="mt-3 list-disc space-y-1.5 pl-5">
+          <li>
+            Als je bent ingelogd, bewaart Magister in je browser een tijdelijke sleutel (een token).
+            De bladwijzer leest die sleutel, op de pagina van je eigen school.
+          </li>
+          <li>
+            Hij opent SuperMagister en geeft de sleutel mee achter het #-teken van het adres. Dat
+            deel gaat nooit naar een server; SuperMagister haalt het meteen weg.
+          </li>
+          <li>
+            Met de sleutel haalt SuperMagister je rooster, huiswerk en cijfers op. Alleen lezen: er
+            verandert niets in Magister.
+          </li>
+          <li>Je wachtwoord ziet de bladwijzer nooit, en hij stuurt niets naar andere websites.</li>
+        </ul>
+      </details>
 
       <button
         type="button"

@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { isModalOpen, isTypingTarget } from "@/lib/hooks";
 import { useUi } from "@/stores/ui";
-import { NAV_ITEMS } from "./nav";
+import { useOnboarding } from "@/stores/onboarding";
+import { useSettings } from "@/stores/settings";
+import { visibleNavItems } from "./nav";
 import { togglePrivacyWithFeedback } from "./PrivacyToggle";
 
 /**
- * Globale sneltoetsen: Ctrl/⌘ K (command palette), 1–7 (pagina's),
+ * Globale sneltoetsen: Ctrl/⌘ K (command palette), 1–6 (pagina's; 1–7 met prestaties),
  * P (privacymodus) en ? (overzicht). ← → zitten in het rooster zelf.
  */
 export function KeyboardShortcuts() {
@@ -16,6 +18,8 @@ export function KeyboardShortcuts() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // Tijdens de onboarding gelden alleen de toetsen van de onboarding.
+      if (useOnboarding.getState().status === "bezig") return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         useUi.getState().togglePalette();
@@ -24,7 +28,9 @@ export function KeyboardShortcuts() {
       if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
       if (isTypingTarget(event.target) || isModalOpen()) return;
 
-      const page = NAV_ITEMS.find((item) => item.shortcut === event.key);
+      const page = visibleNavItems(useSettings.getState().gamification).find(
+        (item) => item.shortcut === event.key,
+      );
       if (page) {
         event.preventDefault();
         router.push(page.href);

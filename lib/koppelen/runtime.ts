@@ -28,9 +28,6 @@ const serverStore: SessionStore = {
   clear: () => undefined,
   reject: () => undefined,
   subscribe: () => () => undefined,
-  autoRenews: () => false,
-  setRenewer: () => undefined,
-  renew: async () => false,
   dispose: () => undefined,
 };
 
@@ -44,7 +41,7 @@ function safeSessionStorage() {
   }
 }
 
-/** De sessie-opslag van dit tabblad. De extensie (5c) meldt zich hier met setRenewer. */
+/** De sessie-opslag van dit tabblad. */
 export function getSessionStore(): SessionStore {
   if (typeof window === "undefined") return serverStore;
   store ??= createSessionStore({

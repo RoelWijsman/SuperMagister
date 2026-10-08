@@ -2,6 +2,7 @@ import { formatGrade } from "@/lib/calc/average";
 import { formatDelta } from "@/lib/calc/cards";
 import { cn } from "@/lib/cn";
 import { guessOutcome } from "@/lib/guess/outcome";
+import { useGamification } from "@/lib/use-gamification";
 
 interface GuessStripProps {
   guess: number;
@@ -14,6 +15,7 @@ interface GuessStripProps {
 /** "Gegokt 7,2 · Echt 7,8 · +0,6": je gok naast het echte cijfer. */
 export function GuessStrip({ guess, actual, xp, className }: GuessStripProps) {
   const { kind, diff } = guessOutcome(guess, actual);
+  const showXp = useGamification();
   const exact = kind === "exact";
 
   return (
@@ -43,7 +45,7 @@ export function GuessStrip({ guess, actual, xp, className }: GuessStripProps) {
       >
         {exact ? "HELDERZIENDE" : formatDelta(diff)}
       </span>
-      {xp ? (
+      {showXp && xp ? (
         <span className="ml-auto rounded-full bg-white/12 px-2.5 text-base text-white">
           +{xp} XP
         </span>

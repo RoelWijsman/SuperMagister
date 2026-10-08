@@ -11,13 +11,11 @@ import { TOKEN_PATTERN } from "./fragment";
  * - Open tabbladen van de app delen de sessie via een BroadcastChannel (alleen
  *   binnen hetzelfde domein): een nieuw tabblad vraagt erom, opnieuw koppelen
  *   en ontkoppelen gelden overal tegelijk.
- * - Een bron die het token zelf kan vernieuwen (de browserextensie, fase 5c)
- *   meldt zich met `setRenewer`. Dan vernieuwt de app stil en blijft de
- *   "Opnieuw koppelen"-melding weg. Hoe je koppelde (extensie, bookmarklet of
+ * - Hoe je koppelde (bookmarklet of
  *   plakveld) maakt verder niets uit, ook niet voor het welkomstpack.
  */
 
-export type LinkMethod = "extensie" | "bookmarklet" | "plakken" | "voorbeeld";
+export type LinkMethod = "bookmarklet" | "plakken" | "voorbeeld";
 
 export interface LinkedSession extends MagisterSession {
   method: LinkMethod;
@@ -44,12 +42,6 @@ export function sessionStatus(
   return session.expiresAt - now <= WARN_BEFORE_MS ? "bijna-verlopen" : "geldig";
 }
 
-/** Een bron die het token zelf vernieuwt (de extensie). */
-export interface TokenRenewer {
-  method: LinkMethod;
-  renew(): Promise<MagisterSession | null>;
-}
-
 export interface SessionSnapshot {
   session: LinkedSession | null;
   /** Magister zei 401 op dit token: hij werkt niet meer, wat expires_at ook zegt. */
@@ -63,11 +55,6 @@ export interface SessionStore {
   clear(): void;
   reject(token: string): void;
   subscribe(listener: () => void): () => void;
-  /** Vernieuwt het token zichzelf? Dan geen "Opnieuw koppelen"-melding. */
-  autoRenews(): boolean;
-  setRenewer(renewer: TokenRenewer | null): void;
-  /** Probeert stil te vernieuwen. False: de gebruiker moet opnieuw koppelen. */
-  renew(): Promise<boolean>;
   dispose(): void;
 }
 
@@ -90,7 +77,7 @@ type Message =
   | { type: "afgewezen"; token: string }
   | { type: "weg" };
 
-const METHODS: ReadonlySet<string> = new Set(["extensie", "bookmarklet", "plakken", "voorbeeld"]);
+const METHODS: ReadonlySet<string> = new Set(["bookmarklet", "plakken", "voorbeeld"]);
 
 /** Alles wat van buiten komt (opslag, ander tabblad) eerst controleren. */
 function validSession(value: unknown): LinkedSession | null {
@@ -107,14 +94,11 @@ function validSession(value: unknown): LinkedSession | null {
 export function createSessionStore({
   storage,
   channel = null,
-  now = Date.now,
 }: {
   storage: SessionStorageLike | null;
   channel?: SessionChannel | null;
-  now?: () => number;
 }): SessionStore {
   const listeners = new Set<() => void>();
-  let renewer: TokenRenewer | null = null;
   let state: SessionSnapshot = { session: load(), rejected: false };
 
   function load(): LinkedSession | null {
@@ -210,24 +194,6 @@ export function createSessionStore({
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
-    },
-    autoRenews: () => renewer !== null,
-    setRenewer(next) {
-      renewer = next;
-    },
-    async renew() {
-      if (!renewer) return false;
-      try {
-        const fresh = await renewer.renew();
-        if (!fresh || (fresh.expiresAt !== null && fresh.expiresAt <= now())) return false;
-        const session = validSession({ ...fresh, method: renewer.method });
-        if (!session) return false;
-        update({ session, rejected: false });
-        post({ type: "sessie", session });
-        return true;
-      } catch {
-        return false;
-      }
     },
     dispose() {
       listeners.clear();

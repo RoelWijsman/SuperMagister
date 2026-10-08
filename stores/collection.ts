@@ -7,7 +7,7 @@ import { STORAGE_KEYS } from "@/lib/storage-keys";
 
 /**
  * Collectie-voorkeuren, lokaal op dit apparaat. Vitrine en gemelde doelen
- * per databron, zodat demo-kaarten en je echte kaarten niet door elkaar lopen.
+ * per databron, zodat kaarten van verschillende accounts en jaren niet door elkaar lopen.
  */
 interface CollectionState {
   showcase: Record<string, string[]>;
@@ -17,7 +17,7 @@ interface CollectionState {
   toggleShowcase: (sourceId: string, cardId: string) => ShowcaseResult;
   setFoil: (foil: FoilId) => void;
   markAnnounced: (sourceId: string, goalIds: readonly string[]) => void;
-  /** Demo-reset: doelen mogen opnieuw gemeld worden. */
+  /** Doelen mogen opnieuw gemeld worden. */
   resetAnnounced: (sourceId: string) => void;
   /** Ontkoppelen: alles van deze databronnen vergeten. */
   forgetSources: (match: (sourceId: string) => boolean) => void;

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 import { useDataSource } from "@/lib/data/context";
-import { getSessionStore, useSession, useSessionStatus } from "@/lib/koppelen/runtime";
+import { useSession, useSessionStatus } from "@/lib/koppelen/runtime";
 import { notify } from "@/lib/notify";
 import { useConnection } from "@/stores/connection";
 import { RelinkSheet } from "./RelinkSheet";
@@ -38,8 +38,6 @@ function rememberLater(key: string) {
  * - 5 minuten voor het verlopen een rustige melding (één keer per token);
  * - verlopen of een 401: de "Opnieuw koppelen"-sheet, één keer per token. Kies
  *   je "Later", dan vraagt dit tabblad het niet opnieuw voor dat token.
- * Vernieuwt de extensie (5c) het token zelf, dan vernieuwt hij stil en zie je
- * van dit alles niets.
  */
 export function SessionWatcher() {
   const source = useDataSource();
@@ -57,7 +55,7 @@ export function SessionWatcher() {
 
   useEffect(() => {
     if (!live || status !== "bijna-verlopen" || !session?.expiresAt) return;
-    if (getSessionStore().autoRenews() || warned.current === session.token) return;
+    if (warned.current === session.token) return;
     warned.current = session.token;
     const minutes = Math.max(1, Math.round((session.expiresAt - Date.now()) / 60_000));
     notify("toast.bijnaVerlopen", { minuten: minutes }, { tone: "warning", emoji: "⏳" });
@@ -68,9 +66,7 @@ export function SessionWatcher() {
     let cancelled = false;
     // Een nieuw tabblad krijgt de sessie misschien zo van een ander tabblad: even wachten.
     const timer = setTimeout(
-      async () => {
-        const store = getSessionStore();
-        if (store.autoRenews() && (await store.renew())) return;
+      () => {
         if (cancelled) return;
         prompted.current = tokenKey;
         if (laterFor() !== tokenKey) show();

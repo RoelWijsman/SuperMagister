@@ -5,8 +5,8 @@ import { Sky } from "@/components/background/Sky";
 import { AchievementWatcher } from "@/components/achievements/AchievementWatcher";
 import { GoalWatcher } from "@/components/collection/GoalWatcher";
 import { CommandPalette } from "@/components/command/CommandPalette";
-import { ExtensionLink } from "@/components/koppelen/ExtensionLink";
 import { LinkIntake } from "@/components/koppelen/LinkIntake";
+import { Onboarding } from "@/components/onboarding/Onboarding";
 import { SessionWatcher } from "@/components/koppelen/SessionWatcher";
 import { Providers } from "@/components/providers/Providers";
 import { AppShell } from "@/components/shell/AppShell";
@@ -77,9 +77,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <CommandPalette />
           <ShortcutsSheet />
           <MoreSheet />
+          <Onboarding />
           <WalkoutOverlay />
           <LinkIntake />
-          <ExtensionLink />
           <SessionWatcher />
           <GoalWatcher />
           <AchievementWatcher />

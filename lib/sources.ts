@@ -1,8 +1,8 @@
 /**
  * Alles wat per databron wordt opgeslagen, staat onder het id van die bron:
- * "demo", of "magister:{school}:{persoon}" (met ":{schooljaar}" voor een
- * ouder jaar). Zo lopen demo en echte data nooit door elkaar en kan
- * ontkoppelen precies je echte gegevens wissen.
+ * "magister:{school}:{persoon}" (met ":{schooljaar}" voor een ouder jaar).
+ * Zo lopen accounts en jaren nooit door elkaar en kan ontkoppelen precies
+ * je echte gegevens wissen.
  */
 export const isMagisterSource = (sourceId: string) => sourceId.startsWith("magister:");
 

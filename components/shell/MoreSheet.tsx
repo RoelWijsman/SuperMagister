@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Sheet } from "@/components/ui/Sheet";
 import { Switch } from "@/components/ui/Switch";
 import { useUi } from "@/stores/ui";
-import { NAV_ITEMS } from "./nav";
+import { useNavItems } from "./useNavItems";
 import { togglePrivacyWithFeedback } from "./PrivacyToggle";
 
 interface Tile {
@@ -24,15 +24,18 @@ export function MoreSheet() {
   const open = useUi((s) => s.moreOpen);
   const setOpen = useUi((s) => s.setMoreOpen);
   const privacy = useUi((s) => s.privacy);
-  const tiles: Tile[] = [...NAV_ITEMS.filter((item) => !item.primary), ...EXTRA_TILES];
+  const navItems = useNavItems();
+  const tiles: Tile[] = [...navItems.filter((item) => !item.primary), ...EXTRA_TILES];
 
   return (
     <Sheet open={open} onClose={() => setOpen(false)} title="Meer">
       <ul className="grid grid-cols-2 gap-3">
-        {tiles.map((tile) => {
+        {tiles.map((tile, index) => {
           const Icon = tile.icon;
+          // Een oneven aantal tegels: de laatste over de hele breedte, zodat er geen gat valt.
+          const wide = tiles.length % 2 === 1 && index === tiles.length - 1;
           return (
-            <li key={tile.href}>
+            <li key={tile.href} className={wide ? "col-span-2" : undefined}>
               <Link
                 href={tile.href}
                 onClick={() => setOpen(false)}

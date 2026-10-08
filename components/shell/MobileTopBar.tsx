@@ -31,7 +31,7 @@ export function MobileTopBar() {
         )}
       >
         <Link href="/vandaag" aria-label="SuperMagister, naar Vandaag" className="rounded-xl p-1">
-          {/* Op hele smalle schermen wijkt het woordmerk voor het DEMO-label. */}
+          {/* Op hele smalle schermen wijkt het woordmerk voor de koppelchip. */}
           <Logo compact className="min-[390px]:hidden" />
           <Logo className="hidden min-[390px]:flex" />
         </Link>

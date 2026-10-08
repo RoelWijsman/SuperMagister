@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LinkGate } from "@/components/koppelen/LinkGate";
 import { BottomNav } from "./BottomNav";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 import { MobileTopBar } from "./MobileTopBar";
@@ -23,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           tabIndex={-1}
           className="mx-auto w-full max-w-[1160px] px-4 pt-3 pb-36 outline-none sm:px-6 md:px-8 md:pt-9 md:pb-16"
         >
-          {children}
+          <LinkGate>{children}</LinkGate>
         </main>
       </div>
       <BottomNav />

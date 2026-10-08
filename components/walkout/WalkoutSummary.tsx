@@ -5,6 +5,7 @@ import { Check, GalleryVerticalEnd } from "lucide-react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
 import { Button } from "@/components/ui/Button";
 import { useMediaQuery } from "@/lib/hooks";
+import { useGamification } from "@/lib/use-gamification";
 import { useCopyParts } from "@/lib/use-copy";
 import type { WalkoutEntry } from "@/stores/walkout";
 
@@ -24,6 +25,7 @@ export function WalkoutSummary({
   onDone,
 }: WalkoutSummaryProps) {
   const wide = useMediaQuery("(min-width: 768px)");
+  const showXp = useGamification();
   const count = entries.length;
   const copy = useCopyParts("walkout.pack.klaar", {
     aantal: count,
@@ -39,7 +41,7 @@ export function WalkoutSummary({
             {copy.title}
           </h2>
           {copy.body && <p className="mt-2 text-white/75">{copy.body}</p>}
-          {guessXp > 0 && (
+          {showXp && guessXp > 0 && (
             <p className="mt-3 inline-block rounded-full bg-white/10 px-3 py-0.5 font-card text-lg tracking-wider text-white">
               +{guessXp} XP met gokken
             </p>

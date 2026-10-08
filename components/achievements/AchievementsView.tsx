@@ -1,24 +1,50 @@
 "use client";
 
-import { Target, Zap } from "lucide-react";
+import { House, Target, Zap } from "lucide-react";
 import { useMemo } from "react";
+import { LinkButton } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useGuessEntries } from "@/lib/data/guesses";
 import { guessAchievements } from "@/lib/guess/achievements";
+import { useIsClient } from "@/lib/hooks";
+import { useGamification } from "@/lib/use-gamification";
 import { useCopyParts } from "@/lib/use-copy";
 import { AchievementTile } from "./AchievementTile";
 
 /**
- * Prestaties. Voor nu de gok-prestaties van feature A; XP, levels en de
- * rest komen in fase 6. Hier ga je alleen omhoog.
+ * Prestaties: de gok-prestaties van feature A en je XP met gokken. Fase 6
+ * (levels, quests en de rest) is vervallen; deze pagina staat daarom standaard
+ * uit en is aan te zetten bij Instellingen > Ontwikkelaar.
  */
 export function AchievementsView() {
+  const isClient = useIsClient();
+  const gamification = useGamification();
   const { entries, xp, isLoading } = useGuessEntries();
   const achievements = useMemo(() => guessAchievements(entries ?? []), [entries]);
   const unlocked = achievements.filter((a) => a.unlockedAt).length;
-  const soon = useCopyParts(isLoading ? null : "prestaties.binnenkort", { xp });
+  const soon = useCopyParts(isLoading || !gamification ? null : "prestaties.binnenkort", { xp });
+
+  if (!isClient) return <PageHeader eyebrow="Alleen omhoog" title="Prestaties" />;
+
+  // Uitgezet: wie hier via een oude link komt, krijgt geen lege pagina.
+  if (!gamification)
+    return (
+      <GlassPanel padding="lg" className="mt-6 md:mt-12">
+        <EmptyState
+          illustration="trofee"
+          title="Prestaties staan uit"
+          description="Aanzetten kan bij Instellingen, onder Ontwikkelaar."
+          action={
+            <LinkButton href="/vandaag" variant="primary" icon={House}>
+              Naar Vandaag
+            </LinkButton>
+          }
+        />
+      </GlassPanel>
+    );
 
   return (
     <>

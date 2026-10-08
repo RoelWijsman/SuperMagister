@@ -18,6 +18,8 @@ export interface NavItem {
   /** Staat in de bottom-nav op mobiel; de rest zit onder "Meer". */
   primary: boolean;
   description: string;
+  /** Alleen zichtbaar als prestaties en XP aan staan (Instellingen > Ontwikkelaar). */
+  gamification?: boolean;
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
@@ -67,7 +69,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: Trophy,
     shortcut: "6",
     primary: false,
-    description: "XP, levels en achievements",
+    description: "Je prestaties met gokken",
+    gamification: true,
   },
   {
     href: "/instellingen",
@@ -78,6 +81,17 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description: "Thema, vakken en meer",
   },
 ];
+
+/**
+ * De pagina's die je nu ziet. Staan prestaties uit, dan verdwijnt die pagina
+ * uit de navigatie en schuiven de sneltoetsen op (1 t/m 6, zonder gat).
+ */
+export function visibleNavItems(gamification: boolean): NavItem[] {
+  return NAV_ITEMS.filter((item) => gamification || !item.gamification).map((item, index) => ({
+    ...item,
+    shortcut: String(index + 1),
+  }));
+}
 
 /** Welk navigatie-item hoort bij dit pad? */
 export function activeNavItem(pathname: string): NavItem | undefined {
