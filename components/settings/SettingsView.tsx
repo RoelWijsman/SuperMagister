@@ -24,6 +24,7 @@ import {
   type WalkoutSpeed,
 } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
+import { DataCheck } from "./DataCheck";
 import { DataSettings, LinkDevTools } from "./DataSettings";
 import { HomeworkSettings } from "./HomeworkSettings";
 import { ScheduleDevTools } from "./ScheduleDevTools";
@@ -338,6 +339,7 @@ export function SettingsView() {
           </div>
           <ScheduleDevTools />
           <LinkDevTools />
+          <DataCheck />
         </Section>
 
         <Section id="over" title="Over SuperMagister">
