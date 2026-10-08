@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { HomeworkPrefs, HomeworkStatus } from "@/lib/homework/overview";
+import { withoutSources } from "@/lib/sources";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 
 export interface SourcePrefs extends HomeworkPrefs {
@@ -34,6 +35,8 @@ interface HomeworkState {
   /** Geeft true als dit de eerste keer is (dan mag de confetti). */
   celebrate: (key: string) => boolean;
   setView: (view: HomeworkView) => void;
+  /** Ontkoppelen: alles van deze databronnen vergeten. */
+  forgetSources: (match: (sourceId: string) => boolean) => void;
 }
 
 const withEntry = <T>(record: Readonly<Record<string, T>>, key: string, value: T | null) => {
@@ -100,6 +103,15 @@ export const useHomeworkStore = create<HomeworkState>()(
           return true;
         },
         setView: (view) => set({ view }),
+        forgetSources(match) {
+          set((state) => ({
+            bySource: withoutSources(state.bySource, match),
+            // "bron:datum": de bron is alles vóór de laatste dubbele punt.
+            celebrated: state.celebrated.filter(
+              (key) => !match(key.slice(0, Math.max(0, key.lastIndexOf(":")))),
+            ),
+          }));
+        },
       };
     },
     {

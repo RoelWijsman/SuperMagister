@@ -13,13 +13,19 @@ import vakken2526 from "./__fixtures__/vakken-2526.json";
 import vakken from "./__fixtures__/vakken.json";
 import type { MagisterClient } from "./client";
 import { createMagisterSource } from "./source";
+import { MagisterError } from "./transport";
 
 const CURRENT = 1014;
 const LAST_YEAR = 1011;
 
 function fakeClient() {
+  // Van de oudste twee schooljaren hebben we geen voorbeelden: die geven een 404.
   const year = <T, U>(enrollmentId: number, current: T, last: U) =>
-    Promise.resolve(enrollmentId === CURRENT ? current : last);
+    enrollmentId === CURRENT
+      ? Promise.resolve(current)
+      : enrollmentId === LAST_YEAR
+        ? Promise.resolve(last)
+        : Promise.reject(new MagisterError("niet-gevonden", "Onbekend schooljaar.", 404));
   return {
     transport: "proxy",
     account: vi.fn(async () => account),
@@ -113,18 +119,37 @@ describe("createMagisterSource", () => {
     expect(await s.getAbsences(range)).toHaveLength(8);
   });
 
-  it("geeft een welkomstpack met de laatste vijf echte cijfers", async () => {
-    const { source: last } = source(LAST_YEAR);
-    const grades = await last.getGrades();
-    const pack = await last.getInitialPackIds();
-    expect(pack).toHaveLength(5);
-    const newest = [...grades]
+  it("geeft eerdere schooljaren voor de collectie, en slaat onbereikbare jaren over", async () => {
+    const history = await source().source.getHistory();
+    expect(history.map((y) => [y.id, y.label])).toEqual([["1011", "2025–2026"]]);
+    const [lastYear] = history;
+    expect(lastYear!.grades.length).toBeGreaterThan(15);
+    // Frans had je alleen vorig jaar: dat vak komt mee, zodat de kaart een naam en kleur heeft.
+    expect(lastYear!.subjects.map((s) => s.id)).toContain("fa");
+    expect(lastYear!.subjects.some((s) => s.id === "gem")).toBe(false);
+  });
+
+  it("vult het welkomstpack aan met vorig jaar als dit jaar nog geen echte cijfers heeft", async () => {
+    const { source: now } = source();
+    // Dit jaar staat er alleen een "Inh": die telt niet als cijfer voor het pack.
+    expect((await now.getGrades()).map((g) => g.value)).toEqual(["INH"]);
+    const [lastYear] = await now.getHistory();
+    const newest = [...lastYear!.grades]
       .filter((g) => g.value !== "INH" && g.value !== "VR")
       .sort((a, b) => b.enteredAt.localeCompare(a.enteredAt))
       .slice(0, 5)
       .map((g) => g.id);
+    const pack = await now.getInitialPackIds();
+    expect(pack).toHaveLength(5);
     expect(new Set(pack)).toEqual(new Set(newest));
-    expect(await last.getInitialGuesses()).toEqual({});
+    expect(await now.getInitialGuesses()).toEqual({});
+  });
+
+  it("geeft een ouder schooljaar een eigen id, zonder pack", async () => {
+    const { source: last } = source(LAST_YEAR);
+    expect(last.id).toBe("magister:voorbeeld.magister.net:1002:1011");
+    expect(await last.getInitialPackIds()).toEqual([]);
+    expect(await last.getHistory()).toEqual([]);
   });
 
   it("is zuinig: vakken en cijfers maar één keer tegelijk ophalen", async () => {

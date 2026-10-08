@@ -1,5 +1,6 @@
 "use client";
 
+import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { LayoutDashboard } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -206,6 +207,13 @@ export function TodayView() {
         </div>
       )}
 
+      {lessons.isError && (!lessons.data || lessons.isPlaceholderData) && (
+        <DataErrorState
+          error={lessons.error}
+          onRetry={() => void lessons.refetch()}
+          className="mb-5"
+        />
+      )}
       <WidgetBoard editing={editing} onDone={() => setEditing(false)} widgets={widgets} />
     </>
   );

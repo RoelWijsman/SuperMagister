@@ -3,7 +3,13 @@
 import { useMemo } from "react";
 import { computeCards, orderPack } from "@/lib/calc/cards";
 import { toCardData, type CardData } from "@/lib/cards/model";
-import { useAccount, useGrades, usePeriods, useRevealState, useSubjectAppearance } from "./hooks";
+import {
+  useAccount,
+  useCollectionGrades,
+  usePeriods,
+  useRevealState,
+  useSubjectAppearance,
+} from "./hooks";
 
 export interface CardCollection {
   /** Alle kaarten, ook die nog in het pack zitten. */
@@ -24,26 +30,34 @@ const EMPTY: CardCollection = {
   isLoading: true,
 };
 
-/** Van alle cijfers naar verzamelkaarten, met vakkleuren, iconen en je naam. */
+/**
+ * Van alle cijfers naar verzamelkaarten, met vakkleuren, iconen en je naam.
+ * Bij een koppeling ook je kaarten uit eerdere schooljaren (met het jaar erop).
+ */
 export function useCards(): CardCollection {
-  const grades = useGrades();
+  const grades = useCollectionGrades();
   const periods = usePeriods();
   const account = useAccount();
   const appearance = useSubjectAppearance();
   const { revealed, pack } = useRevealState();
 
   return useMemo(() => {
-    if (!grades.data || !account.data || !appearance.isReady) return EMPTY;
-    const cores = computeCards(grades.data);
+    if (!grades || !account.data || !appearance.isReady) return EMPTY;
+    const cores = computeCards(grades.all);
     const periodNames = new Map((periods.data ?? []).map((p) => [p.id, p.name]));
     const all: CardData[] = [];
-    for (const grade of grades.data) {
+    for (const grade of grades.all) {
       const core = cores.get(grade.id);
       if (!core) continue;
+      const pastYear = grades.yearOf.get(grade.id);
       all.push(
         toCardData(core, appearance.get(grade.subjectId), {
           studentName: account.data.fullName,
-          periodName: grade.periodId ? (periodNames.get(grade.periodId) ?? null) : null,
+          periodName: pastYear
+            ? pastYear.label
+            : grade.periodId
+              ? (periodNames.get(grade.periodId) ?? null)
+              : null,
         }),
       );
     }
@@ -56,5 +70,5 @@ export function useCards(): CardCollection {
       byId,
       isLoading: !revealed,
     };
-  }, [grades.data, periods.data, account.data, appearance, revealed, pack]);
+  }, [grades, periods.data, account.data, appearance, revealed, pack]);
 }

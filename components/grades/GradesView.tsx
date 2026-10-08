@@ -1,5 +1,6 @@
 "use client";
 
+import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { Calculator, Gauge, Gift, SlidersHorizontal } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -13,7 +14,7 @@ import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import type { CopyKey } from "@/content/copy";
 import { overallAverage } from "@/lib/calc/summary";
-import { useRevealState, useSubjectAppearance } from "@/lib/data/hooks";
+import { useGrades, useRevealState, useSubjectAppearance } from "@/lib/data/hooks";
 import { toISODate } from "@/lib/date";
 import { useIsClient } from "@/lib/hooks";
 import { useCopy, useCopyNodes } from "@/lib/use-copy";
@@ -26,6 +27,7 @@ import { GradeTimeline, InsightsPanel, PeriodChart, RankingList } from "./Overvi
 import { PromotionMeter } from "./PromotionMeter";
 import { PromotionSheet } from "./PromotionSheet";
 import { SimulatorSheet } from "./SimulatorSheet";
+import { useAverageWarnings } from "./AverageWarning";
 import { SubjectCard } from "./SubjectCard";
 import { useGradeData, usePeriodList, usePromotionResult } from "./useGradeData";
 
@@ -55,6 +57,8 @@ export function GradesView() {
   const isClient = useIsClient();
 
   const data = useGradeData();
+  const gradesQuery = useGrades();
+  const warnings = useAverageWarnings();
   const periods = usePeriodList();
   const subjects = useSubjectAppearance();
   const { pack } = useRevealState();
@@ -145,7 +149,9 @@ export function GradesView() {
         </GlassPanel>
       )}
 
-      {!data ? (
+      {gradesQuery.isError && !gradesQuery.data ? (
+        <DataErrorState error={gradesQuery.error} onRetry={() => void gradesQuery.refetch()} />
+      ) : !data ? (
         <>
           <LoadingQuip topic="cijfers" className="mb-3" />
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -214,6 +220,8 @@ export function GradesView() {
                     locked={data.locked.get(subject.id) ?? 0}
                     focused={subject.id === focus}
                     onOpenPack={openPack}
+                    // Met iets in je pack zou Magisters gemiddelde je nieuwe cijfer verraden.
+                    warning={data.locked.get(subject.id) ? undefined : warnings.get(subject.id)}
                   />
                 </li>
               ))}

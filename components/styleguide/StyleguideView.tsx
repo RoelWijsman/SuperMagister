@@ -8,6 +8,7 @@ import { CollectionSamples } from "./CollectionSamples";
 import { GradeSamples } from "./GradeSamples";
 import { GuessSamples } from "./GuessSamples";
 import { HomeworkSamples } from "./HomeworkSamples";
+import { LinkSamples } from "./LinkSamples";
 import { ScheduleSamples } from "./ScheduleSamples";
 import { TodaySamples } from "./TodaySamples";
 import { VideoSamples } from "./VideoSamples";
@@ -162,6 +163,13 @@ export function StyleguideView() {
           note="Feature B: het laatste beeld per stand, met dezelfde tekencode als de walkout. Of maak er echt een."
         >
           <VideoSamples deck={deck} />
+        </Block>
+
+        <Block
+          title="Koppelen"
+          note="Fase 5b: de chip in drie standen, de bladwijzer-stappen, de plek voor de extensie, het plakveld, foutmeldingen, de gemiddelde-waarschuwing en de sheet om opnieuw te koppelen. Verzonnen school; hier koppel je niets."
+        >
+          <LinkSamples />
         </Block>
       </div>
 

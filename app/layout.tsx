@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter, Unbounded } from "next/font/google";
+import { headers } from "next/headers";
 import { Sky } from "@/components/background/Sky";
 import { AchievementWatcher } from "@/components/achievements/AchievementWatcher";
 import { GoalWatcher } from "@/components/collection/GoalWatcher";
 import { CommandPalette } from "@/components/command/CommandPalette";
+import { LinkIntake } from "@/components/koppelen/LinkIntake";
+import { SessionWatcher } from "@/components/koppelen/SessionWatcher";
 import { Providers } from "@/components/providers/Providers";
 import { AppShell } from "@/components/shell/AppShell";
 import { MoreSheet } from "@/components/shell/MoreSheet";
@@ -49,7 +52,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // De nonce van de CSP (proxy.ts): zonder nonce mag het themascript niet draaien.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="nl"
@@ -60,7 +65,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${unbounded.variable} ${bebas.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: buildThemeScript() }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: buildThemeScript() }} />
       </head>
       <body>
         <Providers>
@@ -72,6 +77,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ShortcutsSheet />
           <MoreSheet />
           <WalkoutOverlay />
+          <LinkIntake />
+          <SessionWatcher />
           <GoalWatcher />
           <AchievementWatcher />
           <ConfettiRain />

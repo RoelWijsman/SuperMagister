@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { withoutSources } from "@/lib/sources";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 
 /**
@@ -11,6 +12,8 @@ interface AchievementState {
   announced: Record<string, string[]>;
   markAnnounced: (sourceId: string, ids: readonly string[]) => void;
   resetAnnounced: (sourceId: string) => void;
+  /** Ontkoppelen: alles van deze databronnen vergeten. */
+  forgetSources: (match: (sourceId: string) => boolean) => void;
 }
 
 export const useAchievementStore = create<AchievementState>()(
@@ -30,6 +33,9 @@ export const useAchievementStore = create<AchievementState>()(
           const { [sourceId]: _forgotten, ...rest } = state.announced;
           return { announced: rest };
         });
+      },
+      forgetSources(match) {
+        set((state) => ({ announced: withoutSources(state.announced, match) }));
       },
     }),
     {

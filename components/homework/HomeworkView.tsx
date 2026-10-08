@@ -1,5 +1,6 @@
 "use client";
 
+import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { Columns3, List } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -146,7 +147,9 @@ export function HomeworkView() {
         }
       />
 
-      {!items ? (
+      {homework.isError && (!homework.data || homework.isPlaceholderData) ? (
+        <DataErrorState error={homework.error} onRetry={() => void homework.refetch()} />
+      ) : !items ? (
         <div className="space-y-3">
           <LoadingQuip topic="huiswerk" />
           {Array.from({ length: 3 }, (_, i) => (

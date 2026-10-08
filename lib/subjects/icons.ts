@@ -46,6 +46,7 @@ export const SUBJECT_ICON_NAMES = [
   "Rocket",
   "Puzzle",
   "Star",
+  "ClipboardCheck",
 ] as const;
 
 export type SubjectIconName = (typeof SUBJECT_ICON_NAMES)[number];

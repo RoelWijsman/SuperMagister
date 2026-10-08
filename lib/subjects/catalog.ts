@@ -33,6 +33,15 @@ const entry = (
 
 // Volgorde telt: specifieke namen vóór algemene (beeldende kunst vóór "kunst").
 const CATALOG: readonly CatalogEntry[] = [
+  // Diatoetsen ("diatoets engels") vóór de talen, anders worden ze gewoon Engels.
+  entry(
+    "diatoets",
+    "ClipboardCheck",
+    "overig",
+    ["dia", "diasp", "diabl", "diaen", "diare", "diawi"],
+    /diatoets|diagnostische toets/,
+    ["diatoets"],
+  ),
   entry(
     "nederlands",
     "BookOpen",
@@ -177,6 +186,20 @@ const CATALOG: readonly CatalogEntry[] = [
   ]),
   entry("pws", "NotebookPen", "overig", ["pws"], /profielwerkstuk/, ["pws", "profielwerkstuk"]),
   entry("lob", "Footprints", "overig", ["lob"], /loopbaan/, ["lob"]),
+  // Maatschappelijke stage vóór gewone stage.
+  entry(
+    "maatschappelijke-stage",
+    "HeartHandshake",
+    "overig",
+    ["mast", "mas", "mst"],
+    /maatschappelijke stage/,
+    ["mas"],
+  ),
+  entry("stage", "BriefcaseBusiness", "overig", ["stage", "stg"], /stage/, ["stage"]),
+  entry("activiteit", "Rocket", "overig", ["act", "acti"], /activiteit|excursie|projectweek/, [
+    "activiteit",
+  ]),
+  entry("project", "Lightbulb", "overig", ["pro", "proj", "prj"], /^project/, ["project"]),
 ];
 
 const FALLBACK: SubjectInfo = {

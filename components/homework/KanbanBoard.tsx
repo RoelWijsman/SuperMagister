@@ -18,7 +18,7 @@ import {
 } from "@dnd-kit/core";
 import { AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Clock } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { SubjectDot } from "@/components/subjects/SubjectBadge";
 import { Chip } from "@/components/ui/Chip";
 import { cn } from "@/lib/cn";
@@ -212,6 +212,8 @@ export function KanbanBoard({
 }) {
   const [active, setActive] = useState<HomeworkItem | null>(null);
   const [bursts, setBursts] = useState<number[]>([]);
+  // Vaste id: anders telt dnd-kit op de server anders dan in de browser (hydratiefout).
+  const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
@@ -251,6 +253,7 @@ export function KanbanBoard({
 
   return (
     <DndContext
+      id={dndId}
       sensors={sensors}
       collisionDetection={collision}
       onDragStart={onDragStart}

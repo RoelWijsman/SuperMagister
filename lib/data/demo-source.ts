@@ -30,6 +30,8 @@ export function createDemoSource(now: () => Date = () => new Date()): SchoolData
     getSubjects: async () => (await dataset()).subjects,
     getPeriods: async () => (await dataset()).periods,
     getGrades: async () => (await dataset()).grades,
+    // Daan heeft geen vorige schooljaren: de demo speelt zich af in één jaar.
+    getHistory: async () => [],
     getLessons: async (range) =>
       applyTweaks(
         (await dataset()).lessons.filter((l) => inRange(l.date, range)),

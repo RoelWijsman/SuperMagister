@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   schedule: "sm-rooster",
   homework: "sm-huiswerk",
   grades: "sm-cijfers",
+  /** Met welk Magister-account je gekoppeld bent (nooit het token zelf). */
+  connection: "sm-koppeling",
 } as const;
 
 /** Prefix voor alles wat in IndexedDB staat (via idb-keyval). */

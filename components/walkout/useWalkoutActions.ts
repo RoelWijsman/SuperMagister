@@ -5,7 +5,7 @@ import { unlockAudio } from "@/lib/audio/engine";
 import { bestTier } from "@/lib/calc/tiers";
 import type { CardData } from "@/lib/cards/model";
 import { useCards } from "@/lib/data/cards";
-import { useAccount, useGrades } from "@/lib/data/hooks";
+import { useAccount, useCollectionGrades, useGrades } from "@/lib/data/hooks";
 import { notify } from "@/lib/notify";
 import { practiceDeck } from "@/lib/walkout/practice";
 import { useWalkout } from "@/stores/walkout";
@@ -14,12 +14,17 @@ import { useWalkout } from "@/stores/walkout";
 export function useWalkoutActions() {
   const cards = useCards();
   const grades = useGrades();
+  const collection = useCollectionGrades();
   const account = useAccount();
   const start = useWalkout((s) => s.start);
 
+  // De andere cijfers van dat vak, uit hetzelfde schooljaar als de kaart.
   const subjectGrades = useCallback(
-    (card: CardData) => (grades.data ?? []).filter((g) => g.subjectId === card.subjectId),
-    [grades.data],
+    (card: CardData) =>
+      (collection?.yearOf.get(card.id)?.grades ?? grades.data ?? []).filter(
+        (g) => g.subjectId === card.subjectId,
+      ),
+    [grades.data, collection],
   );
 
   const openPack = useCallback(() => {

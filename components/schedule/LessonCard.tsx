@@ -11,7 +11,8 @@ import { formatTime } from "@/lib/date";
 import { hourLabel } from "@/lib/schedule/summary";
 import { isTestInfoType } from "@/lib/school/derive";
 import type { Lesson, LessonInfoType } from "@/lib/types";
-import { useScheduleUi } from "@/stores/schedule";
+import { useDataSource } from "@/lib/data/context";
+import { scheduleKey, useScheduleUi } from "@/stores/schedule";
 
 export const TEST_LABELS: Partial<Record<LessonInfoType, string>> = {
   toets: "Toets",
@@ -26,14 +27,15 @@ export const TEST_LABELS: Partial<Record<LessonInfoType, string>> = {
  */
 function Stamp({ lessonId, small }: { lessonId: string; small?: boolean }) {
   const reduced = useReducedMotion();
-  const stamped = useScheduleUi((s) => s.stamped.includes(lessonId));
+  const key = scheduleKey(useDataSource().id, lessonId);
+  const stamped = useScheduleUi((s) => s.stamped.includes(key));
   const stamp = useScheduleUi((s) => s.stamp);
   // Bij de eerste render bepalen we of hij moet vallen; daarna niet meer.
   const [animate] = useState(() => !stamped && !reduced);
 
   useEffect(() => {
-    if (!stamped) stamp(lessonId);
-  }, [stamped, stamp, lessonId]);
+    if (!stamped) stamp(key);
+  }, [stamped, stamp, key]);
 
   return (
     <motion.span

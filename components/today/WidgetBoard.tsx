@@ -18,7 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Check, EyeOff, GripVertical, MoveHorizontal, Plus, RotateCcw } from "lucide-react";
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import {
@@ -160,6 +160,8 @@ export function WidgetBoard({
   const toggle = useToday((s) => s.toggle);
   const reset = useToday((s) => s.reset);
   const visible = visibleWidgets(layout);
+  // Vaste id: anders telt dnd-kit op de server anders dan in de browser (hydratiefout).
+  const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -191,6 +193,7 @@ export function WidgetBoard({
         </div>
       )}
       <DndContext
+        id={dndId}
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={onDragEnd}

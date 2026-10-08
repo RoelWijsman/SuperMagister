@@ -7,12 +7,14 @@
  *   GET-verzoeken door naar https://{school}.magister.net/api/..., logt nooit
  *   tokens en slaat niets op.
  * - "extensie": later via een browserextensie. Nog niet gebouwd.
+ * - "voorbeeld": alleen tijdens het bouwen; speelt de geanonimiseerde
+ *   testbestanden af alsof het Magister is (lib/magister/fixture-transport.ts).
  *
  * Nooit wachtwoorden: alleen een token dat de bookmarklet (fase 5) via het
  * URL-fragment doorgeeft en dat in sessionStorage blijft.
  */
 
-export type TransportKind = "proxy" | "extensie";
+export type TransportKind = "proxy" | "extensie" | "voorbeeld";
 
 export interface MagisterSession {
   /** Bijv. `noorderlicht.magister.net`. */
@@ -84,7 +86,8 @@ const STATUS_CODES: readonly [number, MagisterErrorCode, string][] = [
   [429, "te-vaak", "Even te veel verzoeken. Probeer het zo nog eens."],
 ];
 
-function checkSession(session: MagisterSession | null): MagisterSession {
+/** Is er een bruikbare sessie? Gooit anders een nette fout (zonder token erin). */
+export function assertSession(session: MagisterSession | null): MagisterSession {
   if (!session || !session.token) throw new MagisterError("geen-sessie", "Je bent niet gekoppeld.");
   if (session.expiresAt !== null && session.expiresAt <= Date.now())
     throw new MagisterError("verlopen", "Je sessie bij Magister is verlopen.");
@@ -120,7 +123,7 @@ export function createProxyTransport({
     kind: "proxy",
     async get<T>(path: string, query?: Query): Promise<T> {
       const safePath = checkPath(path);
-      const current = checkSession(session());
+      const current = assertSession(session());
       let response: Response;
       try {
         response = await doFetch(`${base}/${safePath}${queryString(query)}`, {

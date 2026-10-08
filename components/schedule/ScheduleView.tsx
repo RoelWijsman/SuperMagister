@@ -1,5 +1,6 @@
 "use client";
 
+import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { CalendarArrowDown, ChevronLeft, ChevronRight, History } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -390,7 +391,9 @@ export function ScheduleView() {
 
       <ChangesBanner count={unseenCount} onOpen={() => setChangesOpen(true)} />
 
-      {!ready ? (
+      {lessons.isError && (!lessons.data || lessons.isPlaceholderData) ? (
+        <DataErrorState error={lessons.error} onRetry={() => void lessons.refetch()} />
+      ) : !ready ? (
         <ScheduleSkeleton />
       ) : view === "maand" ? (
         <MonthView

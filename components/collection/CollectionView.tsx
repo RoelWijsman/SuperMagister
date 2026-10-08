@@ -1,5 +1,6 @@
 "use client";
 
+import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { ChevronDown, Gift, Star, X } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
@@ -26,7 +27,7 @@ import {
   type AlbumSort,
 } from "@/lib/collection/album";
 import { cn } from "@/lib/cn";
-import { useAccount } from "@/lib/data/hooks";
+import { useAccount, useGrades } from "@/lib/data/hooks";
 import { useCopy, useCopyParts } from "@/lib/use-copy";
 import { useCollectionStore } from "@/stores/collection";
 import { CardViewer } from "./CardViewer";
@@ -108,6 +109,7 @@ function TierCounter({
 /** De collectie (§12): album, vitrine, verzameldoelen en folies. */
 export function CollectionView() {
   const collection = useCollection();
+  const gradesQuery = useGrades();
   const account = useAccount();
   const { openPack } = useWalkoutActions();
   const setFoil = useCollectionStore((s) => s.setFoil);
@@ -137,6 +139,15 @@ export function CollectionView() {
   const header = (
     <PageHeader eyebrow="Je verzamelkaarten" title="Collectie" subtitle={subtitle ?? undefined} />
   );
+
+  if (collection.isLoading && gradesQuery.isError && !gradesQuery.data) {
+    return (
+      <>
+        {header}
+        <DataErrorState error={gradesQuery.error} onRetry={() => void gradesQuery.refetch()} />
+      </>
+    );
+  }
 
   if (collection.isLoading) {
     return (

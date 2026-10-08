@@ -271,13 +271,6 @@ export const COPY = {
     "Hier is niks.\nDe conciërge heeft ook al gekeken.",
     "Deze pagina heeft zich ziek gemeld.\nBeterschap. Jij kunt gewoon terug naar Vandaag.",
   ],
-  "leeg.koppelen": [
-    "Koppelen komt in fase 5.\nTot die tijd kijk je mee met Daan. Hij vindt het prima.",
-    "Nog niet gekoppeld.\nDaan uit 5 havo houdt je plek warm.",
-    "Je eigen Magister komt in fase 5.\nTot dan: de demo. Alles verzonnen, niks erg.",
-    "Koppelen: binnenkort.\nWe bouwen een bladwijzer. Je wachtwoord komt hier nooit.",
-    "Fase 5.\nDan zie je je eigen cijfers. Spannend. Of eng.",
-  ],
 
   // ——— Meldingen (titel\nuitleg) ———————————————————————————————————————————
   "toast.privacyAan": [
@@ -364,6 +357,66 @@ export const COPY = {
     "{wat}. Check.\nVolgende doel staat al klaar.",
     "Gelukt: {wat}.\nWe zouden applaudisseren, maar we zijn een app.",
   ],
+
+  // ——— Koppelen met Magister (fase 5b) ———————————————————————————————————
+  "toast.gekoppeld": [
+    "Gekoppeld met {school}.\nHoi {naam}. Je welkomstpack ligt klaar.",
+    "Je bent binnen.\n{school} is gekoppeld. Er ligt een pack voor je klaar.",
+    "Koppeling gelukt.\nZonder wachtwoord. Zo hoort het.",
+    "Welkom, {naam}.\nDaan gaat terug naar de demo. Hij vindt het prima.",
+    "Gekoppeld.\nJe echte cijfers staan klaar. Dapper.",
+  ],
+  "toast.weerGekoppeld": [
+    "Weer gekoppeld.\nAlles wordt bijgewerkt.",
+    "Je bent er weer.\nNieuw uur, nieuwe kansen.",
+    "Opnieuw gekoppeld.\nMagister had je even gemist. Wij ook.",
+    "Weer verbonden.\nDe data wordt ververst.",
+    "Gelukt.\nWeer een uur Magister zonder Magister.",
+  ],
+  "toast.ontkoppeld": [
+    "Ontkoppeld.\nJe gegevens zijn van dit apparaat gewist.",
+    "Ontkoppeld en opgeruimd.\nDaan uit 5 havo neemt het weer over.",
+    "Alles is weg.\nJe cijfers, je gokken, je notities. Netjes opgeruimd.",
+    "Ontkoppeld.\nNiks meer van jou op dit apparaat. De demo is terug.",
+    "Klaar.\nAlsof je hier nooit was. De conciërge heeft geveegd.",
+  ],
+  "toast.bijnaVerlopen": [
+    "Je koppeling verloopt over {minuten} minuten.\nKlik in Magister op je bladwijzer om te verlengen.",
+    "Nog {minuten} minuten gekoppeld.\nMagister geeft maar een uur. Eén klik op je bladwijzer en je kunt verder.",
+    "Bijna tijd.\nOver {minuten} minuten moet je opnieuw koppelen. Net als een les: net te kort.",
+    "Nog {minuten} minuten.\nDaarna zie je even je laatst opgehaalde data.",
+    "Je koppeling loopt bijna af.\nNog {minuten} minuten. De bel gaat zo.",
+  ],
+  "koppeling.verlopen": [
+    "Je koppeling is verlopen.\nMagister geeft je maar een uur. Wat je ziet, is van {tijd}.",
+    "Even opnieuw koppelen.\nJe token is op. De stand van {tijd} blijft gewoon staan.",
+    "Tijd voor een nieuwe sessie.\nMagister vertrouwt niemand langer dan een uur. Niet persoonlijk bedoeld.",
+    "Verlopen.\nZoals je schoolpas in juli. Je ziet nu de stand van {tijd}.",
+    "Je moet even opnieuw koppelen.\nEén klik op je bladwijzer in Magister. Tot die tijd: de stand van {tijd}.",
+  ],
+  "koppelen.gelukt": [
+    "Je bent binnen, {naam}.",
+    "Gekoppeld. Zonder wachtwoord.",
+    "Welkom bij je eigen data, {naam}.",
+    "Gekoppeld met {school}. Daan is opgelucht.",
+    "Daar ben je, {naam}.",
+  ],
+  "koppelen.fout": [
+    "Dat ging mis.",
+    "Koppelen lukte niet.",
+    "Hm. Geen koppeling.",
+    "Niet gelukt. Nog niet.",
+    "Dat werkte niet.",
+  ],
+  "koppelen.extensie": [
+    "De extensie komt eraan.\nEén keer installeren, daarna koppelt hij vanzelf. Tot die tijd: de bladwijzer.",
+    "Binnenkort: de extensie.\nGeen bladwijzers meer slepen. Hij vernieuwt je koppeling zelf.",
+    "Extensie in aanbouw.\nDe conciërge zoekt nog de juiste schroevendraaier.",
+    "De extensie is nog niet klaar.\nHij wordt de makkelijkste manier. Gebruik zolang een van de andere.",
+    "Nog even geduld.\nStraks één klik in je browser en klaar. Nu nog met de hand.",
+  ],
+  // Vaste zin, precies zoals gevraagd: bij een vak waar Magisters gemiddelde anders is.
+  "cijfers.magisterAnders": ["Magister rekent hier anders, check je cijferoverzicht."],
 
   // ——— Pack en cijfers —————————————————————————————————————————————————————
   "pack.teaser": [

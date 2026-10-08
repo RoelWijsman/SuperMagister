@@ -49,6 +49,16 @@ export interface Period {
   end: ISODate;
 }
 
+/** Een eerder schooljaar. Alleen voor de collectie: je kaarten van vroeger. */
+export interface PastYear {
+  id: string;
+  /** Bijv. "2025–2026". */
+  label: string;
+  grades: Grade[];
+  /** De vakken van dat jaar, ook als je ze nu niet meer hebt. */
+  subjects: Subject[];
+}
+
 /** Niet-numerieke beoordelingen die Magister kan teruggeven. */
 /** RV = ruim voldoende, VR = vrijstelling, INH = moet nog inhalen (Magister toont "Inh"). */
 export type TextGradeValue = "V" | "G" | "O" | "RV" | "ZG" | "ZS" | "R" | "M" | "NB" | "VR" | "INH";

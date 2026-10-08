@@ -1,0 +1,87 @@
+"use client";
+
+import { KeyRound, ServerOff, ShieldCheck } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { BookmarkletCard } from "./BookmarkletCard";
+import { ExtensionCard } from "./ExtensionCard";
+import { LinkStatusPanel } from "./LinkStatusPanel";
+import { PasteCard } from "./PasteCard";
+
+const PROMISES = [
+  {
+    icon: KeyRound,
+    title: "Nooit je wachtwoord",
+    text: "Je logt in op Magister zelf. SuperMagister vraagt en ziet je wachtwoord nooit.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Alleen lezen",
+    text: "De app vraagt alleen gegevens op. Hij kan niets veranderen in Magister.",
+  },
+  {
+    icon: ServerOff,
+    title: "Niets op een server",
+    text: "Je gegevens blijven op dit apparaat. Je sessie zelfs alleen in dit tabblad.",
+  },
+];
+
+function SectionTitle({ children, hint }: { children: string; hint: string }) {
+  return (
+    <div className="mb-3 px-1">
+      <h2 className="font-display text-lg font-semibold tracking-tight text-ink">{children}</h2>
+      <p className="text-sm text-ink-3">{hint}</p>
+    </div>
+  );
+}
+
+/**
+ * /koppelen: de extensie bovenaan (de hoofdmanier, vanaf 5c), daaronder de
+ * bladwijzer en het plakveld als andere manieren. Elke manier eindigt op
+ * dezelfde plek: lib/koppelen/link.ts.
+ */
+export function ConnectView() {
+  return (
+    <>
+      <PageHeader
+        eyebrow="Je eigen Magister"
+        title="Koppelen met Magister"
+        subtitle="Zonder wachtwoord. Je logt in bij Magister zelf; SuperMagister krijgt alleen een tijdelijke sleutel."
+      />
+      <div className="space-y-8">
+        <LinkStatusPanel />
+
+        <section aria-labelledby="extensie-titel">
+          <SectionTitle hint="Straks de snelste manier, ook om gekoppeld te blijven.">
+            De makkelijkste manier
+          </SectionTitle>
+          <ExtensionCard />
+        </section>
+
+        <section className="space-y-4">
+          <SectionTitle hint="Werken nu al. Ze doen precies hetzelfde.">
+            Andere manieren
+          </SectionTitle>
+          <BookmarkletCard />
+          <PasteCard />
+        </section>
+
+        <section aria-label="Wat je van ons mag verwachten">
+          <ul className="grid gap-3 md:grid-cols-3">
+            {PROMISES.map(({ icon: Icon, title, text }) => (
+              <li key={title} className="rounded-3xl border border-line p-4">
+                <Icon size={20} strokeWidth={2.2} aria-hidden className="text-accent-ink" />
+                <p className="mt-3 font-semibold text-ink">{title}</p>
+                <p className="mt-1 text-sm text-ink-2">{text}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 px-1 text-xs text-ink-3">
+            SuperMagister is onofficieel. Het gebruikt een interne Magister-API die kan veranderen,
+            is niet verbonden aan Magister of Iddink, slaat geen gegevens op een server op en is
+            alleen bedoeld voor je eigen account.
+          </p>
+        </section>
+      </div>
+    </>
+  );
+}

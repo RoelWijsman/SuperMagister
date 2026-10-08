@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { FoilId } from "@/lib/collection/goals";
 import { toggleShowcase, type ShowcaseResult } from "@/lib/collection/showcase";
+import { withoutSources } from "@/lib/sources";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 
 /**
@@ -18,6 +19,8 @@ interface CollectionState {
   markAnnounced: (sourceId: string, goalIds: readonly string[]) => void;
   /** Demo-reset: doelen mogen opnieuw gemeld worden. */
   resetAnnounced: (sourceId: string) => void;
+  /** Ontkoppelen: alles van deze databronnen vergeten. */
+  forgetSources: (match: (sourceId: string) => boolean) => void;
 }
 
 export const useCollectionStore = create<CollectionState>()(
@@ -50,6 +53,13 @@ export const useCollectionStore = create<CollectionState>()(
           const { [sourceId]: _forgotten, ...rest } = state.announced;
           return { announced: rest };
         });
+      },
+
+      forgetSources(match) {
+        set((state) => ({
+          showcase: withoutSources(state.showcase, match),
+          announced: withoutSources(state.announced, match),
+        }));
       },
     }),
     {

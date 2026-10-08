@@ -3,9 +3,9 @@
 Je rooster, huiswerk en cijfers uit Magister. Mooi, supersnel en vooral leuk. Nieuwe cijfers onthul
 je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 
-> **Disclaimer:** SuperMagister is een onofficiële app die een onofficiële, interne Magister-API
-> gebruikt. De app is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je eigen
-> account.
+> **Disclaimer:** SuperMagister is onofficieel. Het gebruikt een interne Magister-API die kan
+> veranderen, is niet verbonden aan Magister of Iddink, slaat geen gegevens op een server op en is
+> alleen bedoeld voor je eigen account.
 
 ## Status
 
@@ -19,7 +19,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | ✅ Klaar |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | ✅ Klaar |
-| 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | 5a klaar |
+| 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | 5b klaar |
 | 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                          | Gepland  |
 | 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid         | Gepland  |
@@ -133,20 +133,61 @@ hele punt), `Enter` om vast te zetten. In de walkout: `→` om over te slaan of 
 om te sluiten. In de kaartviewer: `←`
 en `→` om te bladeren, `F` om om te draaien, `Esc` om te sluiten.
 
-## Koppelen met Magister
+## Koppelen
 
-Komt in fase 5 (de client in `lib/magister` staat al klaar; hoe hij ophaalt, via de proxy of later
-via een browserextensie, kies je in `lib/magister/config.ts`). Het plan: je logt gewoon in op de
-site van je eigen school
-(`{school}.magister.net`) en klikt daar op een bladwijzer (bookmarklet). Die geeft je sessie via het
-`#`-deel van de link door aan SuperMagister. Je wachtwoord komt nooit in deze app, en er wordt niets
-op een server opgeslagen.
+Koppel je eigen Magister op de pagina **Koppelen** (in het menu onder **Meer**, of via de chip
+linksonder). Je wachtwoord vul je nooit in SuperMagister in: je logt in bij Magister zelf, en
+SuperMagister krijgt alleen een tijdelijke sleutel (een token) van ongeveer een uur.
+
+**Met de bladwijzer (op een computer)**
+
+1. Sleep op de pagina **Koppelen** de knop **SuperMagister** naar je bladwijzerbalk. Zie je die
+   balk niet? Druk op `Ctrl+Shift+B` (op een Mac `⌘+Shift+B`).
+2. Ga naar je eigen Magister (`jouwschool.magister.net`) en log in.
+3. Klik op de bladwijzer. SuperMagister opent en is gekoppeld.
+
+De bladwijzer leest alleen je sessie in je eigen Magister en geeft die door via het `#`-deel van de
+link, nooit in de rest van het adres. SuperMagister haalt dat deel meteen weg uit de adresbalk.
+
+**Met plakken (als de bladwijzer niet werkt)**
+
+Open Magister op een computer, druk op `F12`, kies **Application** (Firefox: **Opslag**) →
+**Session storage** → je Magister-adres, en kopieer de waarde van de regel die begint met
+`oidc.user:`. Plak die op de pagina **Koppelen** onder **Plakken**.
+
+**Op je telefoon** kun je de bladwijzer met de hand maken: kopieer de code op de pagina
+**Koppelen**, maak een bladwijzer en zet de code bij het adres. Typ daarna in Magister de naam van
+de bladwijzer in de adresbalk en tik erop.
+
+**Wat er daarna gebeurt**
+
+- Alles wat al in Magister stond, zit meteen in je collectie, ook je cijfers van eerdere
+  schooljaren. Je laatste vijf cijfers liggen klaar in een **welkomstpack**. Nieuwe cijfers worden
+  vanaf dan vanzelf een pack.
+- Zolang de app open is, haalt hij elk kwartier nieuwe gegevens op (en als je terugkomt in het
+  tabblad, maar niet vaker). Wat is opgehaald, blijft op dit apparaat staan. Zo zie je je laatste
+  stand ook als je koppeling verlopen is ("laatste update 14:02").
+- Vijf minuten voor het verlopen krijg je een seintje. Is hij verlopen, dan vraagt de app je
+  vriendelijk om opnieuw te koppelen: in Magister nog een keer op de bladwijzer klikken.
+- Rekent Magister een gemiddelde anders uit dan SuperMagister, dan zie je bij dat vak een
+  waarschuwingsdriehoekje met uitleg.
+- **Instellingen → Gegevens:** wissel tussen de demo en je eigen Magister, bekijk een eerder
+  schooljaar terug, of **ontkoppel**. Ontkoppelen wist je token en alles van je eigen Magister van
+  dit apparaat. De demo en je eigen gegevens lopen nooit door elkaar.
+- Binnenkort komt er een browserextensie: dan koppel je met één klik en vernieuwt de koppeling
+  zichzelf.
+
+Voor ontwikkelaars: hoe de app bij Magister komt (via de eigen proxy, later via de extensie), kies
+je op één plek in `lib/magister/config.ts`. Het adres in de bladwijzer is het adres waarop de app
+draait; zet `NEXT_PUBLIC_APP_URL` om een ander adres te gebruiken. Bij **Instellingen →
+Ontwikkelaar** kun je tijdens het bouwen koppelen met de geanonimiseerde testbestanden.
 
 ## Op Vercel zetten
 
 1. Zet het project in een eigen GitHub-repository.
 2. Ga naar [vercel.com/new](https://vercel.com/new) en importeer de repository.
-3. Vercel herkent Next.js vanzelf. Er zijn geen omgevingsvariabelen nodig.
+3. Vercel herkent Next.js vanzelf. Er zijn geen omgevingsvariabelen nodig. (Wil je dat de
+   bladwijzer een ander adres opent dan waarop de app draait, zet dan `NEXT_PUBLIC_APP_URL`.)
 4. Klik op **Deploy**. Elke push naar je hoofdbranch wordt daarna automatisch gepubliceerd.
 
 ## Techniek in het kort
@@ -157,9 +198,11 @@ op een server opgeslagen.
 - Video's met WebCodecs en Mediabunny (mp4), met MediaRecorder als terugval
 - TanStack Query voor data, Zustand voor instellingen en UI-state, IndexedDB via idb-keyval
 - Vitest voor alle rekenlogica, ESLint en Prettier voor de codekwaliteit
+- Een strenge Content Security Policy met een nonce per pagina, en DOMPurify voor alle HTML uit
+  Magister
 
 ## Disclaimer
 
-SuperMagister is een onofficiële app die een onofficiële, interne Magister-API gebruikt. De app is
-niet verbonden aan Magister of Iddink en is alleen bedoeld voor je eigen account. Gebruik op eigen
-risico.
+SuperMagister is onofficieel. Het gebruikt een interne Magister-API die zonder aankondiging kan
+veranderen, is niet verbonden aan Magister of Iddink, slaat geen gegevens op een server op en is
+alleen bedoeld voor je eigen account. Gebruik op eigen risico.

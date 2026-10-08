@@ -10,20 +10,22 @@ import { formatTime } from "@/lib/date";
 import type { FreePeriod } from "@/lib/schedule/gaps";
 import type { Homework } from "@/lib/types";
 import { useCopy } from "@/lib/use-copy";
-import { useScheduleUi } from "@/stores/schedule";
+import { useDataSource } from "@/lib/data/context";
+import { scheduleKey, useScheduleUi } from "@/stores/schedule";
 
 const CONFETTI = ["var(--sm-accent)", "var(--sm-accent-2)", "var(--sm-good)", "#ffd36b", "#ff8fb1"];
 
 /** Een klein confettimoment, één keer per dag en soort (uitslapen, vroeg naar huis). */
 function Confetti({ id }: { id: string }) {
   const reduced = useReducedMotion();
-  const cheered = useScheduleUi((s) => s.cheered.includes(id));
+  const key = scheduleKey(useDataSource().id, id);
+  const cheered = useScheduleUi((s) => s.cheered.includes(key));
   const cheer = useScheduleUi((s) => s.cheer);
   const [show] = useState(() => !cheered && !reduced);
 
   useEffect(() => {
-    if (!cheered) cheer(id);
-  }, [cheered, cheer, id]);
+    if (!cheered) cheer(key);
+  }, [cheered, cheer, key]);
 
   if (!show) return null;
   return (

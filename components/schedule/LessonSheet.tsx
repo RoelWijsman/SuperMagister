@@ -17,7 +17,8 @@ import { hourLabel } from "@/lib/schedule/summary";
 import { isTestInfoType } from "@/lib/school/derive";
 import type { Lesson } from "@/lib/types";
 import { useCopy } from "@/lib/use-copy";
-import { useScheduleUi } from "@/stores/schedule";
+import { useDataSource } from "@/lib/data/context";
+import { scheduleKey, useScheduleUi } from "@/stores/schedule";
 import { TEST_LABELS } from "./LessonCard";
 
 const dagen = (n: number) => (n === 1 ? "dag" : "dagen");
@@ -33,14 +34,15 @@ function Countdown({ date, now }: { date: string; now: Date }) {
 }
 
 function Notes({ lessonId, test }: { lessonId: string; test: boolean }) {
-  const note = useScheduleUi((s) => s.notes[lessonId] ?? "");
+  const key = scheduleKey(useDataSource().id, lessonId);
+  const note = useScheduleUi((s) => s.notes[key] ?? "");
   const setNote = useScheduleUi((s) => s.setNote);
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-semibold text-ink">Je notities</span>
       <textarea
         value={note}
-        onChange={(event) => setNote(lessonId, event.target.value)}
+        onChange={(event) => setNote(key, event.target.value)}
         rows={4}
         placeholder={
           test

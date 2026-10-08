@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { NORM_PRESETS, type NormPresetId, type PromotionNorms } from "@/lib/calc/promotion";
+import { withoutSources } from "@/lib/sources";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 
 export type GradesTab = "vakken" | "ranglijst" | "periodes" | "tijdlijn" | "examen";
@@ -22,6 +23,8 @@ interface GradesState {
   resetNorms: () => void;
   setCombination: (sourceId: string, subjectIds: string[]) => void;
   setTab: (tab: GradesTab) => void;
+  /** Ontkoppelen: alles van deze databronnen vergeten. */
+  forgetSources: (match: (sourceId: string) => boolean) => void;
 }
 
 /** Welke normen gelden er nu? */
@@ -51,6 +54,8 @@ export const useGradesStore = create<GradesState>()(
       setCombination: (sourceId, subjectIds) =>
         set((state) => ({ combination: { ...state.combination, [sourceId]: subjectIds } })),
       setTab: (tab) => set({ tab }),
+      forgetSources: (match) =>
+        set((state) => ({ combination: withoutSources(state.combination, match) })),
     }),
     {
       name: STORAGE_KEYS.grades,

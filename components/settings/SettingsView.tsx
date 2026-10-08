@@ -1,9 +1,8 @@
 "use client";
 
-import { Moon, Monitor, PackageOpen, Palette, Plug, Sparkles, Sun } from "lucide-react";
+import { Moon, Monitor, PackageOpen, Palette, Sparkles, Sun } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
-import { Chip } from "@/components/ui/Chip";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Switch } from "@/components/ui/Switch";
@@ -25,6 +24,7 @@ import {
   type WalkoutSpeed,
 } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
+import { DataSettings, LinkDevTools } from "./DataSettings";
 import { HomeworkSettings } from "./HomeworkSettings";
 import { ScheduleDevTools } from "./ScheduleDevTools";
 import { SubjectSettings } from "./SubjectSettings";
@@ -315,16 +315,12 @@ export function SettingsView() {
           />
         </Section>
 
-        <Section id="gegevens" title="Gegevens">
-          <div className="flex flex-wrap items-center gap-3">
-            <Chip tone="warn">Demo</Chip>
-            <p className="min-w-0 flex-1 text-ink-2">
-              Je bekijkt verzonnen data van Daan uit 5 havo.
-            </p>
-            <LinkButton href="/koppelen" variant="glass" icon={Plug}>
-              Koppelen met Magister
-            </LinkButton>
-          </div>
+        <Section
+          id="gegevens"
+          title="Gegevens"
+          description="De demo, of je eigen Magister. Alles wat de app ophaalt, blijft op dit apparaat."
+        >
+          <DataSettings />
         </Section>
 
         <Section
@@ -341,6 +337,7 @@ export function SettingsView() {
             </LinkButton>
           </div>
           <ScheduleDevTools />
+          <LinkDevTools />
         </Section>
 
         <Section id="over" title="Over SuperMagister">
@@ -349,7 +346,7 @@ export function SettingsView() {
             Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
             eigen account.
           </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.4 · fase 4: Cijfers</p>
+          <p className="mt-3 text-xs text-ink-3">Versie 0.5 · fase 5: Koppelen</p>
         </Section>
       </div>
     </>

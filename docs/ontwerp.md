@@ -60,8 +60,8 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 ## Datalaag
 
 - `SchoolDataSource` (`lib/data/source.ts`) is het contract. De demo-bron levert alles uit
-  `lib/demo`; in fase 5 komt er een Magister-bron achter de proxy. Componenten gebruiken alleen de
-  hooks uit `lib/data/hooks.ts`.
+  `lib/demo`; de Magister-bron (fase 5) praat via de proxy, met een cache ervoor. Componenten
+  gebruiken alleen de hooks uit `lib/data/hooks.ts`.
 - Huiswerk en toetsen worden afgeleid uit lessen (`lib/school/derive.ts`), net als bij Magister.
 - Welke cijfers al onthuld zijn, staat per databron in IndexedDB. Niet-onthulde cijfers tellen nog
   nergens mee, zodat gemiddeldes je pack niet verklappen.
@@ -127,8 +127,8 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Deelbare afbeeldingen** (1080 × 1350) maken we rechtstreeks met canvas in plaats van met
   html-to-image: de kaarten zijn al canvas, het resultaat is scherper en er is geen extra
   dependency nodig. Op een telefoon deel je via het deelmenu, anders sla je de afbeelding op.
-- Let op voor de CSP in fase 5: het kaartmasker is een `data:`-SVG en de deelvoorbeelden zijn
-  `blob:`-adressen, dus `img-src` moet `data:` en `blob:` toestaan.
+- Voor de CSP (fase 5b): het kaartmasker is een `data:`-SVG en de deelvoorbeelden zijn
+  `blob:`-adressen, dus `img-src` staat `data:` en `blob:` toe.
 
 ## Gok je cijfer (feature A)
 
@@ -250,8 +250,8 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   opties met een voorproefje van het laatste beeld, dan de voortgang met procent en wisselende
   teksten (annuleren kan), dan een speler met "Delen" (Web Share API, alleen als het apparaat een
   video kan delen) en "Downloaden".
-- **Voor de CSP in fase 5:** de preview speelt een `blob:`-adres af, dus `media-src` moet `blob:`
-  toestaan. Mediabunny gebruikt geen workers of externe bestanden.
+- **Voor de CSP (fase 5b):** de preview speelt een `blob:`-adres af, dus `media-src` staat
+  `blob:` toe. Mediabunny gebruikt geen workers of externe bestanden.
 - **Getest:** een mp4 van 1080 × 1920 en ~11 seconden is in de app-browser in ongeveer 12 seconden
   klaar (3,8 MB), met geluid. De terugval via MediaRecorder levert in realtime ook een mp4.
 
@@ -291,8 +291,8 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Begroeting:** al uit fase 1, met tijd en context.
 - **Nog niet op Vandaag:** de profielkaart en de dagelijkse quest horen bij de gamification en
   komen in fase 6. Afvinken met beloning en de tijdsschatting komen in fase 3c.
-- **Voor de CSP in fase 5:** `connect-src` moet `https://api.open-meteo.com` en
-  `https://geocoding-api.open-meteo.com` toestaan.
+- **Voor de CSP (fase 5b):** `connect-src` staat `https://api.open-meteo.com` en
+  `https://geocoding-api.open-meteo.com` toe.
 
 ## Rooster (fase 3b)
 
@@ -456,7 +456,7 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
 - **Gemiddelden vergeleken:** over drie schooljaren en zo'n zestig vak-perioden is ons gewogen
   gemiddelde, afgerond op één decimaal, steeds gelijk aan Magisters VG-kolom. Het verschil
   (ongeveer ±0,05) is alleen afronding. `compareAverages` doet die vergelijking; bij een echt
-  verschil komt er in 5b een waarschuwingsicoon. Magisters "gemiddelde over alle vakken" en
+  verschil staat er sinds 5b een waarschuwingsicoon. Magisters "gemiddelde over alle vakken" en
   zijn tekortpunten gebruiken een eigen keuze aan vakken; die vergelijken we niet.
 - **Schooljaren:** het huidige schooljaar wordt automatisch gekozen (in de zomer het nieuwste
   dat al begonnen is); examenklassen herkennen we aan de studie ("K_HAVO/5", "6 vwo"). Een
@@ -472,7 +472,82 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   client (dus de transport: proxy nu, extensie in 5c). Zuinig: schooljaren, vakken en cijfers
   worden 30 seconden gedeeld in plaats van dubbel opgevraagd. Het welkomstpack zijn de laatste
   vijf echte cijfers (zonder Inh en vrijstellingen); de rest is bij de eerste koppeling al
-  onthuld. In 5b komt hij in de app.
+  onthuld. Sinds 5b zit hij in de app (zie hieronder).
+
+## Koppelen en echte data (fase 5b)
+
+- **Eén plek voor het token** (`lib/koppelen/session.ts`): bewaren (alleen in sessionStorage van
+  het tabblad, nooit in localStorage of op een server), verlopen (`expires_at`, of een 401) en
+  opnieuw koppelen. Open tabbladen delen de sessie via een BroadcastChannel: een nieuw tabblad
+  vraagt erom, opnieuw koppelen en ontkoppelen gelden overal tegelijk. Een bron die het token zelf
+  kan vernieuwen (de extensie in 5c) meldt zich met `setRenewer`; dan vernieuwt de app stil en
+  blijft de "Opnieuw koppelen"-sheet weg. De rest van de app vraagt alleen `get()`.
+- **Alle wegen eindigen op dezelfde plek** (`lib/koppelen/link.ts`): bookmarklet, plakveld,
+  voorbeelddata en straks de extensie. Eerst `/api/account` om te kijken of het token werkt en wie
+  je bent, dan pas bewaren. Een ander account dan hiervoor? Dan gaat eerst alles van het vorige
+  account van dit apparaat af. Het welkomstpack werkt daardoor voor elke weg hetzelfde.
+- **Bookmarklet** (`lib/koppelen/bookmarklet.ts`): zoekt in sessionStorage de sleutel
+  `oidc.user:…`, anders elke sleutel in sessionStorage en localStorage met een `access_token`, en
+  opent `/koppelen#koppel=1&token=…&expires_at=…&school=…`. Alleen op `*.magister.net` (niet
+  `accounts.`), en niet als de sessie al verlopen is. Het adres is waar de app draait, of
+  `NEXT_PUBLIC_APP_URL`. React laat geen `javascript:`-links toe, dus de koppelpagina zet de
+  `href` zelf. Getest door de code echt te draaien op een nagebootste Magister-pagina.
+- **Fragment** (`lib/koppelen/fragment.ts`, `components/koppelen/LinkIntake.tsx`): het fragment
+  wordt op elke pagina meteen gelezen en met `history.replaceState` gewist, nog voor er iets anders
+  gebeurt. School streng `^[a-z0-9-]+\.magister\.net$`, token alleen Bearer-tekens (20–8192).
+- **Plakveld** (`lib/koppelen/paste.ts`): snapt de waarde van `oidc.user:…` (JSON), een link van
+  de bookmarklet, of een los token (met of zonder "Bearer"). Het verloopmoment komt uit
+  `expires_at` of uit het token zelf (`exp`); de school uit de link, een tenant in het token, of het
+  veld eronder. Het veld wordt na koppelen leeggemaakt.
+- **Cache** (`lib/magister/cache.ts`): elk antwoord staat in IndexedDB onder
+  `cache:{bron}|{methode}|{argumenten}`. Is het nog vers, dan vragen we Magister niets; anders zie
+  je eerst het bewaarde antwoord en ververst het op de achtergrond. Versheid: rooster, cijfers en
+  absenties 15 minuten (de schermen vragen elk kwartier, en bij terugkomen in het tabblad), vakken
+  en perioden 6 uur, account en schooljaren een dag, eerdere schooljaren een week. Per onderdeel
+  hooguit één verzoek tegelijk; tabbladen delen een slot (`navigator.locks`) en kijken eerst of een
+  ander tabblad net heeft ververst. Na een mislukte verversing een minuut niet (bij 429 zo lang als
+  Magister vraagt). Na een 401 vraagt de app Magister niets meer tot je opnieuw koppelt. Het
+  rooster haalt vakken en cijfers via de cache, niet bij elke verversing opnieuw.
+- **Laatste update:** het moment van de laatste geslaagde verversing, in de chip, Instellingen en
+  de "Opnieuw koppelen"-sheet ("Je ziet de stand van 14:02").
+- **Verlopen** (`components/koppelen/SessionWatcher.tsx`): 5 minuten ervoor een rustige melding,
+  daarna (of bij een 401) de sheet, één keer per token. "Later" onthoudt dat tabblad. Een stuk dat
+  nog nooit is opgehaald, toont geen eindeloze lader maar een uitleg met "Opnieuw koppelen"
+  (`DataErrorState`). Fouten die niet beter worden van opnieuw proberen (verlopen, geen toegang)
+  worden niet herhaald, en de schermen lezen de cache ook zonder internet.
+- **Welkomstpack:** bij de eerste koppeling is alles al onthuld en in je collectie, behalve de
+  laatste vijf cijfers. Heeft het schooljaar er nog geen vijf (in september, of zoals bij ons in
+  oktober met alleen een Inh), dan komen ze uit vorig jaar. Cijfers uit eerdere schooljaren staan
+  in de collectie (met het schooljaar op de kaart) en worden daarna nooit meer een pack, ook niet
+  als een oud jaar pas later binnenkomt (`withHistoryRevealed`). Het pack wacht op de eerdere
+  jaren, zodat een laat schooljaar geen pack van honderd kaarten wordt.
+- **Demo en echt nooit door elkaar:** alles wat per databron wordt bewaard, staat onder het id van
+  de bron (`demo` of `magister:{school}:{persoon}`): onthulde cijfers, gokken, vitrine, gemelde
+  doelen en prestaties, huiswerkvinkjes, combinatiecijfer, roostersnapshot en nu ook de
+  roosternotities en stempels (die waren nog gedeeld; oude notities horen bij de demo). Tijdens
+  de hydratie is de bron altijd de demo zonder data, zodat server en browser hetzelfde tekenen; de
+  chip blijft tot dan onzichtbaar.
+- **Schooljaren:** automatisch het huidige; in Instellingen kies je een eerder jaar. Zo'n jaar
+  krijgt een eigen bron-id (`…:{schooljaar}`), heeft geen pack, en de chip zegt welk jaar je
+  bekijkt.
+- **Ontkoppelen** (`lib/koppelen/wipe.ts`): token weg in alle tabbladen, alle IndexedDB-sleutels
+  van `magister:`-bronnen, de per-bron-gegevens in localStorage en de queries in het geheugen.
+  Terug naar de demo.
+- **Gemiddelden:** wijkt Magisters VG-kolom (afgerond op één decimaal) af van het onze, dan staat
+  er bij dat vak een driehoekje: "Magister rekent hier anders, check je cijferoverzicht", met per
+  periode beide gemiddelden en de gebruikelijke oorzaken. Niet zolang er cijfers van dat vak in je
+  pack zitten: Magisters gemiddelde zou je nieuwe cijfer verraden.
+- **Koppelpagina:** bovenaan de plek voor de extensie (nog een aankondiging), daaronder
+  "Andere manieren": de bladwijzer met drie geanimeerde stapjes en stappen voor de telefoon, en
+  het plakveld met een nagebootst schermpje van de ontwikkelaarstools.
+- **Voorbeelddata** (alleen tijdens het bouwen, Instellingen → Ontwikkelaar): koppelt met de
+  geanonimiseerde testbestanden via de transport `"voorbeeld"`, zodat de hele route te testen is
+  zonder echt account. Met een knop om de koppeling te laten verlopen.
+- **CSP** (`proxy.ts`, `lib/security/csp.ts`): per pagina een nonce; scripts alleen van de app
+  zelf (`'strict-dynamic'`, geen inline of eval buiten het bouwen), `connect-src` alleen de eigen
+  server en Open-Meteo, `img-src` met `data:` en `blob:`, `media-src` met `blob:`, geen plugins,
+  niet in een frame, `upgrade-insecure-requests` in productie. Stijlen mogen inline (Framer
+  Motion). Daardoor wordt elke pagina per verzoek gerenderd.
 
 ## Geschrapt (besluit 6 oktober 2026)
 
@@ -498,6 +573,6 @@ app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5
 
 ## Nog niet gebouwd
 
-Koppelen, tokens en echte data in de app (5b) en de browserextensie (5c) · XP, achievements,
+De browserextensie (5c) · XP, achievements,
 profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
 easter eggs (fase 7).

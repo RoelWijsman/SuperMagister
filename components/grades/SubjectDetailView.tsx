@@ -1,5 +1,6 @@
 "use client";
 
+import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { ArrowLeft, Calculator, Lock } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -15,9 +16,10 @@ import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { formatGrade } from "@/lib/calc/average";
 import { seAverage, seGrade } from "@/lib/calc/exam";
 import { periodAverages } from "@/lib/calc/overview";
-import { useSubjectAppearance } from "@/lib/data/hooks";
+import { useGrades, useSubjectAppearance } from "@/lib/data/hooks";
 import { formatShortDate, parseISODate } from "@/lib/date";
 import { useCopyParts } from "@/lib/use-copy";
+import { AverageWarningPanel, useAverageWarnings } from "./AverageWarning";
 import { CalculatorSheet } from "./CalculatorSheet";
 import { GradeChart } from "./GradeChart";
 import { GradeValue } from "./GradeValue";
@@ -27,6 +29,7 @@ import { useGradeData, usePeriodList } from "./useGradeData";
 /** Fase 4: alles over één vak. Grafiek, cijfers, periodes en "Wat moet ik halen?". */
 export function SubjectDetailView({ subjectId }: { subjectId: string }) {
   const data = useGradeData();
+  const gradesQuery = useGrades();
   const periods = usePeriodList();
   const appearance = useSubjectAppearance();
   const { openPack } = useWalkoutActions();
@@ -37,6 +40,7 @@ export function SubjectDetailView({ subjectId }: { subjectId: string }) {
   const grades = useMemo(() => data?.bySubject.get(subjectId) ?? [], [data, subjectId]);
   const average = data?.averages.get(subjectId) ?? null;
   const locked = data?.locked.get(subjectId) ?? 0;
+  const warnings = useAverageWarnings().get(subjectId);
   const newestFirst = useMemo(
     () =>
       [...grades].sort(
@@ -47,6 +51,9 @@ export function SubjectDetailView({ subjectId }: { subjectId: string }) {
   const byPeriod = useMemo(() => periodAverages(grades, periods), [grades, periods]);
   const se = seAverage(grades);
   const empty = useCopyParts(data && subject && grades.length === 0 ? "cijfers.vakLeeg" : null);
+
+  if (gradesQuery.isError && !gradesQuery.data)
+    return <DataErrorState error={gradesQuery.error} onRetry={() => void gradesQuery.refetch()} />;
 
   if (!data) {
     return (
@@ -130,6 +137,8 @@ export function SubjectDetailView({ subjectId }: { subjectId: string }) {
           </GlassPanel>
 
           <div className="space-y-5">
+            {/* Met iets in je pack zou Magisters gemiddelde je nieuwe cijfer verraden. */}
+            {warnings && locked === 0 && <AverageWarningPanel checks={warnings} />}
             {periods.length > 0 && (
               <GlassPanel as="section" aria-labelledby="periodes-titel">
                 <h2 id="periodes-titel" className="mb-3 font-display font-semibold text-ink">

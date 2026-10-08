@@ -36,6 +36,7 @@ import {
   Scroll,
   Sigma,
   Star,
+  ClipboardCheck,
   Telescope,
   Theater,
   TrendingUp,
@@ -89,6 +90,7 @@ export const SUBJECT_ICONS: Record<SubjectIconName, LucideIcon> = {
   Rocket,
   Puzzle,
   Star,
+  ClipboardCheck,
 };
 
 export function SubjectIcon({ name, ...props }: { name: SubjectIconName } & LucideProps) {

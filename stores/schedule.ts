@@ -82,19 +82,46 @@ export type { ScheduleView };
 
 const KEEP = 300;
 
+/**
+ * Sleutel per databron, zodat demo en je echte rooster nooit door elkaar lopen
+ * (en ontkoppelen alleen je echte notities wist): "demo|1234".
+ */
+export const scheduleKey = (sourceId: string, id: string) => `${sourceId}|${id}`;
+const sourceOf = (key: string) => key.slice(0, Math.max(0, key.indexOf("|")));
+
 interface ScheduleUiState {
   /** De weergave die je zelf koos; null = de standaard (dag op mobiel, week op desktop). */
   view: ScheduleView | null;
   /** Uitval waarop de "VERVALLEN"-stempel al met een klap viel (één keer per les). */
   stamped: string[];
-  /** Uitslapen- en vroeg-naar-huis-momenten die al gevierd zijn ("2026-10-06:uitslapen"). */
+  /** Uitslapen- en vroeg-naar-huis-momenten die al gevierd zijn ("demo|2026-10-06:uitslapen"). */
   cheered: string[];
   /** Je eigen notities bij toetsen, per les. */
   notes: Record<string, string>;
   setView: (view: ScheduleView) => void;
-  stamp: (lessonId: string) => void;
+  /** Alle sleutels hieronder via scheduleKey(bron, id). */
+  stamp: (key: string) => void;
   cheer: (key: string) => void;
-  setNote: (lessonId: string, note: string) => void;
+  setNote: (key: string, note: string) => void;
+  /** Ontkoppelen: alles van deze databronnen vergeten. */
+  forgetSources: (match: (sourceId: string) => boolean) => void;
+}
+
+type StoredScheduleUi = Partial<Pick<ScheduleUiState, "view" | "stamped" | "cheered" | "notes">>;
+
+/** Versie 2 (fase 5b): alles per databron. Wat er al stond, kwam uit de demo. */
+export function migrateScheduleUi(persisted: unknown, version: number): StoredScheduleUi {
+  const state = (persisted ?? {}) as StoredScheduleUi;
+  if (version >= 2) return state;
+  const demo = (key: string) => scheduleKey("demo", key);
+  return {
+    ...state,
+    stamped: (state.stamped ?? []).map(demo),
+    cheered: (state.cheered ?? []).map(demo),
+    notes: Object.fromEntries(
+      Object.entries(state.notes ?? {}).map(([key, note]) => [demo(key), note]),
+    ),
+  };
 }
 
 /** Fase 3b: kleine rooster-dingen die op dit apparaat blijven. */
@@ -106,23 +133,30 @@ export const useScheduleUi = create<ScheduleUiState>()(
       cheered: [],
       notes: {},
       setView: (view) => set({ view }),
-      stamp: (lessonId) =>
-        set((s) =>
-          s.stamped.includes(lessonId) ? s : { stamped: [...s.stamped, lessonId].slice(-KEEP) },
-        ),
+      stamp: (key) =>
+        set((s) => (s.stamped.includes(key) ? s : { stamped: [...s.stamped, key].slice(-KEEP) })),
       cheer: (key) =>
         set((s) => (s.cheered.includes(key) ? s : { cheered: [...s.cheered, key].slice(-KEEP) })),
-      setNote: (lessonId, note) =>
+      setNote: (key, note) =>
         set((s) => {
           const notes = { ...s.notes };
-          if (note.trim()) notes[lessonId] = note;
-          else delete notes[lessonId];
+          if (note.trim()) notes[key] = note;
+          else delete notes[key];
           return { notes };
         }),
+      forgetSources: (match) =>
+        set((s) => ({
+          stamped: s.stamped.filter((key) => !match(sourceOf(key))),
+          cheered: s.cheered.filter((key) => !match(sourceOf(key))),
+          notes: Object.fromEntries(
+            Object.entries(s.notes).filter(([key]) => !match(sourceOf(key))),
+          ),
+        })),
     }),
     {
       name: STORAGE_KEYS.schedule,
-      version: 1,
+      version: 2,
+      migrate: (persisted, version) => migrateScheduleUi(persisted, version) as ScheduleUiState,
       storage: createJSONStorage(() => localStorage),
     },
   ),

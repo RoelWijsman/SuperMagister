@@ -7,8 +7,7 @@ import { parseForecast, type HourWeather } from "./advice";
 /**
  * Open-Meteo: gratis, zonder sleutel, met CORS. De browser haalt het weer
  * rechtstreeks op; er gaat alleen de plaats (coördinaten) mee die je zelf
- * instelt. Voor de CSP in fase 5: connect-src https://api.open-meteo.com en
- * https://geocoding-api.open-meteo.com.
+ * instelt. Beide adressen staan in connect-src van de CSP (lib/security/csp.ts).
  */
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";

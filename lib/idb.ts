@@ -1,4 +1,4 @@
-import { del, get, set } from "idb-keyval";
+import { del, get, keys, set } from "idb-keyval";
 import { IDB_PREFIX } from "@/lib/storage-keys";
 
 /**
@@ -27,5 +27,16 @@ export async function idbDel(key: string): Promise<void> {
     await del(IDB_PREFIX + key);
   } catch {
     // idem
+  }
+}
+
+/** Alle eigen sleutels (zonder prefix), bijvoorbeeld om bij ontkoppelen op te ruimen. */
+export async function idbKeys(): Promise<string[]> {
+  try {
+    return (await keys())
+      .filter((key): key is string => typeof key === "string" && key.startsWith(IDB_PREFIX))
+      .map((key) => key.slice(IDB_PREFIX.length));
+  } catch {
+    return [];
   }
 }

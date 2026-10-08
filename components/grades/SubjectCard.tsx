@@ -9,7 +9,9 @@ import { formatGrade, gradeTone } from "@/lib/calc/average";
 import { averageHistory } from "@/lib/calc/overview";
 import { cn } from "@/lib/cn";
 import type { SubjectAppearance } from "@/lib/data/hooks";
+import type { AverageCheck } from "@/lib/magister/parse/progress";
 import type { Grade, Subject } from "@/lib/types";
+import { AverageWarningButton } from "./AverageWarning";
 import { GradeValue, TONE_TEXT } from "./GradeValue";
 
 const PILL_TONE = {
@@ -131,6 +133,7 @@ export function SubjectCard({
   locked,
   focused,
   onOpenPack,
+  warning,
 }: {
   subject: Subject;
   look: SubjectAppearance;
@@ -139,6 +142,8 @@ export function SubjectCard({
   locked: number;
   focused?: boolean;
   onOpenPack: () => void;
+  /** Perioden waar Magister anders rekent (alleen bij een echte koppeling). */
+  warning?: readonly AverageCheck[];
 }) {
   const latest = [...grades]
     .sort((a, b) => a.date.localeCompare(b.date) || a.enteredAt.localeCompare(b.enteredAt))
@@ -159,7 +164,7 @@ export function SubjectCard({
         />
         <div className="relative flex items-center gap-3">
           <SubjectBadge subject={look} size="lg" />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h2 className="truncate font-semibold text-ink">
               <Link
                 href={`/cijfers/${subject.id}`}
@@ -173,6 +178,9 @@ export function SubjectCard({
               {subject.isCore && " · kernvak"}
             </p>
           </div>
+          {warning && warning.length > 0 && (
+            <AverageWarningButton checks={warning} subjectName={subject.name} />
+          )}
         </div>
         <div className="relative mt-4 flex items-end justify-between gap-4">
           {average !== null ? (
@@ -182,7 +190,10 @@ export function SubjectCard({
             />
           ) : (
             <span className="font-display text-3xl leading-none font-semibold text-ink-3">
-              {grades.length > 0 ? "V/G" : "—"}
+              {/* Alleen "inhalen" of een vrijstelling is nog geen beoordeling. */}
+              {grades.some((g) => g.kind === "text" && g.value !== "INH" && g.value !== "VR")
+                ? "V/G"
+                : "—"}
             </span>
           )}
           <Sparkline grades={grades} color={look.color} className="max-w-32" />

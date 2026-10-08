@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import type { GuessEntry } from "@/lib/guess/types";
 import { useGuessStore } from "@/stores/guesses";
 import { useDataSource } from "./context";
-import { useGrades, useRevealState, useSubjectAppearance } from "./hooks";
+import { useCollectionGrades, useRevealState, useSubjectAppearance } from "./hooks";
 
 /** Laadt je gokken voor de huidige databron. `guesses` is null zolang IndexedDB laadt. */
 export function useGuesses() {
@@ -39,13 +39,13 @@ export function useGuesses() {
  */
 export function useGuessEntries() {
   const { guesses } = useGuesses();
-  const grades = useGrades();
+  const grades = useCollectionGrades();
   const appearance = useSubjectAppearance();
   const { revealed } = useRevealState();
 
   return useMemo(() => {
-    if (!guesses || !grades.data || !revealed) return { entries: null, xp: 0, isLoading: true };
-    const entries: GuessEntry[] = grades.data
+    if (!guesses || !grades || !revealed) return { entries: null, xp: 0, isLoading: true };
+    const entries: GuessEntry[] = grades.all
       .flatMap((grade) => {
         const record = guesses[grade.id];
         if (!record || grade.kind !== "numeric" || !revealed.has(grade.id)) return [];
@@ -64,5 +64,5 @@ export function useGuessEntries() {
       .sort((a, b) => a.at.localeCompare(b.at));
     const xp = entries.reduce((sum, entry) => sum + (guesses[entry.gradeId]?.xp ?? 0), 0);
     return { entries, xp, isLoading: false };
-  }, [guesses, grades.data, revealed, appearance]);
+  }, [guesses, grades, revealed, appearance]);
 }
