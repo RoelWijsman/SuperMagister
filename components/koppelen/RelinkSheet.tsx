@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 import { useLastUpdated } from "@/lib/data/hooks";
+import { useExtension } from "@/lib/extensie/runtime";
 import { useNow } from "@/lib/hooks";
 import { formatMoment } from "@/lib/koppelen/format";
 import { useCopyParts } from "@/lib/use-copy";
@@ -30,6 +31,7 @@ export function RelinkSheet({
   const lastUpdated = useLastUpdated();
   const moment = lastUpdated.data && now ? formatMoment(lastUpdated.data, now) : "eerder";
   const copy = useCopyParts(open ? "koppeling.verlopen" : null, { tijd: moment });
+  const viaExtension = useExtension((s) => s.present === true && s.status?.paused === false);
 
   return (
     <Sheet
@@ -50,7 +52,9 @@ export function RelinkSheet({
           <span className="grid size-6 shrink-0 place-items-center rounded-full bg-glass-strong text-xs font-bold text-ink">
             2
           </span>
-          Klik daar op je SuperMagister-bladwijzer. Dit tabblad werkt zich daarna vanzelf bij.
+          {viaExtension
+            ? "Klaar: de extensie koppelt vanzelf, en dit tabblad werkt zich bij."
+            : "Klik daar op je SuperMagister-bladwijzer. Dit tabblad werkt zich daarna vanzelf bij."}
         </li>
       </ol>
       <div className="mt-6 flex flex-wrap gap-3">

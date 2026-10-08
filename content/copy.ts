@@ -409,11 +409,11 @@ export const COPY = {
     "Dat werkte niet.",
   ],
   "koppelen.extensie": [
-    "De extensie komt eraan.\nEén keer installeren, daarna koppelt hij vanzelf. Tot die tijd: de bladwijzer.",
-    "Binnenkort: de extensie.\nGeen bladwijzers meer slepen. Hij vernieuwt je koppeling zelf.",
-    "Extensie in aanbouw.\nDe conciërge zoekt nog de juiste schroevendraaier.",
-    "De extensie is nog niet klaar.\nHij wordt de makkelijkste manier. Gebruik zolang een van de andere.",
-    "Nog even geduld.\nStraks één klik in je browser en klaar. Nu nog met de hand.",
+    "Eén keer installeren.\nDaarna koppelt hij vanzelf, en blijft hij gekoppeld. Ook na dat ene uur.",
+    "Nooit meer opnieuw koppelen.\nDe extensie ververst je koppeling zelf. Jij doet niks.",
+    "De luie manier.\nInstalleren, Magister openen, klaar. Wij noemen het efficiënt.",
+    "Koppelen zonder bladwijzer.\nDe extensie regelt het, ook als je token verloopt.",
+    "Eén keer klikken, en dan nooit meer.\nGeen bladwijzers slepen, geen tokens plakken.",
   ],
   // Vaste zin, precies zoals gevraagd: bij een vak waar Magisters gemiddelde anders is.
   "cijfers.magisterAnders": ["Magister rekent hier anders, check je cijferoverzicht."],

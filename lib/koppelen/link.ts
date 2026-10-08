@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { createMagisterClient } from "@/lib/magister/client";
-import { createTransport, TRANSPORT } from "@/lib/magister/config";
+import { createTransport, transportFor } from "@/lib/magister/config";
 import { parseAccount } from "@/lib/magister/parse/account";
 import { MagisterError, type MagisterSession } from "@/lib/magister/transport";
 import { notify } from "@/lib/notify";
@@ -77,11 +77,12 @@ export function failLink(method: LinkMethod, failure: LinkFailure) {
 export async function completeLink(
   session: MagisterSession,
   method: LinkMethod,
+  /** Op de achtergrond (de extensie): geen melding en geen wissel van weergave, behalve bij een nieuw account. */
+  { background = false }: { background?: boolean } = {},
 ): Promise<LinkSuccess | null> {
-  useLinkFlow.setState({ status: "bezig", method, result: null, failure: null });
+  if (!background) useLinkFlow.setState({ status: "bezig", method, result: null, failure: null });
   try {
-    const kind = method === "voorbeeld" ? "voorbeeld" : TRANSPORT;
-    const client = createMagisterClient(createTransport(() => session, kind));
+    const client = createMagisterClient(createTransport(() => session, transportFor(method)));
     const account = parseAccount(await client.account(), {
       schoolHost: session.schoolHost,
       enrollment: null,
@@ -94,13 +95,16 @@ export async function completeLink(
     if (other) await wipeMagisterData();
 
     getSessionStore().set({ ...session, method });
-    const { isNew } = useConnection.getState().link({
-      schoolHost: session.schoolHost,
-      personId: account.id,
-      name: account.fullName || account.firstName,
-      linkedAt: new Date().toISOString(),
-      ...(method === "voorbeeld" ? { sample: true } : {}),
-    });
+    const { isNew } = useConnection.getState().link(
+      {
+        schoolHost: session.schoolHost,
+        personId: account.id,
+        name: account.fullName || account.firstName,
+        linkedAt: new Date().toISOString(),
+        ...(method === "voorbeeld" ? { sample: true } : {}),
+      },
+      { show: !background },
+    );
 
     const result = {
       isNew,
@@ -108,6 +112,7 @@ export async function completeLink(
       firstName: account.firstName || account.fullName,
       school: account.schoolName,
     };
+    if (background && !isNew) return result;
     useLinkFlow.setState({ status: "gelukt", method, result, failure: null });
     if (isNew)
       notify(
@@ -118,7 +123,7 @@ export async function completeLink(
     else notify("toast.weerGekoppeld", {}, { tone: "success" });
     return result;
   } catch (error) {
-    failLink(method, failureOf(error));
+    if (!background) failLink(method, failureOf(error));
     return null;
   }
 }

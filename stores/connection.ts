@@ -28,8 +28,11 @@ interface ConnectionState {
   view: DataView;
   /** Gekozen schooljaar; null = automatisch het huidige. */
   enrollmentId: number | null;
-  /** Koppelt (of koppelt opnieuw). isNew: een ander account dan hiervoor. */
-  link: (account: LinkedAccount) => { isNew: boolean };
+  /**
+   * Koppelt (of koppelt opnieuw). isNew: een ander account dan hiervoor.
+   * show: false laat je huidige weergave staan (behalve bij een nieuw account).
+   */
+  link: (account: LinkedAccount, options?: { show?: boolean }) => { isNew: boolean };
   setView: (view: DataView) => void;
   setEnrollment: (enrollmentId: number | null) => void;
   unlink: () => void;
@@ -48,11 +51,11 @@ export const useConnection = create<ConnectionState>()(
       account: null,
       view: "demo",
       enrollmentId: null,
-      link(account) {
+      link(account, { show = true } = {}) {
         const isNew = !sameAccount(get().account, account);
         set((state) => ({
           account,
-          view: "magister",
+          view: isNew || show ? "magister" : state.view,
           enrollmentId: isNew ? null : state.enrollmentId,
         }));
         return { isNew };

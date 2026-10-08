@@ -32,6 +32,16 @@ describe("useConnection", () => {
     expect(useConnection.getState().enrollmentId).toBeNull();
   });
 
+  it("laat de demo staan bij een stille herkoppeling van hetzelfde account", () => {
+    useConnection.getState().link(daan);
+    useConnection.getState().setView("demo");
+    useConnection.getState().link(daan, { show: false });
+    expect(useConnection.getState().view).toBe("demo");
+    // Een nieuw account laat je wel meteen je eigen Magister zien.
+    useConnection.getState().link({ ...daan, personId: 2001 }, { show: false });
+    expect(useConnection.getState().view).toBe("magister");
+  });
+
   it("wisselt alleen naar Magister als je gekoppeld bent", () => {
     useConnection.getState().setView("magister");
     expect(activeView(useConnection.getState())).toBe("demo");

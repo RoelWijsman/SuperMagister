@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <!-- Platte versie voor 16 en 32 pixels: één kleur, zonder verloop en zonder stipje. -->
+  <rect width="40" height="40" rx="10" fill="#8f74ff"/>
+  <path d="M20 5.5c1.7 8.6 5.4 12.3 14.5 14.5-9.1 2.2-12.8 5.9-14.5 14.5C18.3 25.9 14.6 22.2 5.5 20c9.1-2.2 12.8-5.9 14.5-14.5z" fill="#0b0a1a"/>
+</svg>

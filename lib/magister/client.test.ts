@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { createMagisterClient } from "./client";
-import { createTransport, TRANSPORT } from "./config";
+import { createTransport, transportFor } from "./config";
 import { ENDPOINTS } from "./endpoints";
 import {
   createProxyTransport,
@@ -163,12 +163,23 @@ describe("createProxyTransport", () => {
 });
 
 describe("één plek om te wisselen", () => {
-  it("gebruikt standaard de proxy", () => {
-    expect(TRANSPORT).toBe("proxy");
-    expect(createTransport(() => session).kind).toBe("proxy");
+  it("gebruikt de proxy, behalve als je via de extensie koppelde", () => {
+    expect(transportFor("bookmarklet")).toBe("proxy");
+    expect(transportFor("plakken")).toBe("proxy");
+    expect(transportFor(undefined)).toBe("proxy");
+    expect(transportFor("extensie")).toBe("extensie");
+    expect(transportFor("voorbeeld")).toBe("voorbeeld");
   });
 
-  it("kan naar de browserextensie, die er nog niet is", async () => {
+  it("wisselt vanzelf mee met hoe je gekoppeld bent", () => {
+    let method: "bookmarklet" | "extensie" = "bookmarklet";
+    const transport = createTransport(() => ({ ...session, method }));
+    expect(transport.kind).toBe("proxy");
+    method = "extensie";
+    expect(transport.kind).toBe("extensie");
+  });
+
+  it("zegt het eerlijk als de extensie er niet is", async () => {
     const transport = createTransport(() => session, "extensie");
     expect(transport.kind).toBe("extensie");
     await expect(transport.get("account")).rejects.toMatchObject({ code: "geen-extensie" });

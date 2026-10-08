@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <title>SuperMagister</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="aurora" aria-hidden="true"></div>
+    <main>
+      <header class="brand">
+        <img src="../icons/icon-48.png" alt="" width="30" height="30" />
+        <span class="wordmark">Super<b>Magister</b></span>
+      </header>
+
+      <section class="card" aria-live="polite">
+        <p class="state"><span class="dot" id="dot"></span><span id="state">Even kijken…</span></p>
+        <p class="quip" id="quip"></p>
+      </section>
+
+      <section class="card pack" id="pack" hidden>
+        <p id="pack-text"></p>
+        <button type="button" class="primary" id="open-pack">Open je pack</button>
+      </section>
+
+      <div class="buttons">
+        <button type="button" class="primary" id="open-app">Open SuperMagister</button>
+        <button type="button" class="glass" id="open-magister">Open Magister</button>
+        <button type="button" class="glass" id="resume" hidden>Weer automatisch koppelen</button>
+        <button type="button" class="ghost" id="unlink" hidden>Ontkoppelen</button>
+      </div>
+
+      <label class="toggle">
+        <input type="checkbox" id="melding" />
+        <span>Melding als er een pack klaarstaat</span>
+      </label>
+
+      <p class="foot">Onofficieel. Niet verbonden aan Magister of Iddink.</p>
+    </main>
+    <script src="../shared/renew.js"></script>
+    <script src="../shared/teksten.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

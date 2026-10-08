@@ -35,9 +35,9 @@ function SectionTitle({ children, hint }: { children: string; hint: string }) {
 }
 
 /**
- * /koppelen: de extensie bovenaan (de hoofdmanier, vanaf 5c), daaronder de
- * bladwijzer en het plakveld als andere manieren. Elke manier eindigt op
- * dezelfde plek: lib/koppelen/link.ts.
+ * /koppelen: de extensie bovenaan (de hoofdmanier, fase 5c), daaronder de
+ * bladwijzer en het plakveld als reserve voor telefoons en andere browsers.
+ * Elke manier eindigt op dezelfde plek: lib/koppelen/link.ts.
  */
 export function ConnectView() {
   return (
@@ -51,14 +51,14 @@ export function ConnectView() {
         <LinkStatusPanel />
 
         <section aria-labelledby="extensie-titel">
-          <SectionTitle hint="Straks de snelste manier, ook om gekoppeld te blijven.">
+          <SectionTitle hint="Koppelt vanzelf en blijft gekoppeld.">
             De makkelijkste manier
           </SectionTitle>
           <ExtensionCard />
         </section>
 
         <section className="space-y-4">
-          <SectionTitle hint="Werken nu al. Ze doen precies hetzelfde.">
+          <SectionTitle hint="Voor telefoons en andere browsers. Ze doen precies hetzelfde.">
             Andere manieren
           </SectionTitle>
           <BookmarkletCard />

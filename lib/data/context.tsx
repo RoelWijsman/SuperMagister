@@ -6,7 +6,7 @@ import { useIsClient } from "@/lib/hooks";
 import { browserLock, getSessionStore, idbCache } from "@/lib/koppelen/runtime";
 import { withCache } from "@/lib/magister/cache";
 import { createMagisterClient } from "@/lib/magister/client";
-import { createTransport, TRANSPORT } from "@/lib/magister/config";
+import { createTransport } from "@/lib/magister/config";
 import { createMagisterSource, type MagisterSource } from "@/lib/magister/source";
 import { MagisterError } from "@/lib/magister/transport";
 import { activeView, useConnection } from "@/stores/connection";
@@ -66,7 +66,8 @@ function createLiveSource({
   // Rooster en welkomstpack halen vakken, cijfers en eerdere jaren via de cache.
   const via: Partial<Pick<SchoolDataSource, "getSubjects" | "getGrades" | "getHistory">> = {};
   const inner = createMagisterSource({
-    client: createMagisterClient(createTransport(session, sample ? "voorbeeld" : TRANSPORT)),
+    // Proxy of extensie: dat volgt vanzelf uit hoe je gekoppeld bent.
+    client: createMagisterClient(createTransport(session, sample ? "voorbeeld" : undefined)),
     schoolHost,
     personId,
     enrollmentId: enrollmentId ?? undefined,
@@ -126,6 +127,22 @@ export function DataSourceProvider({ children }: { children: ReactNode }) {
     if (!isClient || !wantsMagister || !schoolHost || personId === undefined) return demo;
     return createLiveSource({ schoolHost, personId, enrollmentId, sample, queryClient });
   }, [isClient, wantsMagister, schoolHost, personId, enrollmentId, sample, queryClient, demo]);
+
+  // Weer een bruikbare sessie (opnieuw gekoppeld, of vernieuwd door de extensie): meteen verversen.
+  useEffect(() => {
+    if (source.kind !== "magister") return;
+    const sessions = getSessionStore();
+    const usable = () => {
+      const { session, rejected } = sessions.snapshot();
+      return session !== null && !rejected;
+    };
+    let was = usable();
+    return sessions.subscribe(() => {
+      const now = usable();
+      if (now && !was) void queryClient.invalidateQueries({ queryKey: [source.id] });
+      was = now;
+    });
+  }, [source, queryClient]);
 
   // Een ander tabblad haalde nieuwe data op: die staat al in de cache.
   useEffect(() => {

@@ -69,9 +69,9 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   _transport_. Welke transport, staat op één plek: `TRANSPORT` in `lib/magister/config.ts`.
   Nu is dat `"proxy"`: GET-verzoeken naar de eigen route `/api/magister/...` met het token in
   `Authorization` en de school in `X-Magister-School` (gecontroleerd op
-  `^[a-z0-9-]+\.magister\.net$`, paden alleen letters, cijfers, `-`, `_` en `/`). Later kan het
-  `"extensie"` worden (een browserextensie); die transport bestaat al en zegt eerlijk dat de
-  extensie er nog niet is. De rest van de app merkt van zo'n wissel niets. Fouten worden
+  `^[a-z0-9-]+\.magister\.net$`, paden alleen letters, cijfers, `-`, `_` en `/`). Sinds 5c kan
+  het ook `"extensie"` zijn (de browserextensie); dat volgt vanzelf uit hoe je koppelde. De rest
+  van de app merkt van zo'n wissel niets. Fouten worden
   `MagisterError`s met een code (`verlopen`, `geen-toegang`, `netwerk`, …) en bevatten nooit het
   token. De paden uit de opdracht staan in `lib/magister/endpoints.ts`.
 
@@ -469,7 +469,7 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   401 en een doorverwijzing worden "verlopen", 403, 404, 429 met "probeer over X seconden",
   5xx "Magister plat", time-out na 15 seconden.
 - **Databron** (`lib/magister/source.ts`): levert precies dezelfde types als de demo, via de
-  client (dus de transport: proxy nu, extensie in 5c). Zuinig: schooljaren, vakken en cijfers
+  client (dus de transport: proxy, of de extensie sinds 5c). Zuinig: schooljaren, vakken en cijfers
   worden 30 seconden gedeeld in plaats van dubbel opgevraagd. Het welkomstpack zijn de laatste
   vijf echte cijfers (zonder Inh en vrijstellingen); de rest is bij de eerste koppeling al
   onthuld. Sinds 5b zit hij in de app (zie hieronder).
@@ -480,10 +480,10 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   het tabblad, nooit in localStorage of op een server), verlopen (`expires_at`, of een 401) en
   opnieuw koppelen. Open tabbladen delen de sessie via een BroadcastChannel: een nieuw tabblad
   vraagt erom, opnieuw koppelen en ontkoppelen gelden overal tegelijk. Een bron die het token zelf
-  kan vernieuwen (de extensie in 5c) meldt zich met `setRenewer`; dan vernieuwt de app stil en
+  kan vernieuwen (de extensie, fase 5c) meldt zich met `setRenewer`; dan vernieuwt de app stil en
   blijft de "Opnieuw koppelen"-sheet weg. De rest van de app vraagt alleen `get()`.
 - **Alle wegen eindigen op dezelfde plek** (`lib/koppelen/link.ts`): bookmarklet, plakveld,
-  voorbeelddata en straks de extensie. Eerst `/api/account` om te kijken of het token werkt en wie
+  voorbeelddata en de extensie (5c). Eerst `/api/account` om te kijken of het token werkt en wie
   je bent, dan pas bewaren. Een ander account dan hiervoor? Dan gaat eerst alles van het vorige
   account van dit apparaat af. Het welkomstpack werkt daardoor voor elke weg hetzelfde.
 - **Bookmarklet** (`lib/koppelen/bookmarklet.ts`): zoekt in sessionStorage de sleutel
@@ -549,6 +549,75 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   niet in een frame, `upgrade-insecure-requests` in productie. Stijlen mogen inline (Framer
   Motion). Daardoor wordt elke pagina per verzoek gerenderd.
 
+## Browserextensie (fase 5c)
+
+- **De hoofdmanier van koppelen.** Manifest V3 voor Chrome en Edge, in `extension/`, in gewoon
+  JavaScript zonder bouwstap: de map is direct als uitgepakte extensie te laden. De logica staat in
+  losse scripts (`extension/shared/*.js`) die Vitest test door ze te draaien zoals de browser dat
+  doet (`extension/test/`).
+- **Token ophalen:** een content script op `*.magister.net` (niet op `accounts.magister.net`) leest
+  de sessie precies zoals de bookmarklet (eerst `oidc.user:…`, anders elke sleutel met een
+  `access_token`) en geeft hem aan de background zodra Magister opent en elke keer dat Magister
+  het token ververst (eerst om de twee tellen, daarna elk half uur, en bij terugkomen in het
+  tabblad). De background neemt alleen een sessie aan van de school waar het bericht vandaan komt.
+- **Bewaren:** het token staat alleen in `chrome.storage.session` (geheugen, weg als de browser
+  sluit), nooit gelogd. In `chrome.storage.local` alleen niet-geheime dingen: de school, je
+  meldingkeuze, het pack-aantal en wanneer je ontkoppelde.
+- **Het token blijft in de extensie.** De opdracht liet de keuze: de app vraagt "het token of de
+  status" op. We kozen de status. De app krijgt alleen of je gekoppeld bent, de school, het
+  verloopmoment en je persoon-id; in de sessie van de app staat een vast teken
+  (`EXTENSION_TOKEN`). Alle Magister-verzoeken gaan via de background
+  (`extension/shared/magister-api.js`, dezelfde regels en foutcodes als de proxy). Zo komt het
+  token nooit in de app of op een server, en ook niet binnen bereik van een script op de pagina.
+- **De brug** (`extension/content/app.js` ↔ `lib/extensie/bridge.ts`): window.postMessage op de
+  pagina van de app, alleen van hetzelfde venster en domein, in een vast formaat met versienummer
+  (`supermagister-app` / `supermagister-extensie`, versie 1; een test bewaakt dat app en extensie
+  gelijk blijven). Vragen: ping, status, get, vernieuw, ontkoppel, hervat, pack. De extensie meldt
+  zelf: aanwezig, status en ontkoppeld (via een poort naar de background). De background neemt
+  alleen vragen aan van de adressen van de app (`shared/config.js`).
+- **De transport wisselt vanzelf** (`lib/magister/config.ts`): koppelde je via de extensie, dan
+  gaan verzoeken via de extensie; anders via de proxy, zoals in 5b. De rest van de app merkt
+  niets.
+- **Samenwerken** (`components/koppelen/ExtensionLink.tsx`, beslissingen in
+  `lib/extensie/sync.ts`): de app zoekt de extensie, koppelt vanzelf als de extensie je sessie heeft
+  (met welkomstpack bij een nieuw account; een bestaande koppeling stapt stil over), houdt het
+  verloopmoment bij en meldt zich bij de token-laag als bron die zelf vernieuwt. Daardoor blijven
+  de "bijna verlopen"-melding en de "Opnieuw koppelen"-sheet weg. Ontkoppel je in de extensie, dan
+  ontkoppelt de app ook (ook later, als de app toen niet open stond: de extensie onthoudt wanneer).
+  Ontkoppel je in de app, dan stopt de extensie ook, en koppelt hij niet vanzelf opnieuw tot je op
+  "Weer automatisch koppelen" klikt.
+- **Vernieuwen** (`extension/shared/renew.js`, `background.js`): binnen 5 minuten voor het
+  verlopen, na een 401, of als de app open staat zonder sessie. Eerst vragen we open
+  Magister-tabbladen om hun (door Magister zelf verse) sessie; anders opent de extensie
+  `{school}/magister/#/vandaag` in een tabblad op de achtergrond (`active: false`), wacht hooguit 45
+  seconden op het nieuwe token en sluit het weer. Komt dat tabblad op `accounts.magister.net`
+  uit, dan niet opnieuw proberen maar de melding "Log even opnieuw in bij Magister"; tikken laat
+  het tabblad zien. Hooguit één poging per 10 minuten, ook over herstarts van de service worker
+  heen. Zonder koppeling in deze browsersessie doet de extensie niets uit zichzelf.
+- **Badge en melding:** elk kwartier (`chrome.alarms`) het token vers houden en de laatste cijfers
+  tellen. De app geeft door hoeveel er in je pack zitten en wat het nieuwste cijfer is dat hij kent;
+  de extensie telt alles wat Magister daarna invoerde erbij. Optioneel (standaard uit) de melding
+  "Er staat een pack voor je klaar".
+- **Popup:** donker, aurora en glas, zoals de app. Status ("Gekoppeld met {school} · vernieuwt
+  automatisch" of "Niet gekoppeld: open Magister en log in"), een droge regel eronder
+  (`shared/teksten.js`, vijf varianten per situatie), het pack, en de knoppen Open SuperMagister,
+  Open Magister en Ontkoppelen.
+- **Rechten:** `storage`, `notifications` en `alarms`, plus host-rechten voor `*.magister.net` en het
+  adres van de app. `alarms` stond niet in het lijstje van de opdracht, maar is nodig voor de
+  verversing elk kwartier. Geen `tabs`-recht nodig: de host-rechten zijn genoeg om de adressen van
+  Magister-tabbladen te zien. Geen web-accessible resources en geen externe berichten.
+- **Ontwikkelversie en Web Store:** het manifest in de map heeft `http://localhost/*` (en de
+  background accepteert alleen poort 3000 en 3100). `npm run extension:zip -- --app https://…`
+  (`scripts/extensie-zip.mjs`) maakt de versie voor de Web Store: localhost eruit, het echte adres
+  erin, zonder tests en bronbestanden. De iconen tekent `scripts/extensie-iconen.mjs` uit het logo:
+  vol op 48 en 128 px, plat (één kleur, grotere ster, zonder stipje) op 16 en 32.
+- **Koppelpagina:** bovenaan de extensie in vier standen: gekoppeld via de extensie, de extensie
+  staat klaar (of vraagt om inloggen, of staat op pauze), installeren in drie stappen (Web Store als
+  `NEXT_PUBLIC_EXTENSION_URL` gezet is, anders de ontwikkelaarsmodus), of op een telefoon en in
+  andere browsers een verwijzing naar de bladwijzer en het plakveld.
+- **Privacy:** `privacy.md` beschrijft welke gegevens, waarom en waar, en per recht waarvoor; klaar
+  om (met een contactadres) te publiceren voor de Web Store.
+
 ## Geschrapt (besluit 6 oktober 2026)
 
 Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar
@@ -573,6 +642,6 @@ app-streak. De **"ik heb geen zin"-knop** (fase 3c) blijft ook, met zijn eigen 5
 
 ## Nog niet gebouwd
 
-De browserextensie (5c) · XP, achievements,
+XP, achievements,
 profiel, mascotte Sup, quests en recaps (fase 6) · PWA, offline, meldingen, seizoensthema's en
 easter eggs (fase 7).

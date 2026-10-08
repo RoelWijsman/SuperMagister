@@ -5,6 +5,7 @@ import { Sky } from "@/components/background/Sky";
 import { AchievementWatcher } from "@/components/achievements/AchievementWatcher";
 import { GoalWatcher } from "@/components/collection/GoalWatcher";
 import { CommandPalette } from "@/components/command/CommandPalette";
+import { ExtensionLink } from "@/components/koppelen/ExtensionLink";
 import { LinkIntake } from "@/components/koppelen/LinkIntake";
 import { SessionWatcher } from "@/components/koppelen/SessionWatcher";
 import { Providers } from "@/components/providers/Providers";
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <MoreSheet />
           <WalkoutOverlay />
           <LinkIntake />
+          <ExtensionLink />
           <SessionWatcher />
           <GoalWatcher />
           <AchievementWatcher />

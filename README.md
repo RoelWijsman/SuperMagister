@@ -19,7 +19,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 3b   | Rooster: alle weergaven, uitval, wijzigingen, slimme tussenuren, weekbelasting, export     | ✅ Klaar |
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                         | ✅ Klaar |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten           | ✅ Klaar |
-| 5    | Koppeling: bookmarklet, koppelpagina, proxy en echte data                                  | 5b klaar |
+| 5    | Koppeling: extensie, bookmarklet, koppelpagina, proxy en echte data                        | 5c klaar |
 | 6    | Gamification: XP, levels, achievements, quests, mascotte Sup, weekrecap, Wrapped           | Gepland  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                          | Gepland  |
 | 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid         | Gepland  |
@@ -139,6 +139,15 @@ Koppel je eigen Magister op de pagina **Koppelen** (in het menu onder **Meer**, 
 linksonder). Je wachtwoord vul je nooit in SuperMagister in: je logt in bij Magister zelf, en
 SuperMagister krijgt alleen een tijdelijke sleutel (een token) van ongeveer een uur.
 
+**Met de extensie (Chrome en Edge, de makkelijkste manier)**
+
+1. Installeer de SuperMagister-extensie (zie [Browserextensie](#browserextensie)).
+2. Open je eigen Magister en log in. De extensie koppelt vanzelf.
+3. Klaar. De extensie houdt je koppeling vers: je hoeft nooit meer opnieuw te koppelen. Het token
+   blijft in de extensie en komt nooit op een server.
+
+De bladwijzer en het plakveld hieronder blijven werken, voor telefoons en andere browsers.
+
 **Met de bladwijzer (op een computer)**
 
 1. Sleep op de pagina **Koppelen** de knop **SuperMagister** naar je bladwijzerbalk. Zie je die
@@ -167,27 +176,82 @@ de bladwijzer in de adresbalk en tik erop.
 - Zolang de app open is, haalt hij elk kwartier nieuwe gegevens op (en als je terugkomt in het
   tabblad, maar niet vaker). Wat is opgehaald, blijft op dit apparaat staan. Zo zie je je laatste
   stand ook als je koppeling verlopen is ("laatste update 14:02").
-- Vijf minuten voor het verlopen krijg je een seintje. Is hij verlopen, dan vraagt de app je
-  vriendelijk om opnieuw te koppelen: in Magister nog een keer op de bladwijzer klikken.
+- Met de bladwijzer of het plakveld: vijf minuten voor het verlopen krijg je een seintje. Is hij
+  verlopen, dan vraagt de app je vriendelijk om opnieuw te koppelen: in Magister nog een keer op de
+  bladwijzer klikken. Met de extensie gebeurt dat vanzelf.
 - Rekent Magister een gemiddelde anders uit dan SuperMagister, dan zie je bij dat vak een
   waarschuwingsdriehoekje met uitleg.
 - **Instellingen → Gegevens:** wissel tussen de demo en je eigen Magister, bekijk een eerder
   schooljaar terug, of **ontkoppel**. Ontkoppelen wist je token en alles van je eigen Magister van
   dit apparaat. De demo en je eigen gegevens lopen nooit door elkaar.
-- Binnenkort komt er een browserextensie: dan koppel je met één klik en vernieuwt de koppeling
-  zichzelf.
 
-Voor ontwikkelaars: hoe de app bij Magister komt (via de eigen proxy, later via de extensie), kies
-je op één plek in `lib/magister/config.ts`. Het adres in de bladwijzer is het adres waarop de app
-draait; zet `NEXT_PUBLIC_APP_URL` om een ander adres te gebruiken. Bij **Instellingen →
-Ontwikkelaar** kun je tijdens het bouwen koppelen met de geanonimiseerde testbestanden.
+Voor ontwikkelaars: hoe de app bij Magister komt (via de extensie of via de eigen proxy), wordt op
+één plek gekozen in `lib/magister/config.ts`, vanzelf op basis van hoe je koppelde. Het adres in de
+bladwijzer is het adres waarop de app draait; zet `NEXT_PUBLIC_APP_URL` om een ander adres te
+gebruiken. Bij **Instellingen → Ontwikkelaar** kun je tijdens het bouwen koppelen met de
+geanonimiseerde testbestanden, en zie je bij **Gegevens controleren** wat er binnenkomt.
+
+## Browserextensie
+
+De extensie (Manifest V3, voor Chrome en Edge) staat in de map `extension`. Hij leest je
+Magister-sessie op je eigen Magister, bewaart het token alleen in het geheugen van de browser
+(`chrome.storage.session`) en doet de Magister-verzoeken voor de app. Het token komt zo nooit in de
+app of op een server. Loopt het token bijna af, dan opent hij Magister in een tabblad op de
+achtergrond om een nieuw te halen (hooguit één poging per tien minuten). Vraagt Magister om opnieuw
+in te loggen, dan krijg je een melding. Op het icoon staat het aantal nieuwe cijfers.
+
+**Lokaal laden (om te testen)**
+
+1. Start de app met `npm run dev` (de ontwikkelversie van de extensie werkt met
+   `http://localhost:3000` en `http://localhost:3100`).
+2. Open `chrome://extensions` (in Edge: `edge://extensions`) en zet **Ontwikkelaarsmodus** aan.
+3. Klik op **Uitgepakte extensie laden** en kies de map `extension`.
+4. Open je eigen Magister en log in. De app (op localhost) koppelt vanzelf.
+
+Na een wijziging in de extensie: klik bij de extensie op het rondje (opnieuw laden) en herlaad de
+tabbladen van Magister en de app.
+
+**Inpakken voor de Chrome Web Store**
+
+```bash
+npm run extension:zip -- --app https://jouw-supermagister.nl
+```
+
+Dat maakt `dist/supermagister-extensie-{versie}.zip`, met het echte adres van de app en zonder
+localhost-rechten, tests en bronbestanden. Staat de extensie in de Web Store, zet dan
+`NEXT_PUBLIC_EXTENSION_URL` op de link ernaartoe: dan krijgt de knop **Installeer de extensie** op
+de pagina **Koppelen** die link, met drie simpele stappen. Zonder die link toont de pagina de
+stappen voor de ontwikkelaarsmodus.
+
+**Wat je nodig hebt voor de Chrome Web Store**
+
+- Een ontwikkelaarsaccount bij de Chrome Web Store (eenmalig registratiegeld; Edge Add-ons is
+  gratis).
+- Een openbare privacyverklaring: [`privacy.md`](privacy.md) is daarvoor geschreven. Zet hem
+  online (bijvoorbeeld op je Vercel-domein) en vul een contactadres in.
+- Het icoon van 128 px (`extension/icons/icon-128.png`), minstens één screenshot (1280 × 800 of
+  640 × 400) van de popup en van de app, en een korte beschrijving van het ene doel: "Koppelt
+  SuperMagister met je eigen Magister, zonder wachtwoord."
+- Bij **Privacy** in het dashboard: geen code van buitenaf, geen verkoop of doorgeven van gegevens,
+  en per recht een uitleg:
+
+| Recht                      | Uitleg voor de Web Store                                                                             |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `storage`                  | De Magister-sessie (alleen in het geheugen) en de instellingen van de gebruiker bewaren.             |
+| `notifications`            | Melden dat de gebruiker opnieuw moet inloggen bij Magister, en optioneel dat er een pack klaarstaat. |
+| `alarms`                   | Elk kwartier de sessie vers houden en nieuwe cijfers tellen voor het icoon.                          |
+| `https://*.magister.net/*` | De sessie lezen op de eigen Magister van de gebruiker en diens gegevens ophalen.                     |
+| Het adres van de app       | Met de SuperMagister-app praten in de browser van de gebruiker.                                      |
+
+`npm run extension:icons` tekent de iconen opnieuw uit het logo (`app/icon.svg`).
 
 ## Op Vercel zetten
 
 1. Zet het project in een eigen GitHub-repository.
 2. Ga naar [vercel.com/new](https://vercel.com/new) en importeer de repository.
 3. Vercel herkent Next.js vanzelf. Er zijn geen omgevingsvariabelen nodig. (Wil je dat de
-   bladwijzer een ander adres opent dan waarop de app draait, zet dan `NEXT_PUBLIC_APP_URL`.)
+   bladwijzer een ander adres opent dan waarop de app draait, zet dan `NEXT_PUBLIC_APP_URL`. Staat
+   de extensie in de Web Store, zet dan `NEXT_PUBLIC_EXTENSION_URL`.)
 4. Klik op **Deploy**. Elke push naar je hoofdbranch wordt daarna automatisch gepubliceerd.
 
 ## Techniek in het kort

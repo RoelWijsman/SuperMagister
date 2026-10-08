@@ -167,7 +167,7 @@ export function StyleguideView() {
 
         <Block
           title="Koppelen"
-          note="Fase 5b: de chip in drie standen, de bladwijzer-stappen, de plek voor de extensie, het plakveld, foutmeldingen, de gemiddelde-waarschuwing en de sheet om opnieuw te koppelen. Verzonnen school; hier koppel je niets."
+          note="Fase 5b en 5c: de chip in drie standen, de bladwijzer-stappen, de extensie (in de stand van deze browser: installeren, klaar of gekoppeld), het plakveld, foutmeldingen, de gemiddelde-waarschuwing en de sheet om opnieuw te koppelen. Verzonnen school; hier koppel je niets."
         >
           <LinkSamples />
         </Block>

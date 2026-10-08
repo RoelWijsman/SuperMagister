@@ -62,6 +62,7 @@ export function DataSettings() {
   const account = useConnection((s) => s.account);
   const view = useConnection(activeView);
   const setView = useConnection((s) => s.setView);
+  const viaExtension = useSession().session?.method === "extensie";
   const [unlinking, setUnlinking] = useState(false);
 
   if (!account) {
@@ -104,8 +105,11 @@ export function DataSettings() {
         </p>
         {view === "magister" && <ConnectionFacts className="mt-3" />}
         <p className="mt-3 text-sm text-ink-3">
-          Je koppeling (het token) staat alleen in dit tabblad en verloopt na ongeveer een uur. Wat
-          al is opgehaald, blijft op dit apparaat staan tot je ontkoppelt.
+          {viaExtension
+            ? "Je koppelt via de extensie: het token blijft daar en vernieuwt zichzelf."
+            : "Je koppeling (het token) staat alleen in dit tabblad en verloopt na ongeveer een uur."}{" "}
+          Wat al is opgehaald, blijft op dit apparaat staan tot je ontkoppelt
+          {viaExtension ? " (dan ontkoppelt de extensie ook)" : ""}.
         </p>
       </div>
 
