@@ -5,8 +5,9 @@
  *
  * - Scripts: alleen van de app zelf, met een nonce per verzoek (geen inline
  *   scripts, geen eval behalve tijdens het bouwen voor React).
- * - Verbindingen: alleen de eigen server (ook de Magister-proxy) en Open-Meteo
- *   voor het fietsweer. Nooit rechtstreeks naar Magister.
+ * - Verbindingen: alleen de eigen server (ook de Magister-proxy en de
+ *   schoolvakanties) en Open-Meteo voor het fietsweer. Nooit rechtstreeks naar
+ *   Magister. Lettertypes komen van de eigen server (next/font), niet van Google.
  * - Stijlen mogen inline: Framer Motion en React zetten stijlen op elementen.
  * - Plaatjes en video als blob: voor delen en de walkout-video.
  */
@@ -26,6 +27,8 @@ export function buildCsp({ nonce, dev }: { nonce: string; dev: boolean }): strin
     ["connect-src", "'self'", "https://api.open-meteo.com", "https://geocoding-api.open-meteo.com"],
     ["media-src", "'self'", "blob:"],
     ["worker-src", "'self'", "blob:"],
+    ["manifest-src", "'self'"],
+    ["frame-src", "'none'"],
     ["object-src", "'none'"],
     ["base-uri", "'self'"],
     ["form-action", "'self'"],

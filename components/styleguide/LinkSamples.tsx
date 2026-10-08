@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AverageWarningPanel } from "@/components/grades/AverageWarning";
 import { StatusDot } from "@/components/koppelen/ConnectionFacts";
 import { DataErrorState } from "@/components/koppelen/DataErrorState";
+import { Disclaimer } from "@/components/legal/Disclaimer";
 import { LinkSteps } from "@/components/koppelen/LinkSteps";
 import { DevtoolsShot } from "@/components/koppelen/PasteCard";
 import { RelinkSheet } from "@/components/koppelen/RelinkSheet";
@@ -59,6 +60,13 @@ export function LinkSamples() {
           error={new MagisterError("netwerk", "Geen verbinding.")}
           onRetry={() => undefined}
         />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-ink-3">
+          De disclaimer: op /koppelen, in de onboarding, op /privacy en in Instellingen
+        </p>
+        <Disclaimer />
       </div>
 
       <AverageWarningPanel

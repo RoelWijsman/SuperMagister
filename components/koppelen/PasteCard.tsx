@@ -44,7 +44,7 @@ export function DevtoolsShot() {
             <span>Key</span>
             <span>Value</span>
           </div>
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-2 py-1 opacity-60">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] gap-2 py-1 text-[#9a9ba3]">
             <span className="truncate">taal</span>
             <span className="truncate">nl</span>
           </div>

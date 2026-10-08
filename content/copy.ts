@@ -264,6 +264,14 @@ export const COPY = {
     "‘{query}’? Nee.\nProbeer een vak, of ‘rooster vrijdag’.",
     "Overal gezocht. Ook achter de radiator.\nGeen ‘{query}’.",
   ],
+  // Foutpagina (app/error.tsx): er ging iets mis tijdens het tekenen van een pagina.
+  "fout.pagina": [
+    "Er ging iets mis.\nDeze pagina struikelde over zijn eigen veters. Probeer het nog eens.",
+    "Oeps.\nIets in de app viel om. Je gegevens zijn veilig, de pagina even niet.",
+    "Kortsluiting.\nDe conciërge is onderweg. Of je drukt zelf op opnieuw proberen.",
+    "Dit hoort niet.\nDe pagina gaf een fout. Nog een keer proberen helpt vaak.",
+    "Even een black-out.\nNiet die van je laatste toets. Probeer het opnieuw.",
+  ],
   "leeg.404": [
     "Deze pagina is zoek.\nMisschien is hij uitgevallen. Of hij heeft een tussenuur.",
     "Pagina niet gevonden.\nHij zit waarschijnlijk in het lokaal zonder ramen.",
@@ -1096,6 +1104,21 @@ export const COPY = {
     "Rustig rooster. Geen verrassingen.",
     "Alles zoals gepland. Verdacht, maar fijn.",
     "Niks nieuws. Het lokaal staat er nog.",
+  ],
+  // Geheime handeling: 7× tikken op het versienummer in Instellingen.
+  "toast.ontwikkelaarAan": [
+    "Ontwikkelaarsmodus aan.\nJe vindt hem bij Instellingen, onder Ontwikkelaar.",
+    "Je bent nu ontwikkelaar.\nNiet op je cv zetten. Nog niet.",
+    "Geheime knoppen ontgrendeld.\nZe staan bij Instellingen, onder Ontwikkelaar.",
+    "Toegang verleend.\nDe motorkap is open. Kijk, maar sleutel voorzichtig.",
+    "Ontwikkelaarsmodus aan.\nZeven keer tikken. Jij laat je niet afschepen.",
+  ],
+  "toast.ontwikkelaarUit": [
+    "Ontwikkelaarsmodus uit.\nDe motorkap is weer dicht.",
+    "Terug naar normaal.\nDe geheime knoppen zijn weer geheim.",
+    "Ontwikkelaarsmodus uit.\nNiemand heeft iets gezien.",
+    "Weer gewoon leerling.\nOok prima.",
+    "Uitgezet.\nZeven keer tikken en hij is er weer.",
   ],
   "toast.ics": [
     "Rooster gedownload.\nOpen het bestand en je agenda weet alles.",

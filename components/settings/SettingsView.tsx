@@ -1,7 +1,7 @@
 "use client";
 
 import { Moon, Monitor, Palette, Sparkles, Sun } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -10,6 +10,8 @@ import { Tabs } from "@/components/ui/Tabs";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import type { GuessMode } from "@/lib/guess/input";
 import { useIsClient } from "@/lib/hooks";
+import { notify } from "@/lib/notify";
+import { DEVELOPER_TAPS, useDeveloperMode } from "@/lib/use-developer";
 import type { TimeOfDay } from "@/lib/theme/time-of-day";
 import { useOnboarding } from "@/stores/onboarding";
 import {
@@ -19,6 +21,7 @@ import {
   type WalkoutSpeed,
 } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
+import { Disclaimer } from "@/components/legal/Disclaimer";
 import { DataCheck } from "./DataCheck";
 import { DataSettings, LinkDevTools } from "./DataSettings";
 import { HomeworkSettings } from "./HomeworkSettings";
@@ -52,6 +55,33 @@ function Section({
       {!description && <div className="mb-4" />}
       {children}
     </GlassPanel>
+  );
+}
+
+/**
+ * Het versienummer. 7× snel tikken zet de ontwikkelaarsinstellingen aan of
+ * uit (in de live versie zijn ze anders verborgen).
+ */
+function VersionTapper() {
+  const taps = useRef({ count: 0, last: 0 });
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const now = Date.now();
+        const tap = taps.current;
+        tap.count = now - tap.last < 1500 ? tap.count + 1 : 1;
+        tap.last = now;
+        if (tap.count < DEVELOPER_TAPS) return;
+        tap.count = 0;
+        const on = !useSettings.getState().developer;
+        useSettings.getState().set("developer", on);
+        notify(on ? "toast.ontwikkelaarAan" : "toast.ontwikkelaarUit", {}, { emoji: "🛠️" });
+      }}
+      className="mt-3 text-xs text-ink-3 select-none"
+    >
+      Versie {process.env.NEXT_PUBLIC_APP_VERSION}
+    </button>
   );
 }
 
@@ -142,6 +172,7 @@ export function SettingsView() {
   const settings = useSettings();
   const preview = useUi((s) => s.timeOfDayPreview);
   const setPreview = useUi((s) => s.setTimeOfDayPreview);
+  const developer = useDeveloperMode();
 
   // De voorvertoning van de hemel geldt alleen zolang je hier bent.
   useEffect(() => () => setPreview(null), [setPreview]);
@@ -295,30 +326,32 @@ export function SettingsView() {
           <DataSettings />
         </Section>
 
-        <Section
-          id="ontwikkelaar"
-          title="Ontwikkelaar"
-          description="Voor wie wil zien hoe de app in elkaar zit."
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="min-w-0 flex-1 text-ink-2">
-              Alle bouwstenen van het design system op één pagina, met de walkout-schuif.
-            </p>
-            <LinkButton href="/stijlgids" variant="glass" icon={Palette}>
-              Stijlgids
-            </LinkButton>
-          </div>
-          <div className="mt-4 border-t border-line pt-2">
-            <Switch
-              label="Prestaties en XP tonen"
-              description="De Prestaties-pagina, prestatiemeldingen en XP bij gokken en afvinken. Uit sinds fase 6 is vervallen."
-              checked={settings.gamification}
-              onCheckedChange={(value) => settings.set("gamification", value)}
-            />
-          </div>
-          <LinkDevTools />
-          <DataCheck />
-        </Section>
+        {developer && (
+          <Section
+            id="ontwikkelaar"
+            title="Ontwikkelaar"
+            description="Voor wie wil zien hoe de app in elkaar zit."
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="min-w-0 flex-1 text-ink-2">
+                Alle bouwstenen van het design system op één pagina, met de walkout-schuif.
+              </p>
+              <LinkButton href="/stijlgids" variant="glass" icon={Palette}>
+                Stijlgids
+              </LinkButton>
+            </div>
+            <div className="mt-4 border-t border-line pt-2">
+              <Switch
+                label="Prestaties en XP tonen"
+                description="De Prestaties-pagina, prestatiemeldingen en XP bij gokken en afvinken. Uit sinds fase 6 is vervallen."
+                checked={settings.gamification}
+                onCheckedChange={(value) => settings.set("gamification", value)}
+              />
+            </div>
+            <LinkDevTools />
+            <DataCheck />
+          </Section>
+        )}
 
         <Section id="over" title="Over SuperMagister">
           <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -333,12 +366,8 @@ export function SettingsView() {
               Onboarding opnieuw bekijken
             </Button>
           </div>
-          <p className="text-sm text-ink-2">
-            SuperMagister is een onofficiële app. Hij gebruikt een onofficiële, interne
-            Magister-API, is niet verbonden aan Magister of Iddink en is alleen bedoeld voor je
-            eigen account.
-          </p>
-          <p className="mt-3 text-xs text-ink-3">Versie 0.5 · fase 5: Koppelen</p>
+          <Disclaimer className="text-sm" />
+          <VersionTapper />
         </Section>
       </div>
     </>

@@ -74,7 +74,8 @@
   --sm-bg: var(--t-bg-dark);
   --sm-ink: #f4f3ff;
   --sm-ink-2: rgb(228 229 255 / 0.7);
-  --sm-ink-3: rgb(228 229 255 / 0.44);
+  /* 0.54: minstens 4,5:1 contrast op de donkere achtergrond (WCAG AA). */
+  --sm-ink-3: rgb(228 229 255 / 0.54);
   --sm-glass: rgb(255 255 255 / 0.055);
   --sm-glass-strong: rgb(255 255 255 / 0.09);
   --sm-glass-hover: rgb(255 255 255 / 0.085);
@@ -100,7 +101,8 @@
   --sm-bg: var(--t-bg-light);
   --sm-ink: #16142e;
   --sm-ink-2: rgb(22 20 46 / 0.68);
-  --sm-ink-3: rgb(22 20 46 / 0.45);
+  /* 0.62: minstens 4,5:1 contrast op de lichte achtergrond (WCAG AA). */
+  --sm-ink-3: rgb(22 20 46 / 0.62);
   --sm-glass: rgb(255 255 255 / 0.52);
   --sm-glass-strong: rgb(255 255 255 / 0.72);
   --sm-glass-hover: rgb(255 255 255 / 0.7);

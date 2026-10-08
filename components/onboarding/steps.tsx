@@ -1,11 +1,12 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, Search, Shield } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
 import { BookmarkletCard } from "@/components/koppelen/BookmarkletCard";
 import { PasteCard } from "@/components/koppelen/PasteCard";
+import { Disclaimer } from "@/components/legal/Disclaimer";
 import { PlaceSearch } from "@/components/settings/TodaySettings";
 import { ThemePicker } from "@/components/settings/ThemePicker";
 import { Kbd } from "@/components/ui/Kbd";
@@ -178,10 +179,7 @@ export function LinkStep({ onLinked }: { onLinked: () => void }) {
           <PasteCard />
         </div>
       )}
-      <p className="mt-6 flex items-start justify-center gap-2 text-center text-sm text-ink-3">
-        <Shield size={15} aria-hidden className="mt-0.5 shrink-0" />
-        SuperMagister is onofficieel. Je gegevens blijven op je eigen apparaat.
-      </p>
+      <Disclaimer newTab className="mx-auto mt-6 max-w-xl" />
     </div>
   );
 }

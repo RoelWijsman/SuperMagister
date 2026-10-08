@@ -40,6 +40,11 @@ describe("buildCsp", () => {
     expect(prod.get("default-src")).toEqual(["'self'"]);
   });
 
+  it("laadt geen frames en alleen het eigen manifest", () => {
+    expect(prod.get("frame-src")).toEqual(["'none'"]);
+    expect(prod.get("manifest-src")).toEqual(["'self'"]);
+  });
+
   it("staat video's en deelplaatjes als blob toe", () => {
     expect(prod.get("media-src")).toContain("blob:");
     expect(prod.get("img-src")).toEqual(["'self'", "data:", "blob:"]);

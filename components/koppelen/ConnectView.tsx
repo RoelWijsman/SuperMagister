@@ -1,6 +1,7 @@
 "use client";
 
 import { KeyRound, ServerOff, ShieldCheck } from "lucide-react";
+import { Disclaimer } from "@/components/legal/Disclaimer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { BookmarkletCard } from "./BookmarkletCard";
 import { LinkStatusPanel } from "./LinkStatusPanel";
@@ -70,11 +71,7 @@ export function ConnectView() {
               </li>
             ))}
           </ul>
-          <p className="mt-4 px-1 text-xs text-ink-3">
-            SuperMagister is onofficieel. Het gebruikt een interne Magister-API die kan veranderen,
-            is niet verbonden aan Magister of Iddink, slaat geen gegevens op een server op en is
-            alleen bedoeld voor je eigen account.
-          </p>
+          <Disclaimer className="mt-4 px-1" />
         </section>
       </div>
     </>

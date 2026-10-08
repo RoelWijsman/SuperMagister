@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createRateLimiter } from "@/lib/security/rate-limit";
 import { proxyToMagister } from "./proxy";
 
 const TOKEN = "eyJ.geheim-token.123";
@@ -123,6 +124,20 @@ describe("proxyToMagister", () => {
     const body = await response.json();
     expect(body).toMatchObject({ fout });
     expect(JSON.stringify(body)).not.toContain(TOKEN);
+  });
+
+  it("remt per IP-adres, zonder Magister lastig te vallen", async () => {
+    const fetch = upstream(200);
+    const limiter = createRateLimiter({ limit: 2, windowMs: 60_000, now: () => 0 });
+    const from = (ip: string) => request(undefined, { "x-forwarded-for": ip });
+    expect((await proxyToMagister(from("1.2.3.4"), SEGMENTS, fetch, limiter)).status).toBe(200);
+    expect((await proxyToMagister(from("1.2.3.4"), SEGMENTS, fetch, limiter)).status).toBe(200);
+    const blocked = await proxyToMagister(from("1.2.3.4"), SEGMENTS, fetch, limiter);
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get("retry-after")).toBe("60");
+    expect(await blocked.json()).toMatchObject({ fout: "te-vaak", opnieuwNa: 60 });
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect((await proxyToMagister(from("5.6.7.8"), SEGMENTS, fetch, limiter)).status).toBe(200);
   });
 
   it("geeft bij 429 door wanneer je het opnieuw mag proberen", async () => {

@@ -46,7 +46,7 @@ export function DataSourceChip({
     return (
       <Link
         href="/koppelen"
-        aria-label="Niet gekoppeld. Koppel je Magister"
+        aria-label="Koppelen: je bent nog niet gekoppeld met Magister"
         className={cn(
           chip,
           "border-[color-mix(in_oklab,var(--sm-warn)_45%,transparent)] bg-[color-mix(in_oklab,var(--sm-warn)_12%,transparent)] text-warn hover:border-warn",

@@ -60,6 +60,8 @@ export interface SettingsValues {
    * wat er al was, staat standaard uit maar blijft bestaan.
    */
   gamification: boolean;
+  /** Ontwikkelaarsinstellingen tonen in de live versie (7× tikken op het versienummer). */
+  developer: boolean;
 }
 
 interface SettingsActions {
@@ -96,6 +98,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   bikeMinutes: 15,
   holidayRegion: "midden",
   gamification: false,
+  developer: false,
 };
 
 const SETTINGS_VERSION = 2;

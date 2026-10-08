@@ -4,17 +4,15 @@ import { headers } from "next/headers";
 import { Sky } from "@/components/background/Sky";
 import { AchievementWatcher } from "@/components/achievements/AchievementWatcher";
 import { GoalWatcher } from "@/components/collection/GoalWatcher";
-import { CommandPalette } from "@/components/command/CommandPalette";
 import { LinkIntake } from "@/components/koppelen/LinkIntake";
-import { Onboarding } from "@/components/onboarding/Onboarding";
 import { SessionWatcher } from "@/components/koppelen/SessionWatcher";
 import { Providers } from "@/components/providers/Providers";
 import { AppShell } from "@/components/shell/AppShell";
-import { MoreSheet } from "@/components/shell/MoreSheet";
-import { ShortcutsSheet } from "@/components/shell/ShortcutsSheet";
+import { LazyOverlays, LazyWalkout } from "@/components/shell/LazyOverlays";
+import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
 import { ConfettiRain } from "@/components/ui/ConfettiRain";
 import { Toaster } from "@/components/ui/Toaster";
-import { WalkoutOverlay } from "@/components/walkout/WalkoutOverlay";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { buildThemeScript } from "@/lib/theme/script";
 import "./globals.css";
 
@@ -40,9 +38,23 @@ const bebas = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: { default: "SuperMagister", template: "%s · SuperMagister" },
-  description: "Je rooster, huiswerk en cijfers uit Magister. Mooi, supersnel en vooral leuk.",
-  applicationName: "SuperMagister",
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  // Alleen de voorkant (Vandaag) en /privacy mogen in zoekmachines; zie ook app/robots.ts.
+  robots: { index: false, follow: false },
+  openGraph: {
+    type: "website",
+    locale: "nl_NL",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  twitter: { card: "summary_large_image", title: SITE_NAME, description: SITE_DESCRIPTION },
+  appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
@@ -74,11 +86,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <div id="app-root">
             <AppShell>{children}</AppShell>
           </div>
-          <CommandPalette />
-          <ShortcutsSheet />
-          <MoreSheet />
-          <Onboarding />
-          <WalkoutOverlay />
+          <LazyOverlays />
+          <OnboardingGate />
+          <LazyWalkout />
           <LinkIntake />
           <SessionWatcher />
           <GoalWatcher />

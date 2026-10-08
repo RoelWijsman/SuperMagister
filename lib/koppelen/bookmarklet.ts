@@ -17,7 +17,7 @@ function origin(url: string): string | null {
   }
 }
 
-/** Het adres van de app: ingesteld (NEXT_PUBLIC_APP_URL), anders waar hij nu draait. */
+/** Het adres van de app: ingesteld (NEXT_PUBLIC_SITE_URL), anders waar hij nu draait. */
 export function resolveAppUrl(configured: string | undefined, current: string): string {
   return (configured && origin(configured)) || origin(current) || current;
 }

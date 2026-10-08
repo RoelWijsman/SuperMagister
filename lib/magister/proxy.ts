@@ -1,3 +1,4 @@
+import { clientIp, createRateLimiter, type RateLimiter } from "@/lib/security/rate-limit";
 import { SCHOOL_HOST } from "./transport";
 
 /**
@@ -7,8 +8,9 @@ import { SCHOOL_HOST } from "./transport";
  * - Alleen GET.
  * - Alleen naar https://{school}.magister.net/api/..., met de school strikt
  *   gecontroleerd en paden van alleen letters, cijfers, - en _.
- * - Geeft alleen het token (Authorization) en Accept door: geen cookies,
- *   geen andere headers, en volgt geen doorverwijzingen.
+ * - Geeft alleen het token (Authorization, verplicht) en Accept door: geen
+ *   cookies, geen andere headers, en volgt geen doorverwijzingen.
+ * - Een rem per IP-adres, zodat niemand hem als open proxy kan gebruiken.
  * - Logt nooit iets en slaat niets op.
  */
 
@@ -16,6 +18,12 @@ export const PROXY_TIMEOUT_MS = 15_000;
 const SEGMENT = /^[A-Za-z0-9_-]+$/;
 const BEARER = /^Bearer [A-Za-z0-9._~+/=-]+$/;
 const DEFAULT_RETRY_AFTER = 60;
+
+/**
+ * Ruim: een hele school kan achter één IP-adres zitten, en de app haalt bij
+ * het openen een stuk of twintig dingen tegelijk op.
+ */
+const LIMITER = createRateLimiter({ limit: 300, windowMs: 60_000 });
 
 export type ProxyErrorCode =
   | "alleen-get"
@@ -71,8 +79,16 @@ export async function proxyToMagister(
   request: Request,
   segments: readonly string[],
   doFetch: (input: string, init: RequestInit) => Promise<Response> = fetch,
+  limiter: RateLimiter = LIMITER,
 ): Promise<Response> {
   if (request.method !== "GET") return fail(405, "alleen-get", { headers: { Allow: "GET" } });
+
+  const allowed = limiter.check(clientIp(request.headers));
+  if (!allowed.ok)
+    return fail(429, "te-vaak", {
+      headers: { "Retry-After": String(allowed.retryAfter) },
+      body: { opnieuwNa: allowed.retryAfter },
+    });
 
   const school = request.headers.get("x-magister-school") ?? "";
   if (!SCHOOL_HOST.test(school)) return fail(400, "ongeldige-school");

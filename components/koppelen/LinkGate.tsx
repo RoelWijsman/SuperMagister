@@ -11,18 +11,22 @@ import { useConnection } from "@/stores/connection";
 import { useOnboarding } from "@/stores/onboarding";
 
 /** Pagina's die ook zonder koppeling werken. */
-const OPEN_PAGES = ["/koppelen", "/instellingen", "/stijlgids"];
+const OPEN_PAGES = ["/koppelen", "/instellingen", "/privacy", "/stijlgids"];
 
 /**
  * Er is geen demo: zonder koppeling vraagt elke pagina met schooldata om je
- * Magister te koppelen. Koppelen, Instellingen en de stijlgids blijven open.
+ * Magister te koppelen. Koppelen, Instellingen, Privacy en de stijlgids blijven open.
  */
 export function LinkGate({ children }: { children: ReactNode }) {
   const isClient = useIsClient();
   const pathname = usePathname();
   const linked = useConnection((s) => s.account !== null);
   const open = OPEN_PAGES.some((page) => pathname === page || pathname.startsWith(`${page}/`));
-  if (!isClient || linked || open) return children;
+  if (open || (isClient && linked)) return children;
+  // Op de server weten we nog niet of je gekoppeld bent (dat staat in je browser). Een lege
+  // plek in plaats van de hele pagina: scheelt veel werk bij het laden, en wie niet gekoppeld
+  // is, krijgt meteen de koppeluitleg in plaats van een pagina die direct weer verdwijnt.
+  if (!isClient) return <div aria-busy="true" className="min-h-[60vh]" />;
 
   return (
     <GlassPanel padding="lg" className="mt-6 md:mt-12">

@@ -10,13 +10,13 @@ import { buildBookmarklet, resolveAppUrl } from "@/lib/koppelen/bookmarklet";
 import { toast } from "@/stores/toast";
 import { LinkSteps } from "./LinkSteps";
 
-/** De bookmarklet voor het adres waarop de app nu draait (of NEXT_PUBLIC_APP_URL). */
+/** De bookmarklet voor het adres waarop de app nu draait (of NEXT_PUBLIC_SITE_URL). */
 function useBookmarklet(): string | null {
   const isClient = useIsClient();
   return useMemo(
     () =>
       isClient
-        ? buildBookmarklet(resolveAppUrl(process.env.NEXT_PUBLIC_APP_URL, window.location.origin))
+        ? buildBookmarklet(resolveAppUrl(process.env.NEXT_PUBLIC_SITE_URL, window.location.origin))
         : null,
     [isClient],
   );

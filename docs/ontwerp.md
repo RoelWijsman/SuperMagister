@@ -475,7 +475,7 @@ echte koppelroute.
   `oidc.user:…`, anders elke sleutel in sessionStorage en localStorage met een `access_token`, en
   opent `/koppelen#koppel=1&token=…&expires_at=…&school=…`. Alleen op `*.magister.net` (niet
   `accounts.`), en niet als de sessie al verlopen is. Het adres is waar de app draait, of
-  `NEXT_PUBLIC_APP_URL`. React laat geen `javascript:`-links toe, dus de koppelpagina zet de
+  `NEXT_PUBLIC_SITE_URL`. React laat geen `javascript:`-links toe, dus de koppelpagina zet de
   `href` zelf. Getest door de code echt te draaien op een nagebootste Magister-pagina.
 - **Fragment** (`lib/koppelen/fragment.ts`, `components/koppelen/LinkIntake.tsx`): het fragment
   wordt op elke pagina meteen gelezen en met `history.replaceState` gewist, nog voor er iets anders
@@ -559,6 +559,54 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
 - Vegen op aanraakschermen, `←`/`→`/`Enter` op een computer, werkt met minder beweging en op
   smalle telefoons. Disclaimer: "SuperMagister is onofficieel. Je gegevens blijven op je eigen
   apparaat."
+
+## Live op supermagister.nl (v1.0.0)
+
+- **Eén adres** (`lib/site.ts`): `NEXT_PUBLIC_SITE_URL`, anders het productiedomein van Vercel,
+  anders `http://localhost:3000`. Altijd zonder `www.` (Vercel stuurt www door). Gebruikt voor
+  `metadataBase`, robots.txt, de sitemap en de bladwijzer (die zonder instelling het huidige adres
+  neemt, zodat previews en localhost blijven werken).
+- **Metadata en iconen:** titel, beschrijving en Open Graph in de layout; een deelafbeelding
+  (`app/opengraph-image.tsx`, nachtlucht, logo en twee gouden kaarten), een apple-touch-icon en
+  PNG-iconen voor het manifest (`/icons/192`, `/icons/512`, `/icons/maskable`), allemaal met
+  next/og uit dezelfde vorm als `app/icon.svg` (`lib/brand/marks.tsx`). Manifest:
+  `start_url` /vandaag, `scope` /, standalone, nachtkleur.
+- **Zoekmachines:** alles staat op noindex behalve Vandaag (waar / heen stuurt) en /privacy;
+  robots.txt zegt hetzelfde, de API krijgt `X-Robots-Tag: noindex`.
+- **Headers:** naast de CSP (nu ook `frame-src 'none'` en `manifest-src 'self'`) HSTS voor twee
+  jaar, COOP same-origin, geen DNS-prefetch en een Permissions-Policy die camera, microfoon,
+  locatie, betalen en dergelijke uitzet. Lettertypes komen via next/font van de eigen server.
+- **Proxy:** daarbovenop een rem per IP-adres (`lib/security/rate-limit.ts`): 300 verzoeken per
+  minuut, ruim omdat een hele school achter één adres kan zitten. Alleen een teller in het
+  geheugen, per serverinstantie; niets gelogd of bewaard.
+- **Ontwikkelaarsinstellingen** zijn live verborgen; 7× snel tikken op het versienummer (Over
+  SuperMagister) zet ze aan of uit (`developer` in de instellingen). De voorbeeldkoppeling en
+  Gegevens controleren blijven alleen voor het bouwen.
+- **Publieke pagina's:** /privacy in gewone taal; één disclaimer-component
+  (`components/legal/Disclaimer.tsx`) op /koppelen, in de onboarding, op /privacy en in
+  Instellingen; een foutpagina met humor (`app/error.tsx`) en een kaal vangnet
+  (`app/global-error.tsx`) voor als zelfs de layout omvalt.
+- **Sneller openen:** de walkout, command palette, sheets en de onboarding-laag laden pas als ze
+  nodig zijn (`components/shell/LazyOverlays.tsx`, `components/onboarding/OnboardingGate.tsx`); de
+  walkout en de palette worden daarna op de achtergrond alvast opgehaald. Pagina's achter de
+  koppeling renderen op de server een lege plek in plaats van de hele pagina (de server weet
+  niet of je gekoppeld bent). Daardoor zakte de Total Blocking Time van ±0,5–1 s naar ±0,25 s.
+- **Lighthouse (mobiel, lokaal op de productie-build, mediaan van 3)** op 8 oktober 2026:
+
+  | Pagina    | Performance | Toegankelijkheid | Best practices | SEO          |
+  | --------- | ----------- | ---------------- | -------------- | ------------ |
+  | Vandaag   | 75          | 100              | 100            | 100          |
+  | Cijfers   | 77–78       | 100              | 100            | 63 (noindex) |
+  | /koppelen | 77–82       | 100              | 100            | 63 (noindex) |
+
+  SEO 63 is bewust: die pagina's staan op noindex. Performance blijft onder de 90 door de
+  hoeveelheid JavaScript (React plus de app, ±1 MB onverpakt): de LCP (±4–5 s gesimuleerd op een
+  trage telefoon) wacht op het hydrateren. Verder omlaag kan met kleinere bundels per pagina; de
+  metingen op deze laptop schommelden ook flink, dus meet na livegang met PageSpeed Insights.
+
+- **Controle van de geschiedenis** (8 oktober 2026): geen tokens (alleen het nep-token uit de
+  tests), geen .env- of HAR-bestanden, geen ruwe Magister-exports en geen echte schoolnaam. Het
+  verzamelscript staat in `scripts/` en wordt niet als pagina meegeleverd.
 
 ## Geschrapt (besluit 6 oktober 2026)
 

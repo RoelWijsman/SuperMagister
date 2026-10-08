@@ -20,7 +20,8 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 3c   | Huiswerk: afvinken met beloning, tijdsschatting, "ik heb geen zin"                     | ✅ Klaar   |
 | 4    | Cijfers: vak-detail, calculator, simulator, overgangsmeter, bovenbouw, inzichten       | ✅ Klaar   |
 | 5    | Koppeling: bladwijzer, plakken, koppelpagina, proxy en echte data                      | ✅ Klaar   |
-| —    | Onboarding: de eerste keer openen, van intro tot je welkomstpack                       | Bezig      |
+| —    | Onboarding: de eerste keer openen, van intro tot je welkomstpack                       | ✅ Klaar   |
+| —    | Live: supermagister.nl op Vercel, privacy, beveiliging (v1.0.0)                        | ✅ Klaar   |
 | 6    | Gamification: XP, levels, quests, mascotte, weekrecap, Wrapped                         | Vervallen  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                      | Geparkeerd |
 | 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid     | Gepland    |
@@ -182,19 +183,79 @@ de bladwijzer in de adresbalk en tik erop.
 - **Instellingen → Gegevens:** bekijk een eerder schooljaar terug, koppel opnieuw of
   **ontkoppel**. Ontkoppelen wist je token en alles van je eigen Magister van dit apparaat.
 
-Voor ontwikkelaars: de app praat met Magister via de eigen proxy (`/api/magister`, alleen GET);
-dat wordt op één plek geregeld in `lib/magister/config.ts`. Het adres in de
-bladwijzer is het adres waarop de app draait; zet `NEXT_PUBLIC_APP_URL` om een ander adres te
-gebruiken. Bij **Instellingen → Ontwikkelaar** kun je tijdens het bouwen koppelen met de
-geanonimiseerde testbestanden, en zie je bij **Gegevens controleren** wat er binnenkomt.
+Voor ontwikkelaars: de app praat met Magister via de eigen proxy (`/api/magister`, alleen GET,
+alleen naar `{school}.magister.net/api/…`, token verplicht, maximaal 300 verzoeken per minuut per
+IP-adres); dat wordt op één plek geregeld in `lib/magister/config.ts`. De bladwijzer opent
+`NEXT_PUBLIC_SITE_URL`, of anders het adres waarop de app draait. Bij **Instellingen →
+Ontwikkelaar** kun je tijdens het bouwen koppelen met de geanonimiseerde testbestanden, en zie je
+bij **Gegevens controleren** wat er binnenkomt.
 
-## Op Vercel zetten
+In de live versie zijn de ontwikkelaarsinstellingen verborgen. Tik bij **Instellingen → Over
+SuperMagister** zeven keer snel op het versienummer om ze aan (of weer uit) te zetten.
 
-1. Zet het project in een eigen GitHub-repository.
-2. Ga naar [vercel.com/new](https://vercel.com/new) en importeer de repository.
-3. Vercel herkent Next.js vanzelf. Er zijn geen omgevingsvariabelen nodig. (Wil je dat de
-   bladwijzer een ander adres opent dan waarop de app draait, zet dan `NEXT_PUBLIC_APP_URL`.)
-4. Klik op **Deploy**. Elke push naar je hoofdbranch wordt daarna automatisch gepubliceerd.
+## Omgevingsvariabelen
+
+Er is er maar één, zie [`.env.example`](.env.example). Er zijn geen geheimen: geen database, geen
+API-sleutels, geen accounts.
+
+| Variabele              | Lokaal                  | Live                       | Waarvoor                                                    |
+| ---------------------- | ----------------------- | -------------------------- | ----------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://supermagister.nl` | De bladwijzer, de deelafbeelding, robots.txt en de sitemap. |
+
+Lokaal: kopieer `.env.example` naar `.env.local`. Zonder de variabele werkt alles ook; de
+bladwijzer gebruikt dan het adres waarop de app draait.
+
+## Live zetten op Vercel (supermagister.nl)
+
+**1. Project importeren**
+
+1. Log in op [vercel.com](https://vercel.com) met je GitHub-account.
+2. Ga naar [vercel.com/new](https://vercel.com/new), kies de repository **SuperMagister** en klik
+   op **Import**.
+3. Vercel herkent Next.js vanzelf. Laat **Build Command**, **Output Directory** en **Install
+   Command** op de standaard staan. De Node-versie (22) komt uit `package.json`.
+
+**2. Omgevingsvariabele invullen**
+
+1. Klap bij het importeren **Environment Variables** open (of later: **Settings → Environment
+   Variables**).
+2. Naam `NEXT_PUBLIC_SITE_URL`, waarde `https://supermagister.nl`, alleen voor **Production**.
+3. Klik op **Deploy**. Na een minuut of twee draait de app op een adres als
+   `supermagister-xxx.vercel.app`.
+
+Verander je de variabele later, deploy dan opnieuw (**Deployments → … → Redeploy**): de waarde
+gaat er tijdens het bouwen in.
+
+**3. Domein toevoegen**
+
+1. Ga in het project naar **Settings → Domains**.
+2. Voeg `supermagister.nl` toe. Vercel vraagt of `www.supermagister.nl` mee moet: kies de optie
+   waarbij **www doorstuurt naar supermagister.nl** (redirect).
+3. Vercel laat nu per domein zien welke DNS-records nodig zijn. Houd dit scherm open.
+
+**4. DNS bij YourHosting**
+
+1. Log in bij YourHosting, ga naar **Mijn domeinen → supermagister.nl → DNS-beheer** (of "DNS
+   instellingen").
+2. Verwijder bestaande **A**- en **AAAA**-records voor `@` (de kale domeinnaam) en een bestaand
+   record voor `www`, als die er zijn. Laat MX-records (mail) staan.
+3. Maak deze records aan, met de waarden die Vercel in stap 3 toont. Meestal zijn dat:
+
+| Type  | Naam (host) | Waarde                                        | TTL  |
+| ----- | ----------- | --------------------------------------------- | ---- |
+| A     | `@`         | `76.76.21.21` (of het adres dat Vercel toont) | 3600 |
+| CNAME | `www`       | `cname.vercel-dns.com.` (of wat Vercel toont) | 3600 |
+
+Laat Vercel een ander IP-adres of een andere CNAME zien (bijvoorbeeld
+`xxxx.vercel-dns-017.com`), gebruik dan díe waarden. Vraagt Vercel om een **TXT**-record om
+te bewijzen dat het domein van jou is, voeg dat ook toe. 4. Sla op. Binnen een paar minuten tot een paar uur zet Vercel bij **Domains** een groen vinkje
+en regelt het vanzelf een https-certificaat.
+
+**5. Daarna**
+
+- Elke push naar `main` wordt vanzelf live gezet. Een andere branch krijgt een eigen
+  testadres (preview).
+- Zoekmachines zien alleen de voorkant en `/privacy` (zie `app/robots.ts`).
 
 ## Techniek in het kort
 

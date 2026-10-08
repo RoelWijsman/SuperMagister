@@ -7,10 +7,9 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { Button } from "@/components/ui/Button";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { cn } from "@/lib/cn";
-import { isTypingTarget, useIsClient, useMediaQuery, useModalLock } from "@/lib/hooks";
+import { isTypingTarget, useMediaQuery, useModalLock } from "@/lib/hooks";
 import { useConnection } from "@/stores/connection";
 import {
-  isReturningUser,
   ONBOARDING_STEPS,
   progressOf,
   PROGRESS_STEPS,
@@ -49,37 +48,8 @@ function Progress({ step }: { step: OnboardingStep }) {
   );
 }
 
-/**
- * De onboarding: de eerste keer dat je SuperMagister opent. Een laag over de
- * app (onder de walkout), met een intro, drie uitlegkaarten, je thema, je
- * woonplaats, koppelen met de bladwijzer en je welkomstpack. Vegen op mobiel, pijltjes en Enter
- * op desktop, en altijd "Overslaan". Wie de app al gebruikte, krijgt hem niet
- * vanzelf (wel via Instellingen).
- */
-export function Onboarding() {
-  const isClient = useIsClient();
-  const status = useOnboarding((s) => s.status);
-
-  // De eerste keer: beginnen, behalve voor wie de app al gebruikte.
-  useEffect(() => {
-    if (!isClient) return;
-    const state = useOnboarding.getState();
-    if (state.status !== "nieuw") return;
-    let keys: string[] = [];
-    try {
-      keys = Object.keys(window.localStorage);
-    } catch {
-      // Geen opslag: dan gewoon beginnen.
-    }
-    if (isReturningUser(keys)) state.finish();
-    else state.begin();
-  }, [isClient]);
-
-  return isClient && status === "bezig" ? <OnboardingLayer /> : null;
-}
-
-/** De laag zelf; draait alleen als de onboarding open staat. */
-function OnboardingLayer() {
+/** De laag zelf; laadt en draait alleen als de onboarding open staat (zie OnboardingGate). */
+export function OnboardingLayer() {
   const router = useRouter();
   const reduced = useReducedMotion() ?? false;
   const touch = useMediaQuery("(pointer: coarse)");
