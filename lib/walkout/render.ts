@@ -308,14 +308,15 @@ function drawRevealText(
   const { plan, card, stage } = scene;
   const light = plan.fx.light;
   const center = revealCenter(scene);
-  const maxWidth = stage.w * 0.86;
+  const maxWidth = stage.w * 0.92;
 
   (["vak", "weging", "toets"] as const).forEach((phase) => {
     const p = phaseProgress(plan, phase, t);
     if (p <= 0 || p >= 1) return;
-    const enter = plan.reduced ? clamp(p / 0.2) : easeOutBack(clamp(p / 0.22));
-    const exit = clamp((p - 0.8) / 0.2);
-    const alpha = clamp(p / 0.1) * (1 - exit);
+    // Snel binnen, dan lang stil en goed leesbaar, en pas op het eind weg.
+    const enter = plan.reduced ? clamp(p / 0.15) : easeOutBack(clamp(p / 0.16));
+    const exit = clamp((p - 0.86) / 0.14);
+    const alpha = clamp(p / 0.07) * (1 - exit);
     const scale = plan.reduced ? 1 : 1.55 - 0.55 * enter;
 
     ctx.save();
@@ -339,13 +340,13 @@ function drawRevealText(
       drawSubjectIcon(ctx, card.icon, -70, -140, 140, "#ffffff", 1.7);
       ctx.fillStyle = "#ffffff";
       const name = card.subjectName.toUpperCase();
-      let size = 132;
+      let size = 176;
       ctx.font = `${size}px ${assets.family}`;
       while (ctx.measureText(name).width > maxWidth && size > 60) {
         size -= 4;
         ctx.font = `${size}px ${assets.family}`;
       }
-      ctx.fillText(name, 0, 170);
+      ctx.fillText(name, 0, 190);
     } else if (phase === "weging") {
       ctx.font = `64px ${assets.family}`;
       ctx.globalAlpha = alpha * 0.75;
@@ -358,7 +359,7 @@ function drawRevealText(
       ctx.globalAlpha = alpha * 0.75;
       ctx.fillText("T O E T S", 0, -150);
       ctx.globalAlpha = alpha;
-      drawWrapped(ctx, card.grade.description.toUpperCase(), assets.family, maxWidth, 150, 64);
+      drawWrapped(ctx, card.grade.description.toUpperCase(), assets.family, maxWidth, 196, 84);
     }
     ctx.restore();
   });

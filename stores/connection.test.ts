@@ -9,7 +9,7 @@ const daan: LinkedAccount = {
 };
 
 beforeEach(() => {
-  useConnection.setState({ account: null, enrollmentId: null });
+  useConnection.setState({ account: null, enrollmentId: null, demo: false });
 });
 
 describe("useConnection", () => {
@@ -35,5 +35,21 @@ describe("useConnection", () => {
     useConnection.getState().setEnrollment(1011);
     useConnection.getState().unlink();
     expect(useConnection.getState()).toMatchObject({ account: null, enrollmentId: null });
+  });
+
+  it("zet de demo aan en uit, en echt koppelen zet hem uit", () => {
+    useConnection.getState().startDemo();
+    expect(useConnection.getState().demo).toBe(true);
+    useConnection.getState().stopDemo();
+    expect(useConnection.getState().demo).toBe(false);
+    useConnection.getState().startDemo();
+    useConnection.getState().link(daan);
+    expect(useConnection.getState().demo).toBe(false);
+  });
+
+  it("biedt geen demo aan als je al gekoppeld bent", () => {
+    useConnection.getState().link(daan);
+    useConnection.getState().startDemo();
+    expect(useConnection.getState().demo).toBe(false);
   });
 });

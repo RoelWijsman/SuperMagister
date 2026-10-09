@@ -20,6 +20,7 @@ import { bestTier, TIER_LABELS } from "@/lib/calc/tiers";
 import { ensureCardFont, renderCardCanvas } from "@/lib/cards/draw";
 import type { CardData } from "@/lib/cards/model";
 import { cn } from "@/lib/cn";
+import { useDataSource } from "@/lib/data/context";
 import { useGuesses } from "@/lib/data/guesses";
 import { confirmGuess, dragToGuess, keyToGuess, shouldGuess, wheelSteps } from "@/lib/guess/input";
 import { guessOutcome, makeGuessRecord, type GuessRecord } from "@/lib/guess/outcome";
@@ -56,6 +57,7 @@ import {
   stageFor,
   type WalkoutScene,
 } from "@/lib/walkout/scene";
+import { useCalculator } from "@/stores/calculator";
 import { useGuessStore } from "@/stores/guesses";
 import { useReveal } from "@/stores/reveal";
 import { useSettings } from "@/stores/settings";
@@ -110,6 +112,7 @@ interface DragState {
 
 function WalkoutStage({ session }: { session: WalkoutSession }) {
   const router = useRouter();
+  const realData = useDataSource().kind === "magister";
   const close = useWalkout((s) => s.close);
   const reveal = useReveal((s) => s.reveal);
   const speedSetting = useSettings((s) => s.walkoutSpeed);
@@ -771,12 +774,13 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
             onReplay={replay}
             onWhatToGet={(card) => {
               close();
+              // Oefenkaart of de demo: geen echte cijfers, dus zelf invullen.
+              if (card.isPractice || !realData) {
+                useCalculator.getState().openManual();
+                return;
+              }
               // Direct naar de calculator, met het vak al ingevuld.
-              router.push(
-                card.isPractice
-                  ? "/cijfers?tool=calculator"
-                  : `/cijfers?tool=calculator&vak=${card.subjectId}`,
-              );
+              router.push(`/cijfers?tool=calculator&vak=${card.subjectId}`);
             }}
             onMakeVideo={() => setVideo({ card: entry.card, guess: currentGuess })}
             autoAdvance={autoAdvance && !isLast && resting}

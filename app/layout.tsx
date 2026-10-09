@@ -53,6 +53,8 @@ export const metadata: Metadata = {
     url: "/",
   },
   twitter: { card: "summary_large_image", title: SITE_NAME, description: SITE_DESCRIPTION },
+  // Het favicon komt uit het logo in lib/brand/index.ts (zie app/logo.svg/route.ts).
+  icons: { icon: [{ url: "/logo.svg", type: "image/svg+xml" }] },
   appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },
 };

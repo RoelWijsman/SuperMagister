@@ -40,9 +40,12 @@ npm run dev
 ```
 
 Open daarna [http://localhost:3000](http://localhost:3000). De eerste keer krijg je een korte
-uitleg (de onboarding) die eindigt met koppelen aan je eigen Magister. Er is geen demo: zonder
-koppeling vraagt elke pagina met schooldata of je wilt koppelen. Tijdens het bouwen kun je bij
-**Instellingen → Ontwikkelaar** koppelen met de geanonimiseerde testbestanden.
+uitleg (de onboarding) die eindigt met koppelen aan je eigen Magister. Nog niet koppelen? Kies
+**Probeer de demo** (in de onboarding, op het koppelscherm of in **Instellingen → Gegevens**): dan
+kijk je mee met Daan Visser uit 5 havo op het verzonnen Noorderlicht College. In de demo staat
+bovenaan een DEMO-balk met **Nu echt koppelen**; alles uit de demo blijft los van je echte
+gegevens. Tijdens het bouwen kun je bij **Instellingen → Ontwikkelaar** ook koppelen met de
+geanonimiseerde testbestanden.
 
 ### Handige commando's
 
@@ -141,6 +144,19 @@ en vakantieregio (mag ook later), koppelen met Magister, je welkomstpack en een 
 - Vegen op je telefoon, `←`/`→` en `Enter` op een computer. **Overslaan** staat er altijd.
 - Sluit je de app halverwege, dan ga je de volgende keer verder waar je was.
 - Opnieuw bekijken? **Instellingen → Over → Onboarding opnieuw bekijken.**
+
+## Wat moet ik halen? zonder koppeling
+
+Vanuit een oefen-walkout of de demo (en via Ctrl/⌘ K zonder koppeling) opent **Wat moet ik
+halen?** met handmatig invullen: je cijfers en hun weging, je doel en de weging van de volgende
+toets. Niets daarvan wordt bewaard.
+
+## Logo vervangen
+
+Het logo staat op één plek: [`lib/brand/index.ts`](lib/brand/index.ts) (de vorm in een vak van
+40 × 40 en de merkkleuren). Het logo in de app, de intro, het favicon (`/logo.svg`), het
+apple-touch-icon, de PWA-iconen, de deelafbeelding en het watermerk in de video komen daar allemaal
+uit.
 
 ## Koppelen
 

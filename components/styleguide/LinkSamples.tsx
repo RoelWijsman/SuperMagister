@@ -5,7 +5,9 @@ import { useState } from "react";
 import { AverageWarningPanel } from "@/components/grades/AverageWarning";
 import { StatusDot } from "@/components/koppelen/ConnectionFacts";
 import { DataErrorState } from "@/components/koppelen/DataErrorState";
+import { DemoBanner, DemoButton } from "@/components/koppelen/Demo";
 import { Disclaimer } from "@/components/legal/Disclaimer";
+import { useCalculator } from "@/stores/calculator";
 import { LinkSteps } from "@/components/koppelen/LinkSteps";
 import { DevtoolsShot } from "@/components/koppelen/PasteCard";
 import { RelinkSheet } from "@/components/koppelen/RelinkSheet";
@@ -60,6 +62,25 @@ export function LinkSamples() {
           error={new MagisterError("netwerk", "Geen verbinding.")}
           onRetry={() => undefined}
         />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-ink-3">
+          De demo: de balk boven elke pagina, en de knop om hem te starten (die zet de demo echt
+          aan)
+        </p>
+        <DemoBanner preview className="mb-3" />
+        <DemoButton />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-ink-3">
+          &quot;Wat moet ik halen?&quot; met handmatig invullen (oefenkaarten, de demo, geen
+          koppeling)
+        </p>
+        <Button variant="glass" onClick={() => useCalculator.getState().openManual()}>
+          Open de handmatige calculator
+        </Button>
       </div>
 
       <div>

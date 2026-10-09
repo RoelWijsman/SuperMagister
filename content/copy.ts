@@ -1120,6 +1120,29 @@ export const COPY = {
     "Weer gewoon leerling.\nOok prima.",
     "Uitgezet.\nZeven keer tikken en hij is er weer.",
   ],
+  // Demo voor bezoekers die (nog) niet gekoppeld zijn: Daan Visser, 5 havo, verzonnen.
+  "toast.demoAan": [
+    "Welkom in de demo.\nJe kijkt mee met Daan uit 5 havo. Alles is verzonnen, ook zijn 4,9.",
+    "Demo staat aan.\nDaan leent je even zijn rooster. Hij weet van niks.",
+    "Je bent nu Daan.\nNiet echt. Maar je mag wel aan zijn cijfers zitten.",
+    "Demo gestart.\nVerzonnen school, verzonnen cijfers, echte walkouts.",
+    "Even rondkijken.\nDit is Daan zijn week. Koppelen kan altijd nog.",
+  ],
+  "toast.demoUit": [
+    "Demo gestopt.\nDaan krijgt zijn rooster terug.",
+    "Terug uit de demo.\nKoppel je eigen Magister als je klaar bent voor het echte werk.",
+    "Demo uit.\nDaan zwaait.",
+    "Klaar met rondkijken.\nJe eigen cijfers wachten in Magister.",
+    "Demo gestopt.\nAlles van Daan blijft netjes los van jouw gegevens.",
+  ],
+  // De balk boven elke pagina in de demo (geen titel, één zin).
+  "demo.banner": [
+    "Je kijkt mee met Daan uit 5 havo. Alles hier is verzonnen.",
+    "Dit is de demo: Daan zijn rooster, huiswerk en cijfers. Niet de jouwe.",
+    "Verzonnen school, verzonnen Daan. Je eigen Magister is één bladwijzer verderop.",
+    "Demo. Daan vindt het prima dat je meekijkt.",
+    "Je ziet de demo. Je echte cijfers blijven veilig in Magister tot je koppelt.",
+  ],
   "toast.ics": [
     "Rooster gedownload.\nOpen het bestand en je agenda weet alles.",
     "Agendabestand klaar.\nJe telefoon weet nu ook waar je moet zijn.",

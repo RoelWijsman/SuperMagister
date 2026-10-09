@@ -30,6 +30,8 @@ import { addDays, formatRelativeDay, nextWeekday, parseISODate, toISODate } from
 import { notify } from "@/lib/notify";
 import { applyThemeVars } from "@/lib/theme/apply";
 import { getPreset, THEME_PRESETS } from "@/lib/theme/themes";
+import { useDataSource } from "@/lib/data/context";
+import { useCalculator } from "@/stores/calculator";
 import { useSettings } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
 
@@ -86,6 +88,8 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
   const colorMode = useSettings((s) => s.colorMode);
   const theme = useSettings((s) => s.theme);
   const navItems = useNavItems();
+  // Zonder echte koppeling (of in de demo) reken je met zelf ingevulde cijfers.
+  const realData = useDataSource().kind === "magister";
 
   return useMemo(() => {
     const go = (href: string) => {
@@ -135,7 +139,12 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
         subtitle: "De calculator, met dit vak al ingevuld",
         keywords: [query],
         icon: <SubjectBadge subject={subject} />,
-        run: () => go(`/cijfers?tool=calculator&vak=${subject.id}`),
+        run: () => {
+          if (!realData) {
+            useCalculator.getState().openManual();
+            close();
+          } else go(`/cijfers?tool=calculator&vak=${subject.id}`);
+        },
       });
     } else if (intent) {
       const date = parseISODate(intent.date);
@@ -230,7 +239,12 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
         subtitle: "De calculator: kies een vak, een doel en de weging",
         keywords: ["calculator", "halen", "doel", "gemiddelde", "rekenen"],
         icon: <IconBox icon={Calculator} />,
-        run: () => go("/cijfers?tool=calculator"),
+        run: () => {
+          if (!realData) {
+            useCalculator.getState().openManual();
+            close();
+          } else go("/cijfers?tool=calculator");
+        },
       },
       {
         id: "cijfers-simulator",
@@ -338,5 +352,6 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
     colorMode,
     theme,
     navItems,
+    realData,
   ]);
 }

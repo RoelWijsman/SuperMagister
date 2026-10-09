@@ -5,6 +5,8 @@ import { Illustration, type IllustrationName } from "./illustrations";
 interface EmptyStateProps {
   illustration: IllustrationName;
   title: string;
+  /** Kopniveau: h1 als de lege staat de hele pagina is (anders h2). */
+  level?: 1 | 2;
   description?: ReactNode;
   action?: ReactNode;
   className?: string;
@@ -14,6 +16,7 @@ interface EmptyStateProps {
 export function EmptyState({
   illustration,
   title,
+  level = 2,
   description,
   action,
   className,
@@ -24,7 +27,11 @@ export function EmptyState({
         name={illustration}
         className="mb-5 h-auto w-44 animate-[float_6s_ease-in-out_infinite] text-ink-3 motion-reduce:animate-none"
       />
-      <h2 className="font-display text-lg font-semibold tracking-tight text-ink">{title}</h2>
+      {level === 1 ? (
+        <h1 className="font-display text-lg font-semibold tracking-tight text-ink">{title}</h1>
+      ) : (
+        <h2 className="font-display text-lg font-semibold tracking-tight text-ink">{title}</h2>
+      )}
       {description && <p className="mt-2 max-w-sm text-ink-2">{description}</p>}
       {action && <div className="mt-6">{action}</div>}
     </div>

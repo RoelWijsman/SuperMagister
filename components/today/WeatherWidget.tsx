@@ -142,11 +142,26 @@ export function WeatherWidget({ times, now }: { times: RideTimes | null; now: Da
           href="/instellingen#vandaag"
           className="text-sm font-medium text-accent-ink hover:underline"
         >
-          {place.name}
+          {place ? place.name : "Instellen"}
         </Link>
       }
     >
-      {forecast.isPending || !now ? (
+      {!place ? (
+        <div>
+          <p className="font-display text-[1.05rem] leading-snug font-semibold text-ink">
+            Stel je woonplaats in
+          </p>
+          <p className="mt-1 text-sm text-ink-2">
+            Dan zie je hier of je tegenwind hebt, en of je regenkleding nodig hebt.
+          </p>
+          <Link
+            href="/instellingen#vandaag"
+            className="mt-3 inline-flex text-sm font-semibold text-accent-ink hover:underline"
+          >
+            Woonplaats kiezen
+          </Link>
+        </div>
+      ) : forecast.isPending || !now ? (
         <div className="space-y-3">
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-9 w-full rounded-xl" />

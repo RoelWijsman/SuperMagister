@@ -1,25 +1,16 @@
+import { BRAND, LOGO_DOT, LOGO_SIZE, LOGO_SPARK_PATH } from "./index";
+
 /**
  * Het logo voor gegenereerde afbeeldingen (next/og): de deelafbeelding, het
- * apple-touch-icon en de PWA-iconen. Zelfde vorm en kleuren als app/icon.svg.
+ * apple-touch-icon en de PWA-iconen. Vorm en kleuren komen uit lib/brand/index.ts.
  */
-
-export const BRAND = {
-  violet: "#9b7bff",
-  mint: "#46f0c8",
-  ink: "#0b0a1a",
-  night: "#070816",
-  gradient: "linear-gradient(135deg, #9b7bff 0%, #46f0c8 100%)",
-} as const;
-
-const STAR =
-  "M20 7.5c1.5 7.6 4.9 11 12.5 12.5-7.6 1.5-11 4.9-12.5 12.5C18.5 24.9 15.1 21.5 7.5 20c7.6-1.5 11-4.9 12.5-12.5z";
 
 /** De ster met het stipje, op een transparante achtergrond (viewBox 40 × 40). */
 export function Star({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40">
-      <path d={STAR} fill={BRAND.ink} />
-      <circle cx="30.5" cy="9.5" r="2" fill={BRAND.ink} fillOpacity="0.85" />
+    <svg width={size} height={size} viewBox={`0 0 ${LOGO_SIZE} ${LOGO_SIZE}`}>
+      <path d={LOGO_SPARK_PATH} fill={BRAND.ink} />
+      <circle {...LOGO_DOT} fill={BRAND.ink} fillOpacity="0.85" />
     </svg>
   );
 }

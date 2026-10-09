@@ -312,7 +312,7 @@ export function SettingsView() {
           />
           <Switch
             label="Trillen"
-            description="Bij afvinken, onthullingen en achievements (als je telefoon het kan)."
+            description="Bij afvinken en onthullingen (als je telefoon het kan)."
             checked={settings.haptics}
             onCheckedChange={(value) => settings.set("haptics", value)}
           />
@@ -333,7 +333,7 @@ export function SettingsView() {
             description="Voor wie wil zien hoe de app in elkaar zit."
           >
             <div className="flex flex-wrap items-center gap-3">
-              <p className="min-w-0 flex-1 text-ink-2">
+              <p className="min-w-[min(100%,14rem)] flex-1 text-ink-2">
                 Alle bouwstenen van het design system op één pagina, met de walkout-schuif.
               </p>
               <LinkButton href="/stijlgids" variant="glass" icon={Palette}>
@@ -355,7 +355,7 @@ export function SettingsView() {
 
         <Section id="over" title="Over SuperMagister">
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <p className="min-w-0 flex-1 text-ink-2">
+            <p className="min-w-[min(100%,14rem)] flex-1 text-ink-2">
               De uitleg van de eerste keer: thema, woonplaats, koppelen en een pack.
             </p>
             <Button

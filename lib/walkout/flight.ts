@@ -4,7 +4,8 @@ import type { WalkoutPlan } from "./plan";
  * Feature A: wat er met je vastgezette gok gebeurt vanaf de flip. Het getal
  * vliegt uit het midden van de kaart naar een plek naast de rating (de komma
  * valt weg: 7,2 wordt 72), wordt een doorschijnend spookcijfer en klapt dan
- * tegen de echte rating. Puur een functie van tijd, net als de rest van de
+ * tegen de echte rating. Daarna verdwijnt hij, zodat er nooit twee getallen
+ * tegen elkaar aan blijven staan ("4671"). Puur een functie van tijd, net als de rest van de
  * walkout; de renderer vertaalt `path` naar posities op de kaart.
  */
 export interface FlightFrame {
@@ -25,7 +26,9 @@ const easeInOutCubic = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2
 /** Zo snel wordt de teller een spookcijfer, na de onthulling. */
 const TO_GHOST = 0.3;
 const GHOST_ALPHA = 0.8;
-const SETTLED_ALPHA = 0.45;
+/** Na de klap: nog even te zien hoe ver je ernaast zat, dan weg. */
+const LINGER = 0.5;
+const FADE = 0.45;
 
 export function guessFlight(plan: WalkoutPlan, t: number): FlightFrame | null {
   const gok = plan.gok;
@@ -39,7 +42,7 @@ export function guessFlight(plan: WalkoutPlan, t: number): FlightFrame | null {
       return { path: 0, comma: 1, ghost: 0, alpha: 1 - clamp((t - flipStart) / 0.25), bounce: 0 };
     }
     const since = t - gok.ghostAt;
-    const fadeOut = exact ? 1 - clamp((since - 0.6) / 0.35) : 1;
+    const fadeOut = exact ? 1 - clamp((since - 0.6) / 0.35) : 1 - clamp((since - 0.8) / 0.4);
     return {
       path: 2,
       comma: 0,
@@ -76,7 +79,7 @@ export function guessFlight(plan: WalkoutPlan, t: number): FlightFrame | null {
     path: 2,
     comma: 0,
     ghost: 1,
-    alpha: GHOST_ALPHA - (GHOST_ALPHA - SETTLED_ALPHA) * clamp(since / 0.5),
+    alpha: GHOST_ALPHA * (1 - clamp((since - LINGER) / FADE)),
     bounce: Math.sin(clamp(since / 0.22) * Math.PI),
   };
 }

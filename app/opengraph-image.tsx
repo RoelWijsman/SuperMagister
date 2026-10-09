@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
-import { AppIcon, BRAND } from "@/lib/brand/marks";
+import { BRAND } from "@/lib/brand";
+import { AppIcon } from "@/lib/brand/marks";
 
 export const alt = "SuperMagister: je rooster, huiswerk en cijfers uit Magister, met een walkout.";
 export const size = { width: 1200, height: 630 };

@@ -53,8 +53,14 @@ export function PlaceSearch() {
         <span className="font-medium text-ink">Woonplaats</span>
         <span className="inline-flex items-center gap-1.5 text-sm text-ink-2">
           <MapPin size={15} aria-hidden />
-          {place.name}
-          {place.region && place.region !== place.name && `, ${place.region}`}
+          {place ? (
+            <>
+              {place.name}
+              {place.region && place.region !== place.name && `, ${place.region}`}
+            </>
+          ) : (
+            "Nog niet gekozen"
+          )}
         </span>
       </div>
       <label className="relative mt-2.5 block">

@@ -55,7 +55,8 @@ export function OnboardingLayer() {
   const touch = useMediaQuery("(pointer: coarse)");
   const step = useOnboarding((s) => s.step);
   const { next, back, finish, go } = useOnboarding.getState();
-  const linked = useConnection((s) => s.account !== null);
+  // Gekoppeld, of in de demo: dan mag je door naar het pack.
+  const linked = useConnection((s) => s.account !== null || s.demo);
   const { openPack, startPractice, packCount, isLoading } = useWalkoutActions();
   const walkoutOpen = useWalkout((s) => s.session !== null);
   const index = ONBOARDING_STEPS.indexOf(step);
@@ -161,6 +162,9 @@ export function OnboardingLayer() {
         aria-hidden
         className="absolute inset-0 bg-[color-mix(in_oklab,var(--sm-bg)_64%,transparent)] backdrop-blur-2xl"
       />
+      {/* Gloed in de kleuren van je thema: kies je een ander thema, dan kleurt de hele
+          onboarding meteen mee (de kleuren zijn CSS-variabelen). */}
+      <div aria-hidden className="onboarding-glow pointer-events-none absolute inset-0" />
       {/* De aurora vloeit in: het donker trekt langzaam weg. */}
       <motion.div
         aria-hidden
@@ -178,14 +182,16 @@ export function OnboardingLayer() {
       </div>
 
       <div className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-        <AnimatePresence mode="wait" initial={false} custom={direction}>
+        {/* popLayout: de nieuwe stap verschijnt meteen, de oude schuift er tegelijk uit. Zo
+            reageert elke tik direct en zit er nooit een leeg scherm tussen twee stappen. */}
+        <AnimatePresence mode="popLayout" initial={false} custom={direction}>
           <motion.section
             key={step}
             custom={direction}
-            initial={reduced ? { opacity: 0 } : { opacity: 0, x: direction * 48 }}
+            initial={reduced ? { opacity: 0.3 } : { opacity: 0.3, x: direction * 36 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={reduced ? { opacity: 0 } : { opacity: 0, x: direction * -48 }}
-            transition={{ duration: reduced ? 0.2 : 0.28, ease: "easeOut" }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, x: direction * -36 }}
+            transition={{ duration: reduced ? 0.15 : 0.22, ease: "easeOut" }}
             drag={touch && step !== "intro" ? "x" : false}
             dragDirectionLock
             dragSnapToOrigin

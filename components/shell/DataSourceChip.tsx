@@ -41,6 +41,24 @@ export function DataSourceChip({
   const chip =
     "group inline-flex h-8 items-center gap-1.5 rounded-full border px-2.5 text-xs font-bold tracking-[0.12em] uppercase transition-[colors,opacity]";
 
+  // In de demo: een duidelijk DEMO-label, en de weg naar echt koppelen.
+  if (source.kind === "demo")
+    return (
+      <Link
+        href="/koppelen"
+        aria-label="Demo: nu echt koppelen"
+        className={cn(
+          chip,
+          "border-warn bg-warn text-[#1b1300] hover:opacity-90",
+          !isClient && "opacity-0",
+          className,
+        )}
+      >
+        <Plug size={14} strokeWidth={2.4} />
+        {!compact && "Demo"}
+      </Link>
+    );
+
   // Niet gekoppeld: de chip brengt je naar de koppelpagina.
   if (!linked)
     return (

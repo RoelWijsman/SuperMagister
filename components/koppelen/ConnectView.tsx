@@ -3,7 +3,10 @@
 import { KeyRound, ServerOff, ShieldCheck } from "lucide-react";
 import { Disclaimer } from "@/components/legal/Disclaimer";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { useIsClient } from "@/lib/hooks";
+import { useConnection } from "@/stores/connection";
 import { BookmarkletCard } from "./BookmarkletCard";
+import { DemoButton, useDemo } from "./Demo";
 import { LinkStatusPanel } from "./LinkStatusPanel";
 import { PasteCard } from "./PasteCard";
 
@@ -24,6 +27,23 @@ const PROMISES = [
     text: "Je gegevens blijven op dit apparaat. Je sessie zelfs alleen in dit tabblad.",
   },
 ];
+
+/** Nog niet gekoppeld en niet in de demo: de demo als zijweg. */
+function DemoOffer() {
+  const demo = useDemo();
+  const linked = useConnection((s) => s.account !== null);
+  const isClient = useIsClient();
+  if (!isClient || demo || linked) return null;
+  return (
+    <section className="flex flex-wrap items-center gap-3 rounded-3xl border border-line p-4">
+      <p className="min-w-[min(100%,14rem)] flex-1 text-ink-2">
+        Eerst rondkijken? De demo laat de hele app zien met de verzonnen cijfers van Daan. Je eigen
+        gegevens komen er niet bij.
+      </p>
+      <DemoButton />
+    </section>
+  );
+}
 
 function SectionTitle({ children, hint }: { children: string; hint: string }) {
   return (
@@ -53,6 +73,8 @@ export function ConnectView() {
           <SectionTitle hint="Drie stappen, één keer instellen.">Zo koppel je</SectionTitle>
           <BookmarkletCard />
         </section>
+
+        <DemoOffer />
 
         <section>
           <SectionTitle hint="Bijvoorbeeld op een schoolcomputer die bladwijzers blokkeert.">

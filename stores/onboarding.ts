@@ -21,13 +21,13 @@ export const ONBOARDING_STEPS = [
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 /** Zoveel stippen heeft de voortgang (de drie uitlegkaarten samen zijn er één). */
-export const PROGRESS_STEPS = 6;
+/** Eén stip per stap na de intro (ook voor elk van de drie uitlegkaarten). */
+export const PROGRESS_STEPS = ONBOARDING_STEPS.length - 1;
 
 /** Welke stip bij een stap hoort; de intro heeft er geen (-1). */
 export function progressOf(step: OnboardingStep): number {
   const index = ONBOARDING_STEPS.indexOf(step);
-  if (index <= 0) return -1;
-  return index <= 3 ? 0 : index - 3;
+  return index <= 0 ? -1 : index - 1;
 }
 
 /** Wie al iets van SuperMagister in de browser heeft, krijgt de onboarding niet vanzelf. */

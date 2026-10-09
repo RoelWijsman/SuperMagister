@@ -37,13 +37,18 @@ opdracht ruimte liet of waar de uitvoering afwijkt.
   wiskunde", "rooster vrijdag") en een themapagina met live voorvertoning. Functies uit latere fases
   staan er al in, gemarkeerd met "fase N".
 
-## Demo-data (verwijderd 8 oktober 2026)
+## Demo-data
 
-De demo (Daan Visser op het fictieve Noorderlicht College, `lib/demo`) is weg. Zonder koppeling is
-er een lege bron (`lib/data/empty-source.ts`) en vraagt elke pagina met schooldata om te koppelen
-(`components/koppelen/LinkGate.tsx`); Koppelen, Instellingen en de stijlgids blijven open. Om te
-bouwen en te testen is er de **voorbeelddata** (zie 5b): de geanonimiseerde testbestanden via de
-echte koppelroute.
+Op 8 oktober 2026 eruit, op 9 oktober (na de eerste test op supermagister.nl) terug als **keuze
+voor bezoekers**: wie niet gekoppeld is, kan overal "Probeer de demo" kiezen (onboarding,
+koppelscherm, Instellingen → Gegevens). `demo` staat in de koppel-store (`stores/connection.ts`),
+gaat vanzelf uit zodra je echt koppelt en wordt niet aangeboden als je al gekoppeld bent. De
+demo-bron heeft id `demo`, dus onthulde kaarten, gokken en de rest staan los van je echte
+gegevens. Boven elke pagina staat dan een DEMO-balk met **Nu echt koppelen** en **Demo stoppen**
+(`components/koppelen/Demo.tsx`), en de chip zegt DEMO. Zonder koppeling en zonder demo is er een
+lege bron en vraagt elke pagina met schooldata om te koppelen of de demo te proberen
+(`components/koppelen/LinkGate.tsx`). De roostertrucjes voor ontwikkelaars (nep-uitval) zijn niet
+teruggekomen.
 
 ## Datalaag
 
@@ -569,7 +574,7 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
 - **Metadata en iconen:** titel, beschrijving en Open Graph in de layout; een deelafbeelding
   (`app/opengraph-image.tsx`, nachtlucht, logo en twee gouden kaarten), een apple-touch-icon en
   PNG-iconen voor het manifest (`/icons/192`, `/icons/512`, `/icons/maskable`), allemaal met
-  next/og uit dezelfde vorm als `app/icon.svg` (`lib/brand/marks.tsx`). Manifest:
+  next/og uit dezelfde vorm als het logo in `lib/brand/index.ts` (`lib/brand/marks.tsx`). Manifest:
   `start_url` /vandaag, `scope` /, standalone, nachtkleur.
 - **Zoekmachines:** alles staat op noindex behalve Vandaag (waar / heen stuurt) en /privacy;
   robots.txt zegt hetzelfde, de API krijgt `X-Robots-Tag: noindex`.
@@ -607,6 +612,32 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
 - **Controle van de geschiedenis** (8 oktober 2026): geen tokens (alleen het nep-token uit de
   tests), geen .env- of HAR-bestanden, geen ruwe Magister-exports en geen echte schoolnaam. Het
   verzamelscript staat in `scripts/` en wordt niet als pagina meegeleverd.
+
+## Na de eerste test (9 oktober 2026)
+
+- **Wat moet ik halen? zonder koppeling:** vanuit een oefenkaart of de demo opent een calculator
+  met handmatig invullen (`components/grades/ManualCalculatorSheet.tsx`, `lib/calc/manual.ts`),
+  boven alle lagen, in plaats van het koppelscherm.
+- **Woonplaats:** geen standaard (Utrecht) meer; leeg tot je kiest. Het fietsweer zegt dan "Stel
+  je woonplaats in" en vraagt niets op. Wie de oude standaard nog had, krijgt hem leeg (migratie
+  naar instellingen-versie 3).
+- **Gokmoment:** na de klap tegen de echte rating vervaagt je gok, zodat er nooit twee getallen
+  tegen elkaar aan blijven staan (dat las als "4671"); ook op het eindscherm en met minder
+  beweging.
+- **Walkout:** vak, weging en toets staan ongeveer de helft langer in beeld, komen sneller binnen
+  en blijven langer stil; vak en toets zijn groter (tot 92% van de breedte). Een walkout duurt
+  daardoor ±9 in plaats van ±8 seconden.
+- **Onboarding:** stappen wisselen zonder wachten (`AnimatePresence mode="popLayout"`): de nieuwe
+  stap staat er meteen, de oude schuift erachter weg, dus geen leeg scherm en elke tik reageert
+  binnen ±0,1 s. Eén stip per stap, ook voor elk van de drie uitlegkaarten. Een gloed in de
+  themakleuren achter de onboarding, zodat een ander thema meteen zichtbaar is. Getest op 375,
+  768 en 1280 px in Chrome.
+- **Logo op één plek:** `lib/brand/index.ts`; het favicon is nu `/logo.svg`, gemaakt uit diezelfde
+  vorm (`app/icon.svg` is weg).
+- **Privacy:** contact via roelcool3@gmail.com (`CONTACT_EMAIL` in `lib/site.ts`).
+- **Toegankelijkheid:** axe op alle pagina's (mobiel en desktop, zonder koppeling, in de demo en
+  in de onboarding): geen meldingen meer. Het koppelscherm heeft nu een h1, de Meer-knop een
+  duidelijke naam.
 
 ## Geschrapt (besluit 6 oktober 2026)
 

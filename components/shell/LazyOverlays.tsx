@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { useCalculator } from "@/stores/calculator";
 import { useUi } from "@/stores/ui";
 import { useWalkout } from "@/stores/walkout";
 
@@ -29,6 +30,11 @@ const ShortcutsSheet = dynamic(
 const MoreSheet = dynamic(() => import("@/components/shell/MoreSheet").then((m) => m.MoreSheet), {
   ssr: false,
 });
+
+const ManualCalculatorSheet = dynamic(
+  () => import("@/components/grades/ManualCalculatorSheet").then((m) => m.ManualCalculatorSheet),
+  { ssr: false },
+);
 
 /** Wordt true zodra `now` één keer true was, en blijft dat. */
 function useOnce(now: boolean): boolean {
@@ -58,6 +64,7 @@ export function LazyOverlays() {
   const palette = useOnce(useUi((s) => s.paletteOpen));
   const shortcuts = useOnce(useUi((s) => s.shortcutsOpen));
   const more = useOnce(useUi((s) => s.moreOpen));
+  const calculator = useOnce(useCalculator((s) => s.manualOpen));
   usePreload([loadWalkout, loadPalette]);
 
   return (
@@ -65,6 +72,7 @@ export function LazyOverlays() {
       {palette && <CommandPalette />}
       {shortcuts && <ShortcutsSheet />}
       {more && <MoreSheet />}
+      {calculator && <ManualCalculatorSheet />}
     </>
   );
 }

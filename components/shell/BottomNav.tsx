@@ -93,6 +93,7 @@ export function BottomNav() {
               type="button"
               aria-haspopup="dialog"
               aria-expanded={moreOpen}
+              aria-label="Meer pagina's en instellingen"
               onClick={() => setMoreOpen(true)}
               className={className}
             >

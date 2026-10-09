@@ -32,9 +32,9 @@ describe("buildWalkoutPlan: fases", () => {
     expect(plan.revealAt).toBeLessThanOrEqual(plan.phases.flip.end);
   });
 
-  it("duurt bij normale snelheid ongeveer 8 seconden", () => {
-    expect(goud.restAt).toBeGreaterThan(7);
-    expect(goud.restAt).toBeLessThan(9.5);
+  it("duurt bij normale snelheid ongeveer 9 seconden (vak, weging en toets lang genoeg om te lezen)", () => {
+    expect(goud.restAt).toBeGreaterThan(8);
+    expect(goud.restAt).toBeLessThan(10.5);
   });
 
   it("geeft ICON een slow-motion flip en meer flares", () => {

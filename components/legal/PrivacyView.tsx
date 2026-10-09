@@ -1,7 +1,8 @@
-import { HardDrive, KeyRound, Server, ShieldCheck, Trash2, Wifi } from "lucide-react";
+import { HardDrive, KeyRound, Mail, Server, ShieldCheck, Trash2, Wifi } from "lucide-react";
 import type { ReactNode } from "react";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { Disclaimer } from "./Disclaimer";
 
 function Part({
@@ -112,6 +113,20 @@ export function PrivacyView() {
             geen product van Magister of Iddink.
           </p>
           <Disclaimer privacyLink={false} className="text-sm" />
+        </Part>
+
+        <Part icon={Mail} title="Contact">
+          <p>
+            Een vraag over je gegevens, iets gevonden wat niet klopt, of wil je dat we iets
+            aanpassen? Mail naar{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}?subject=SuperMagister`}
+              className="font-semibold text-accent-ink underline-offset-2 hover:underline"
+            >
+              {CONTACT_EMAIL}
+            </a>
+            . Stuur nooit je wachtwoord of je token mee: daar vragen we nooit om.
+          </p>
         </Part>
       </div>
     </>

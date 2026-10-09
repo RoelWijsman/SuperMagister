@@ -36,5 +36,7 @@ export const SITE_URL = siteUrlFrom({
 });
 
 export const SITE_NAME = "SuperMagister";
+/** Voor vragen over privacy of de app. Staat openbaar op /privacy. */
+export const CONTACT_EMAIL = "roelcool3@gmail.com";
 export const SITE_DESCRIPTION =
   "Je rooster, huiswerk en cijfers uit Magister. Mooi, supersnel en vooral leuk. Nieuwe cijfers onthul je met een walkout.";

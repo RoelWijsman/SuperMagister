@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isReturningUser, ONBOARDING_STEPS, progressOf, useOnboarding } from "./onboarding";
+import {
+  isReturningUser,
+  ONBOARDING_STEPS,
+  PROGRESS_STEPS,
+  progressOf,
+  useOnboarding,
+} from "./onboarding";
 
 beforeEach(() => {
   useOnboarding.setState({ status: "nieuw", step: "intro" });
@@ -48,13 +54,14 @@ describe("useOnboarding", () => {
     expect(useOnboarding.getState()).toMatchObject({ status: "bezig", step: "intro" });
   });
 
-  it("laat de drie uitlegkaarten samen één stap van de voortgang zijn", () => {
+  it("geeft elke stap na de intro een eigen stip", () => {
     expect(progressOf("intro")).toBe(-1);
+    // Elke uitlegkaart heeft een eigen stip, zodat je ziet dat er iets gebeurt.
     expect(progressOf("pack")).toBe(0);
-    expect(progressOf("gok")).toBe(0);
-    expect(progressOf("overzicht")).toBe(0);
-    expect(progressOf("thema")).toBe(1);
-    expect(progressOf("klaar")).toBe(5);
+    expect(progressOf("gok")).toBe(1);
+    expect(progressOf("overzicht")).toBe(2);
+    expect(progressOf("thema")).toBe(3);
+    expect(progressOf("klaar")).toBe(PROGRESS_STEPS - 1);
   });
 });
 

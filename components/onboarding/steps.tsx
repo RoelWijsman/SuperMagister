@@ -5,6 +5,7 @@ import { ChevronDown, Search } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
 import { BookmarkletCard } from "@/components/koppelen/BookmarkletCard";
+import { DemoButton } from "@/components/koppelen/Demo";
 import { PasteCard } from "@/components/koppelen/PasteCard";
 import { Disclaimer } from "@/components/legal/Disclaimer";
 import { PlaceSearch } from "@/components/settings/TodaySettings";
@@ -13,6 +14,7 @@ import { Kbd } from "@/components/ui/Kbd";
 import { Tabs } from "@/components/ui/Tabs";
 import type { CopyKey } from "@/content/copy";
 import { useCards } from "@/lib/data/cards";
+import { useDataSource } from "@/lib/data/context";
 import { useIsApple, useMediaQuery } from "@/lib/hooks";
 import type { HolidayRegion } from "@/lib/school/holidays";
 import { useCopy } from "@/lib/use-copy";
@@ -160,6 +162,14 @@ export function LinkStep({ onLinked }: { onLinked: () => void }) {
           </p>
         )}
       </StepHeading>
+      {!account && (
+        <div className="mb-5 flex flex-col items-center gap-2 text-center">
+          <DemoButton onStart={onLinked} />
+          <p className="text-xs text-ink-3">
+            Eerst rondkijken met verzonnen cijfers? Koppelen kan daarna altijd nog.
+          </p>
+        </div>
+      )}
       <BookmarkletCard />
       <button
         type="button"
@@ -184,8 +194,9 @@ export function LinkStep({ onLinked }: { onLinked: () => void }) {
   );
 }
 
-/** Stap 6: het welkomstpack. De walkout is de afsluiter. */
+/** Stap 6: het welkomstpack (of in de demo een demo-pack). De walkout is de afsluiter. */
 export function FirstPackStep() {
+  const demo = useDataSource().kind === "demo";
   const cards = useCards();
   const reduced = useReducedMotion() ?? false;
   const first = cards.pack.at(-1) ?? cards.all[0] ?? null;
@@ -194,7 +205,7 @@ export function FirstPackStep() {
   return (
     <div className="mx-auto w-full max-w-md text-center">
       <StepHeading
-        eyebrow="Je welkomstpack"
+        eyebrow={demo ? "Een demo-pack" : "Je welkomstpack"}
         title={
           count > 0
             ? `${count} ${count === 1 ? "kaart ligt" : "kaarten liggen"} klaar`
@@ -216,7 +227,9 @@ export function FirstPackStep() {
         </div>
       </motion.div>
       <p className="mt-6 text-sm text-ink-3">
-        Je laatste cijfers uit Magister. Alles van daarvoor staat al in je collectie.
+        {demo
+          ? "Verzonnen cijfers van Daan uit de demo. Je eigen pack krijg je als je koppelt."
+          : "Je laatste cijfers uit Magister. Alles van daarvoor staat al in je collectie."}
       </p>
     </div>
   );

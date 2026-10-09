@@ -43,10 +43,12 @@ export async function fetchForecast(
 }
 
 /** Het weer van de komende week, een half uur vers. */
-export function useForecast(place: WeatherPlace) {
+/** Het weer voor je woonplaats; vraagt niets op zolang je er geen hebt gekozen. */
+export function useForecast(place: WeatherPlace | null) {
   return useQuery({
-    queryKey: ["weer", place.latitude, place.longitude],
-    queryFn: ({ signal }) => fetchForecast(place, signal),
+    queryKey: ["weer", place?.latitude, place?.longitude],
+    queryFn: ({ signal }) => fetchForecast(place!, signal),
+    enabled: place !== null,
     staleTime: 30 * 60_000,
     gcTime: 2 * 60 * 60_000,
     retry: 1,

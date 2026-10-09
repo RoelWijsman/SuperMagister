@@ -3,6 +3,7 @@
 import { Plug, TimerOff, Unplug } from "lucide-react";
 import { useState } from "react";
 import { ConnectionFacts } from "@/components/koppelen/ConnectionFacts";
+import { DemoButton } from "@/components/koppelen/Demo";
 import { UnlinkSheet } from "@/components/koppelen/UnlinkSheet";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -60,18 +61,30 @@ function YearPicker() {
 /** Instellingen > Gegevens: je koppeling, schooljaar en ontkoppelen. */
 export function DataSettings() {
   const account = useConnection((s) => s.account);
+  const demo = useConnection((s) => s.demo);
   const [unlinking, setUnlinking] = useState(false);
 
   if (!account) {
     return (
       <div className="flex flex-wrap items-center gap-3">
-        <Chip tone="warn">Niet gekoppeld</Chip>
-        <p className="min-w-0 flex-1 text-ink-2">
-          Koppel je Magister om je eigen gegevens te zien.
+        <Chip tone="warn">{demo ? "Demo" : "Niet gekoppeld"}</Chip>
+        <p className="min-w-[min(100%,14rem)] flex-1 text-ink-2">
+          {demo
+            ? "Je kijkt rond in de demo. Koppel je Magister om je eigen gegevens te zien."
+            : "Koppel je Magister om je eigen gegevens te zien, of kijk eerst rond in de demo."}
         </p>
-        <LinkButton href="/koppelen" variant="primary" icon={Plug}>
-          Koppelen met Magister
-        </LinkButton>
+        <div className="flex flex-wrap gap-3">
+          <LinkButton href="/koppelen" variant="primary" icon={Plug}>
+            {demo ? "Nu echt koppelen" : "Koppelen met Magister"}
+          </LinkButton>
+          {demo ? (
+            <Button variant="ghost" onClick={() => useConnection.getState().stopDemo()}>
+              Demo stoppen
+            </Button>
+          ) : (
+            <DemoButton />
+          )}
+        </div>
       </div>
     );
   }
@@ -121,7 +134,7 @@ export function LinkDevTools() {
   if (process.env.NODE_ENV === "production") return null;
   return (
     <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-line pt-4">
-      <p className="min-w-0 flex-1 text-ink-2">
+      <p className="min-w-[min(100%,14rem)] flex-1 text-ink-2">
         Koppel met de geanonimiseerde testbestanden (Daan, school &quot;voorbeeld&quot;), alsof het
         Magister is. De koppeling verloopt na 7 minuten.
       </p>

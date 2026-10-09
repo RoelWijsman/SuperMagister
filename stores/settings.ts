@@ -47,8 +47,8 @@ export interface SettingsValues {
   /** Eigen vakkleur (paletindex) per vak-id. */
   subjectColors: Record<string, number>;
   subjectIcons: Record<string, SubjectIconName>;
-  /** Fase 3a, fietsweer: waar je woont. */
-  weatherPlace: WeatherPlace;
+  /** Fase 3a, fietsweer: waar je woont. Leeg tot je zelf iets kiest. */
+  weatherPlace: WeatherPlace | null;
   /** In welke richting je naar school fietst (voor tegenwind). */
   bikeHeading: Compass;
   /** Hoe lang je fietst, om je vertrektijd te weten. */
@@ -93,7 +93,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   guessMode: "elke",
   subjectColors: {},
   subjectIcons: {},
-  weatherPlace: { name: "Utrecht", region: "Utrecht", latitude: 52.0908, longitude: 5.1222 },
+  weatherPlace: null,
   bikeHeading: "O",
   bikeMinutes: 15,
   holidayRegion: "midden",
@@ -101,11 +101,14 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   developer: false,
 };
 
-const SETTINGS_VERSION = 2;
+const SETTINGS_VERSION = 3;
+
+/** De oude standaard-woonplaats (tot versie 3). Niemand koos die zelf, dus die gaat weg. */
+const OLD_DEFAULT_PLACE = { latitude: 52.0908, longitude: 5.1222 };
 
 /**
  * Oude opslag bijwerken. Versie 2: "gokken aan/uit" werd "bij welke kaarten"; wie het
- * had uitgezet, houdt het uit.
+ * had uitgezet, houdt het uit. Versie 3: geen standaard woonplaats (Utrecht) meer.
  */
 export function migrateSettings(persisted: unknown, version: number): Partial<SettingsValues> {
   if (typeof persisted !== "object" || persisted === null) return {};
@@ -114,6 +117,13 @@ export function migrateSettings(persisted: unknown, version: number): Partial<Se
     values.guessMode = values.guessEnabled === false ? "uit" : "elke";
     delete values.guessEnabled;
   }
+  const place = values.weatherPlace as { latitude?: number; longitude?: number } | undefined;
+  if (
+    version < 3 &&
+    place?.latitude === OLD_DEFAULT_PLACE.latitude &&
+    place?.longitude === OLD_DEFAULT_PLACE.longitude
+  )
+    values.weatherPlace = null;
   return values as Partial<SettingsValues>;
 }
 

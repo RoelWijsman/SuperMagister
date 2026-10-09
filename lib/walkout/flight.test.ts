@@ -53,11 +53,15 @@ describe("guessFlight: je gok vliegt bij de flip naar de rating", () => {
     expect(guessFlight(guessed, gok.impactAt)!.path).toBe(2);
   });
 
-  it("veert terug na de klap en blijft doorschijnend staan", () => {
+  it("veert terug na de klap en verdwijnt dan, zodat alleen het echte cijfer blijft", () => {
     expect(guessFlight(guessed, gok.impactAt + 0.11)!.bounce).toBeGreaterThan(0.9);
-    const settled = guessFlight(guessed, gok.impactAt + 1)!;
+    // Na de klap nog even zichtbaar (je ziet hoe ver je ernaast zat)...
+    expect(guessFlight(guessed, gok.impactAt + 0.3)!.alpha).toBeGreaterThan(0.3);
+    // ...en dan weg: geen "4671" op de kaart of het eindscherm.
+    const settled = guessFlight(guessed, gok.impactAt + 1.5)!;
     expect(settled.bounce).toBeCloseTo(0);
-    expect(settled.alpha).toBeCloseTo(0.45);
+    expect(settled.alpha).toBe(0);
+    expect(guessFlight(guessed, guessed.restAt)!.alpha).toBe(0);
   });
 
   it("smelt bij precies goed in de rating", () => {
@@ -68,6 +72,8 @@ describe("guessFlight: je gok vliegt bij de flip naar de rating", () => {
     const frames = sample(reduced, reduced.phases.flip.start, reduced.restAt);
     frames.forEach((frame) => expect([0, 2]).toContain(frame!.path));
     expect(frames.some((frame) => frame!.path === 2 && frame!.alpha > 0.4)).toBe(true);
+    // Ook hier blijft hij niet over het echte cijfer hangen.
+    expect(guessFlight(reduced, reduced.restAt)!.alpha).toBe(0);
   });
 
   it("is er niet zonder gok", () => {

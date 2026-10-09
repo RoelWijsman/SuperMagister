@@ -806,3 +806,18 @@ body:has([data-fullscreen]) [data-toaster] {
   mix-blend-mode: color-dodge;
   opacity: 0.32;
 }
+
+/* Onboarding: gloed in de themakleuren, zodat je een ander thema meteen ziet. */
+.onboarding-glow {
+  background:
+    radial-gradient(
+      60% 45% at 12% 8%,
+      color-mix(in oklab, var(--sm-accent) 34%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 45% at 92% 96%,
+      color-mix(in oklab, var(--sm-accent-2) 28%, transparent),
+      transparent 70%
+    );
+}

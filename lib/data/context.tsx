@@ -12,6 +12,7 @@ import { MagisterError } from "@/lib/magister/transport";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import { useConnection } from "@/stores/connection";
 import { useOnboarding } from "@/stores/onboarding";
+import { createDemoSource } from "./demo-source";
 import { createEmptySource } from "./empty-source";
 import type { SchoolDataSource } from "./source";
 
@@ -111,22 +112,25 @@ function createLiveSource({
 
 /**
  * Levert de actieve databron: je eigen Magister als je gekoppeld bent, anders
- * een lege bron. Tijdens de hydratie altijd de lege bron (zie
+ * de demo (als je die koos) of een lege bron. Tijdens de hydratie altijd de lege bron (zie
  * useHydrated), zodat server en browser hetzelfde tekenen.
  */
 export function DataSourceProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const isClient = useIsClient();
   const [empty] = useState(() => createEmptySource());
+  const [demoSource] = useState(() => createDemoSource());
+  const demo = useConnection((s) => s.demo && s.account === null);
   const schoolHost = useConnection((s) => s.account?.schoolHost);
   const personId = useConnection((s) => s.account?.personId);
   const sample = useConnection((s) => s.account?.sample === true);
   const enrollmentId = useConnection((s) => s.enrollmentId);
 
   const source = useMemo(() => {
-    if (!isClient || !schoolHost || personId === undefined) return empty;
+    if (!isClient) return empty;
+    if (!schoolHost || personId === undefined) return demo ? demoSource : empty;
     return createLiveSource({ schoolHost, personId, enrollmentId, sample, queryClient });
-  }, [isClient, schoolHost, personId, enrollmentId, sample, queryClient, empty]);
+  }, [isClient, schoolHost, personId, enrollmentId, sample, queryClient, empty, demo, demoSource]);
 
   // Weer een bruikbare sessie (opnieuw gekoppeld): meteen verversen.
   useEffect(() => {
