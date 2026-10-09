@@ -7,13 +7,16 @@ import type { CardData } from "@/lib/cards/model";
 import { cn } from "@/lib/cn";
 import type { LinkStrength, SlotResult, SquadEvaluation } from "@/lib/squad/chemistry";
 import { POSITION_NAMES } from "@/lib/squad/formations";
+import { CARD_ASPECT, type PitchSize } from "@/lib/squad/layout";
 import { spotKey, type Spot } from "@/lib/squad/lineup";
+import { ratingNote } from "@/lib/squad/players";
 import { SquadCard } from "./SquadCard";
 
 /**
  * Het veld: een getekend grasveld in een donker stadion, de chemie-lijnen tussen
- * de plekken en de elf plekken zelf. Elke plek is een knop (tikken), een
- * sleepdoel en, als er een kaart staat, ook te slepen (alleen met de muis).
+ * de plekken en de elf plekken zelf. Elke plek is een knop (tikken, Enter), een
+ * sleepdoel en, als er een kaart staat, ook te slepen (alleen met de muis). De
+ * kaartjes zijn zo groot als past zonder te overlappen (lib/squad/layout.ts).
  */
 
 export const LINK_COLORS: Readonly<Record<LinkStrength, string>> = {
@@ -22,11 +25,16 @@ export const LINK_COLORS: Readonly<Record<LinkStrength, string>> = {
   rood: "#ff6b81",
 };
 
-/** Naast de kleur ook een lijnsoort: zo is het ook zonder kleur te zien. */
-const LINK_DASH: Readonly<Record<LinkStrength, string | undefined>> = {
-  groen: undefined,
-  oranje: "5 3",
-  rood: "1.5 3.5",
+/**
+ * Naast de kleur ook een lijnsoort, zodat je het ook zonder kleur ziet:
+ * groen doorgetrokken, oranje lange streepjes, rood losse stipjes.
+ */
+export const LINK_STYLE: Readonly<
+  Record<LinkStrength, { dash: string | undefined; width: number }>
+> = {
+  groen: { dash: undefined, width: 3.5 },
+  oranje: { dash: "10 7", width: 3 },
+  rood: { dash: "0.1 7", width: 4 },
 };
 
 export const LINK_LABELS: Readonly<Record<LinkStrength, string>> = {
@@ -67,9 +75,20 @@ function Markings() {
   );
 }
 
+/** Wat een schermlezer hoort bij een plek: "Spits, Wiskunde A, rating 82, chemie 9". */
+export function slotLabel(result: SlotResult): string {
+  const name = POSITION_NAMES[result.slot.position];
+  const player = result.player;
+  if (!player) return `${name}, leeg. Kies een kaart.`;
+  const note = ratingNote(player);
+  const fit = result.fit === "verkeerd" || result.fit === "onmogelijk" ? ", uit positie" : "";
+  return `${name}, ${player.subjectName}, rating ${player.rating}${note ? ` (${note})` : ""}, chemie ${result.chemistry}${fit}${result.captain ? ", aanvoerder" : ""}`;
+}
+
 function SlotButton({
   result,
   card,
+  width,
   selected,
   disabled,
   dragging,
@@ -77,6 +96,7 @@ function SlotButton({
 }: {
   result: SlotResult;
   card: CardData | null;
+  width: number;
   selected: boolean;
   disabled: boolean;
   dragging: boolean;
@@ -86,10 +106,6 @@ function SlotButton({
   const key = spotKey(spot);
   const drop = useDroppable({ id: key, data: { spot } });
   const drag = useDraggable({ id: `sleep:${key}`, data: { spot }, disabled: !card || disabled });
-  const name = POSITION_NAMES[result.slot.position];
-  const label = card
-    ? `${name}, ${card.subjectName}, rating ${card.ratingLabel}, chemie ${result.chemistry}${result.captain ? ", aanvoerder" : ""}`
-    : `${name}, leeg. Kies een kaart.`;
 
   return (
     <button
@@ -100,7 +116,8 @@ function SlotButton({
       {...drag.attributes}
       {...drag.listeners}
       type="button"
-      aria-label={label}
+      data-spot={key}
+      aria-label={slotLabel(result)}
       aria-pressed={selected}
       onClick={() => onActivate(spot)}
       // dnd-kit zet role="button" en tabIndex; de knop zelf regelt dat al.
@@ -109,17 +126,18 @@ function SlotButton({
       aria-roledescription={undefined}
       tabIndex={0}
       className={cn(
-        "absolute w-[13.5%] max-w-[80px] -translate-x-1/2 -translate-y-1/2 rounded-xl outline-offset-4 transition-[transform,filter] duration-200",
-        "touch-manipulation focus-visible:outline-2 focus-visible:outline-[var(--sm-accent)]",
-        selected && "z-10 scale-110 drop-shadow-[0_0_14px_var(--sm-accent)]",
+        "absolute -translate-x-1/2 -translate-y-1/2 rounded-[18%] outline-offset-4 transition-[transform,filter,opacity] duration-200",
+        "touch-manipulation focus-visible:outline-[3px] focus-visible:outline-[var(--sm-accent)]",
+        selected && "z-10 scale-110 drop-shadow-[0_0_16px_var(--sm-accent)]",
         drop.isOver && "z-10 scale-110",
         dragging && "opacity-35",
       )}
-      style={{ left: `${result.slot.x}%`, top: `${result.slot.y}%` }}
+      style={{ left: `${result.slot.x}%`, top: `${result.slot.y}%`, width }}
     >
       {card ? (
         <SquadCard
           card={card}
+          player={result.player}
           position={result.slot.position}
           chemistry={result.chemistry}
           captain={result.captain}
@@ -128,12 +146,13 @@ function SlotButton({
       ) : (
         <span
           className={cn(
-            "flex aspect-[500/720] w-full flex-col items-center justify-center gap-1 rounded-[22%_22%_30%_30%] border-2 border-dashed bg-black/25 text-white/75 backdrop-blur-[2px]",
-            drop.isOver ? "border-[var(--sm-accent)]" : "border-white/30",
+            "@container flex w-full flex-col items-center justify-center gap-[4cqw] rounded-[20%_20%_28%_28%] border-2 border-dashed bg-black/25 text-white/80 backdrop-blur-[2px]",
+            drop.isOver || selected ? "border-[var(--sm-accent)]" : "border-white/35",
           )}
+          style={{ aspectRatio: `1 / ${CARD_ASPECT}` }}
         >
           <Plus aria-hidden className="size-[34%]" strokeWidth={2.2} />
-          <span className="font-card text-[clamp(0.6rem,2.2vw,0.85rem)] tracking-wider">
+          <span className="font-card text-[18cqw] leading-none tracking-wider">
             {result.slot.position}
           </span>
         </span>
@@ -145,6 +164,8 @@ function SlotButton({
 export function Pitch({
   evaluation,
   cardById,
+  size,
+  cardWidth,
   selected,
   draggingKey,
   disabled = false,
@@ -153,6 +174,8 @@ export function Pitch({
 }: {
   evaluation: SquadEvaluation;
   cardById: (id: string | null) => CardData | null;
+  size: PitchSize;
+  cardWidth: number;
   selected: Spot | null;
   /** De plek die nu gesleept wordt (die wordt even doorzichtig). */
   draggingKey: string | null;
@@ -163,8 +186,12 @@ export function Pitch({
   const position = (slotId: string) => evaluation.formation.slots.find((s) => s.id === slotId)!;
   return (
     <div
-      className="relative mx-auto aspect-[68/92] w-full max-w-[560px] overflow-hidden rounded-[1.75rem] shadow-[0_30px_80px_-30px_rgb(0_0_0/0.9),inset_0_0_0_1px_rgb(255_255_255/0.08)]"
+      role="group"
+      aria-label={`Het veld, formatie ${evaluation.formation.id}`}
+      className="relative mx-auto overflow-hidden rounded-[1.75rem] shadow-[0_30px_80px_-30px_rgb(0_0_0/0.9),inset_0_0_0_1px_rgb(255_255_255/0.08)]"
       style={{
+        width: size.width,
+        height: size.height,
         background: [
           // Licht van de stadionlampen, in de kleur van je thema.
           "radial-gradient(120% 55% at 50% -12%, color-mix(in oklab, var(--sm-accent) 32%, transparent), transparent 60%)",
@@ -186,6 +213,7 @@ export function Pitch({
           const a = position(link.a);
           const b = position(link.b);
           const strength = link.strength;
+          const style = strength ? LINK_STYLE[strength] : null;
           return (
             <line
               key={`${link.a}-${link.b}`}
@@ -195,11 +223,11 @@ export function Pitch({
               y2={b.y}
               vectorEffect="non-scaling-stroke"
               strokeLinecap="round"
-              strokeWidth={strength ? 3 : 1.5}
-              stroke={strength ? LINK_COLORS[strength] : "rgba(255,255,255,0.16)"}
-              strokeDasharray={strength ? LINK_DASH[strength] : "2 4"}
+              strokeWidth={style?.width ?? 1.5}
+              stroke={strength ? LINK_COLORS[strength] : "rgba(255,255,255,0.18)"}
+              strokeDasharray={style ? style.dash : "2 5"}
               style={{ transition: "stroke 0.5s ease, stroke-width 0.3s ease" }}
-              opacity={strength ? 0.9 : 1}
+              opacity={strength ? 0.92 : 1}
             />
           );
         })}
@@ -209,6 +237,7 @@ export function Pitch({
           key={result.slot.id}
           result={result}
           card={cardById(result.player?.id ?? null)}
+          width={cardWidth}
           selected={selected?.kind === "veld" && selected.slot === result.slot.id}
           disabled={disabled}
           dragging={draggingKey === spotKey({ kind: "veld", slot: result.slot.id })}

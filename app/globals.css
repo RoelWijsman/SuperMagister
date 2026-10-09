@@ -31,6 +31,7 @@
   --color-glass: var(--sm-glass);
   --color-glass-strong: var(--sm-glass-strong);
   --color-glass-hover: var(--sm-glass-hover);
+  --color-surface: var(--sm-surface);
   --color-line: var(--sm-line);
   --color-line-strong: var(--sm-line-strong);
   --color-good: var(--sm-good);
@@ -79,6 +80,8 @@
   --sm-glass: rgb(255 255 255 / 0.055);
   --sm-glass-strong: rgb(255 255 255 / 0.09);
   --sm-glass-hover: rgb(255 255 255 / 0.085);
+  /* Dicht (niet doorzichtig): voor toasts, menu's en de kopbalk, zodat je ze altijd kunt lezen. */
+  --sm-surface: color-mix(in oklab, var(--sm-bg) 88%, white 12%);
   --sm-line: rgb(255 255 255 / 0.1);
   --sm-line-strong: rgb(255 255 255 / 0.2);
   --sm-highlight: rgb(255 255 255 / 0.09);
@@ -106,6 +109,7 @@
   --sm-glass: rgb(255 255 255 / 0.52);
   --sm-glass-strong: rgb(255 255 255 / 0.72);
   --sm-glass-hover: rgb(255 255 255 / 0.7);
+  --sm-surface: color-mix(in oklab, var(--sm-bg) 25%, white 75%);
   --sm-line: rgb(22 20 46 / 0.09);
   --sm-line-strong: rgb(22 20 46 / 0.18);
   --sm-highlight: rgb(255 255 255 / 0.7);
@@ -204,6 +208,19 @@
     --sm-glass: color-mix(in oklab, var(--sm-bg) 88%, white 12%);
     --sm-glass-strong: color-mix(in oklab, var(--sm-bg) 82%, white 18%);
     --glass-blur: 0px;
+  }
+}
+
+/*
+ * Scrollen zonder zichtbare scrollbalk (lijsten in een paneel). Onderaan vervaagt
+ * de inhoud, zodat je ziet dat er meer is.
+ */
+@utility scroll-quiet {
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 1.5rem), transparent);
+  mask-image: linear-gradient(to bottom, black calc(100% - 1.5rem), transparent);
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 

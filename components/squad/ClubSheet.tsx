@@ -1,7 +1,7 @@
 "use client";
 
 import { Dices } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 import { cn } from "@/lib/cn";
@@ -32,15 +32,23 @@ export function ClubSheet({
   const [seed] = useState(() => Math.floor(Math.random() * 1e9));
   const [rolls, setRolls] = useState(0);
   const real = isRealClubName(name);
+  const inputId = useId();
+  const warningId = useId();
 
   return (
     <Sheet open={open} onClose={onClose} title="Je club" size="sm">
       <div className="flex flex-col items-center gap-3">
         <Crest name={name || club.name} shape={club.crest} size={72} />
-        <label className="w-full">
-          <span className="mb-1.5 block text-sm font-medium text-ink">Clubnaam</span>
-          <span className="flex gap-2">
+        <div className="w-full">
+          <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-ink">
+            Clubnaam
+          </label>
+          <div className="flex gap-2">
             <input
+              id={inputId}
+              aria-invalid={real || undefined}
+              aria-describedby={real ? warningId : undefined}
+              autoComplete="off"
               value={name}
               maxLength={CLUB_NAME_MAX}
               onChange={(event) => setName(event.target.value)}
@@ -59,10 +67,10 @@ export function ClubSheet({
                 onSave({ name: next });
               }}
             />
-          </span>
-        </label>
+          </div>
+        </div>
         {real && (
-          <p role="alert" className="w-full text-sm text-warn">
+          <p id={warningId} role="alert" className="w-full text-sm text-warn">
             Dat is een echte club. Verzin iets eigens, of gooi de dobbelsteen.
           </p>
         )}

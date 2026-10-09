@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "framer-motion";
 import { Clapperboard, Download, Settings2, Share2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -7,18 +8,23 @@ import { Sheet } from "@/components/ui/Sheet";
 import { Switch } from "@/components/ui/Switch";
 import { Tabs } from "@/components/ui/Tabs";
 import { VideoProgress } from "@/components/video/VideoSheet";
+import { ensureCardFont } from "@/lib/cards/draw";
 import type { CardData } from "@/lib/cards/model";
 import { canShareFile, canvasToFile, downloadFile, shareFile } from "@/lib/cards/share";
 import { useAccount } from "@/lib/data/hooks";
 import { notify } from "@/lib/notify";
 import {
+  drawSquadFrame,
   renderSquadPicture,
   renderSquadVideo,
+  squadTimeline,
   type SquadPictureData,
+  type SquadPictureOptions,
   type SquadVideo,
 } from "@/lib/squad/render";
 import { track } from "@/lib/stats/client";
 import { getPreset } from "@/lib/theme/themes";
+import { stageFor } from "@/lib/walkout/scene";
 import { VideoUnsupportedError } from "@/lib/video/encode";
 import { VIDEO_FORMATS, type VideoFormat } from "@/lib/video/formats";
 import { useSettings } from "@/stores/settings";
@@ -57,6 +63,90 @@ export function SquadShareSheet({
   );
 }
 
+/** Hoe groot het voorbeeld getekend wordt (deel van de echte maat). */
+const PREVIEW_SCALE = 0.32;
+
+/**
+ * Het voorbeeld van wat je deelt, vóór je op "Maak" drukt. Bij een video
+ * speelt het voorbeeld de video af (in het klein, zonder geluid); bij minder
+ * beweging alleen het eindbeeld.
+ */
+function SharePreview({
+  data,
+  options,
+  animated,
+}: {
+  data: SquadPictureData;
+  options: SquadPictureOptions;
+  animated: boolean;
+}) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const reduced = useReducedMotion() ?? false;
+  const { width, height } = VIDEO_FORMATS[options.format];
+
+  useEffect(() => {
+    let cancelled = false;
+    let frame = 0;
+    void ensureCardFont().then((family) => {
+      const element = canvas.current;
+      if (cancelled || !element) return;
+      element.width = Math.round(width * PREVIEW_SCALE);
+      element.height = Math.round(height * PREVIEW_SCALE);
+      const ctx = element.getContext("2d");
+      if (!ctx) return;
+      const { stage, unit } = stageFor(element.width, element.height);
+      const draw = (t: number) => {
+        ctx.setTransform(unit, 0, 0, unit, 0, 0);
+        drawSquadFrame(ctx, stage, data, options, family, t);
+      };
+      if (!animated || reduced) {
+        draw(Infinity);
+        return;
+      }
+      const count = data.evaluation.slots.filter(
+        (s) => s.player && data.cards.has(s.slot.id),
+      ).length;
+      const loop = squadTimeline(count).end + 0.8;
+      const start = performance.now();
+      let last = 0;
+      const tick = (now: number) => {
+        // Dertig beelden per seconde is genoeg voor een voorbeeld.
+        if (now - last > 33) {
+          last = now;
+          draw(((now - start) / 1000) % loop);
+        }
+        frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [data, options, animated, reduced, width, height]);
+
+  return (
+    <figure className="flex flex-col items-center gap-2">
+      <div className="flex h-[min(18rem,36dvh)] items-center justify-center">
+        <canvas
+          ref={canvas}
+          role="img"
+          aria-label={
+            animated
+              ? "Voorbeeld van de video: je elftal op het veld"
+              : "Voorbeeld: je elftal op het veld"
+          }
+          className="h-full max-w-full rounded-2xl bg-black shadow-[0_18px_40px_-18px_rgb(0_0_0/0.7)]"
+          style={{ aspectRatio: `${width} / ${height}` }}
+        />
+      </div>
+      <figcaption className="text-xs text-ink-3">
+        Voorbeeld{animated ? " (zonder geluid)" : ""}: zo ziet het eruit.
+      </figcaption>
+    </figure>
+  );
+}
+
 function ShareBody({
   mode,
   api,
@@ -70,7 +160,6 @@ function ShareBody({
   const [showRatings, setShowRatings] = useState(false);
   const [showName, setShowName] = useState(false);
   const [step, setStep] = useState<Step>({ kind: "opties" });
-  const preview = useRef<HTMLCanvasElement>(null);
   const job = useRef<AbortController | null>(null);
   const account = useAccount();
   const theme = useSettings((s) => s.theme);
@@ -96,22 +185,6 @@ function ShareBody({
     () => ({ format, showRatings, showName }),
     [format, showRatings, showName],
   );
-
-  // Voorproefje: het eindbeeld, klein.
-  useEffect(() => {
-    if (step.kind !== "opties") return;
-    let cancelled = false;
-    void renderSquadPicture(data, options, 0.32).then((canvas) => {
-      const target = preview.current;
-      if (cancelled || !target) return;
-      target.width = canvas.width;
-      target.height = canvas.height;
-      target.getContext("2d")?.drawImage(canvas, 0, 0);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [data, options, step.kind]);
 
   useEffect(() => () => job.current?.abort(), []);
   useEffect(() => {
@@ -248,15 +321,7 @@ function ShareBody({
 
   return (
     <div>
-      <div className="flex h-60 items-center justify-center">
-        <canvas
-          ref={preview}
-          role="img"
-          aria-label="Voorproefje"
-          className="h-full max-w-full rounded-2xl bg-black shadow-[0_18px_40px_-18px_rgb(0_0_0/0.7)]"
-          style={{ aspectRatio: `${width} / ${height}` }}
-        />
-      </div>
+      <SharePreview data={data} options={options} animated={mode === "video"} />
       {step.error && (
         <p role="alert" className="mt-4 rounded-2xl bg-bad/12 p-3 text-sm text-ink">
           {step.error === "geen-video"

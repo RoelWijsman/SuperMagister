@@ -92,6 +92,10 @@ teruggekomen.
   voor het album, de walkout en de deelbare afbeeldingen. Vak-iconen komen als paden uit Lucide.
 - **Look.** In Form-kaarten zijn zwart met goud, maar TOTY en ICON zijn zeldzamer en blijven altijd
   zichzelf (`cardLook`); In Form staat dan als label op de kaart.
+- **In Form is zeldzaam** (aangepast op 9 oktober 2026, na feedback: 8 van de 11 kaarten in het
+  elftal waren In Form). Alleen als het cijfer minstens 1,0 boven je vakgemiddelde van daarvoor
+  ligt én bij je beste 10% kaarten hoort (minder dan 10% van je cijfers is hoger;
+  `IN_FORM_TOP_SHARE`). In de demo: 6 van de 61 kaarten.
 - **Eindscherm.** Op brede schermen staat het eindscherm naast de kaart, zoals in FIFA; anders
   eronder. Het eindscherm staat er vanaf het begin onzichtbaar, zodat de kaart precies weet hoeveel
   ruimte het nodig heeft. De grens (`SIDE_LAYOUT_MIN_ASPECT`) staat ook als CSS-variant `naast`.
@@ -642,47 +646,85 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
 ## Jouw Elftal (9 oktober 2026)
 
 - **Plek:** een tabblad op Collectie (`?tab=elftal`, zodat de command palette ernaartoe kan),
-  naast het album. Per databron opgeslagen (`sm-elftal`): demo, echte data en eerdere jaren lopen
-  nooit door elkaar, en ontkoppelen wist de echte. Alleen kaart-id's, nooit cijfers.
+  naast het album. Op dit tabblad is de kop smal (titel en tabbladen op één regel) en staat de
+  pack-banner er niet, zodat het veld meteen in beeld is. Per databron opgeslagen (`sm-elftal`):
+  demo, echte data en eerdere jaren lopen nooit door elkaar, en ontkoppelen wist de echte. Alleen
+  kaart-id's, nooit cijfers.
 - **Spelers** (`lib/squad/players.ts`): alleen onthulde kaarten. Rating = cijfer × 10 van de kaart.
-  Afwijking: beoordelingen (V, G, …) spelen mee met een vaste rating (ZG 90, G 80, RV 72, V 65,
-  O 45); vrijstelling, inhalen en "niet beoordeeld" niet. Zonder dit had bijna niemand een keeper,
-  want LO krijgt op de meeste scholen alleen V's en G's (in de demo ook). "Geen dubbele spelers" gaat
-  op de vaknaam (`vakKey`), zodat wiskunde A van dit en vorig jaar hetzelfde vak is.
+  Beoordelingen (V, G, …) spelen mee met een vaste, zichtbare rating (ZG 90, G 80, RV 72, V 65,
+  R 60, M 50, O 45, ZS 40): op het kaartje staat "80" met een kleine "G", in de lijst "G telt als
+  80", en de berekening, het deelbeeld en de schermlezer zeggen hetzelfde. Vrijstelling, inhalen
+  en "niet beoordeeld" spelen niet mee. Zonder vaste rating had bijna niemand een keeper, want LO
+  krijgt op de meeste scholen alleen V's en G's. Korte vaknamen op de kaartjes ("Wis A", "LO",
+  `lib/subjects/short.ts`); de volledige naam in de lijst en de toegankelijke naam.
+- **Eén kaart per vak op het veld** (op `vakKey`, de vaknaam). Een zet die een vak twee keer op
+  het veld zet, gebeurt niet: je krijgt een melding welke kaart er al staat (`tryPlace`,
+  `trySwap` geven het conflict terug). Op de bank mag een tweede kaart van een vak wel: dat is een
+  reserve, die alleen voor dat vak kan invallen.
 - **Toetssoort** bestaat niet in Magister; we leiden hem af uit de omschrijving (SO, proefwerk, PO,
   mondeling, SE, toets, …). Onbekend telt nooit als "dezelfde soort". Periode = schooljaar + periode.
 - **Formaties** (`lib/squad/formations.ts`): vijf, met posities in procenten en de lijnen per
-  formatie. Een andere formatie houdt iedereen zo goed mogelijk op zijn plek (zelfde plek, dan
-  positie, dan linie, dan wat over is); wie geen plek heeft, gaat naar de bank.
+  formatie. De plekken zijn zo verdeeld dat kaartjes in opeenvolgende linies om elkaar heen
+  vallen (de centrale verdedigers naast de keeper, niet erboven). **Andere formatie:** dezelfde elf
+  kaarten worden opnieuw verdeeld op hun natuurlijke linie (wie dichter bij zijn oude plek stond,
+  gaat voor), daarna wisselen tot de chemie niet meer stijgt (`changeFormation` in `build.ts`).
+  Bank en aanvoerder blijven. Daarna staat er "Opnieuw beste elftal voor 3-5-2", en wie er
+  noodgedwongen uit positie staat.
+- **Kaartjes en veld** (`lib/squad/layout.ts`): de kaartjes zijn zo groot als kan zonder elkaar of
+  de rand te raken, in alle formaties even groot (getest). Vanaf een tablet past het hele veld in
+  de schermhoogte (gemeten vanaf waar het begint); op een computer worden de kaartjes zo ~85–112
+  px, op een telefoon ~60 px. De spelerschemie staat als bolletje rechtsonder óp het kaartje en de
+  aanvoerdersband rechtsboven, dus niets valt over een lijn of een ander kaartje.
 - **Chemie** (`lib/squad/chemistry.ts`): lijnwaarde groen 10, oranje 5, rood 0, het gemiddelde over
   de bezette buren. Spelerschemie = basis per soort plek plus een deel van dat gemiddelde:
-  natuurlijk 4 + 0,6×, flexibel 3 + 0,6× (max 9), verkeerde linie 1 + 0,4× (max 5), keeper ↔
-  veld altijd 0. Aanvoerder +1 (max 10), maar een keeper-fout blijft 0. Teamchemie = som / 110 ×
-  100; een lege plek telt als 0. Squad-rating = afgerond gemiddelde van wie er staat.
-- **Beste elftal** (`lib/squad/build.ts`): score = gemiddelde rating (lege plek = 0) + ¼ ×
-  teamchemie. Per vak de beste kaart, een eerste opstelling op natuurlijke linie en rating, dan
-  "beste wissel" (twee plekken omdraaien of iemand van de bank erin) tot het niet beter wordt.
-  Altijd dezelfde uitkomst. Ter vergelijking rekent hij ook "alleen de hoogste ratings" uit en
-  noemt hij een formatie die minstens 2 punten beter is.
-- **Bediening:** tikken werkt overal (en met het toetsenbord: elke plek is een knop): lege plek →
-  een lijst schuift omhoog, gesorteerd op chemie voor die plek en dan rating; volle plek →
-  selecteren, dan een andere plek tikken om te wisselen, of Vervangen, Aanvoerder, Haal weg.
-  Slepen alleen met de muis (dnd-kit, `MouseSensor`), zodat vegen op een telefoon gewoon scrolt.
-  Elke plek heeft een naam als "Spits, Wiskunde, rating 82, chemie 9"; dnd-kit's
-  `aria-disabled`/`aria-roledescription` halen we weg, anders klinkt een lege plek "uitgeschakeld".
-- **Veld:** CSS-gras met gemaaide banen, stadionlicht in de themakleur, lijnen als SVG. Lijnen
-  hebben naast de kleur ook een lijnsoort (doorgetrokken, gestreept, gestippeld). Kaartjes zijn
-  HTML met de kleuren en vorm van de echte kaart (`faceStyleFor`, kaartmasker); de rating vervaagt
-  in de privacymodus.
+  natuurlijk 4 + 0,6×, flexibel 3 + 0,6× (max 9). **Uit positie** (verkeerde linie, keeper ↔ veld)
+  is 0, en zijn lijnen zijn rood, ook naar zijn eigen vakgroep (zoals in Ultimate Team; eerst was
+  de verkeerde linie nog tot 5 waard, waardoor een exact vak op het middenveld kon blijven staan).
+  Aanvoerder +1 (max 10). Teamchemie = som / 110 × 100; een lege plek telt als 0. Squad-rating =
+  afgerond gemiddelde van wie er staat. Lijnsoorten naast de kleur: groen doorgetrokken, oranje
+  streepjes, rood stipjes.
+- **Beste elftal** (`lib/squad/build.ts`): score = gemiddelde rating (lege plek = 0) + ½ ×
+  teamchemie, min 1 per linie afstand voor wie uit positie staat (exact op het middenveld is
+  minder raar dan exact achterin). Kandidaten: per vak en per soort kaart (periode, toetssoort,
+  ICON) de hoogste rating; een andere kaart van die soort wint nooit. Eerst een opstelling op
+  natuurlijke linie, dan net zo lang de beste zet (omdraaien of een andere kaart erin) tot het niet
+  beter wordt, dan de aanvoerder en nog een ronde. **Bank:** eerst per linie één reserve (keeper,
+  verdediging, middenveld, aanval), dan de beste die over zijn, liefst vakken die nog niet spelen.
+- **Tips** (`bestMove` in `suggest.ts`, `analysis.ts`): alleen een zet die echt kan (geen vak twee
+  keer) en de score echt verhoogt, en die je bovenaan ziet (rating of chemie omhoog). Met een knop
+  "Doen". Na "Bouw beste elftal" is er dus geen tip-zet, want die zou het bouwen al gedaan hebben.
+  Anders: lege plekken vullen, een aanvoerder kiezen, of niets op aan te merken.
+- **Kiezen voor een plek** (`rankForSpot`): per vak de beste kaart voor die plek (rating en
+  chemie samen, zoals bij het bouwen), "Nog 5 kaarten van Engels" klapt de rest uit. Per kaart:
+  de chemie die hij daar krijgt (na de zet), wat squad-rating en teamchemie doen ("+3 chemie",
+  "−1 rating"), en wie er verder verschuift ("Ruilt: Duits naar LV", "Duits gaat naar de bank").
+  Een kaart die niet mag, staat er grijs met de reden.
+- **Bediening:** tikken werkt overal: lege plek → meteen de lijst; volle plek → Vervangen,
+  Aanvoerder, Naar bank, Haal weg (of een andere plek tikken om te wisselen). "Naar bank" is een
+  wissel: de best passende reserve komt erin; is die er niet, dan naar een vrije plek op de bank.
+  Op een computer staan die knoppen in het paneel naast het veld en kun je slepen (alleen met de
+  muis, dnd-kit `MouseSensor`, zodat vegen op een telefoon gewoon scrolt). Toetsenbord: pijltjes
+  gaan naar de dichtstbijzijnde plek in die richting (veld en bank), Enter kiest of wisselt, Esc
+  laat los. Kaartjes schuiven mee bij plaatsen en wisselen (Framer Motion `layoutId`).
+- **Kop:** club (naam en wapen) met daaronder "Opstelling: Mijn elftal ▾" (wisselen, nieuw, kopie,
+  hernoemen, verwijderen), de formatie, één hoofdknop "Bouw beste elftal" en een Meer-menu
+  (`components/ui/Menu.tsx`, met pijltjes en Escape). Rating, chemie en de linies (voluit, "—"
+  als leeg) staan op een computer naast het veld, op een telefoon in de kop.
 - **Delen** (`lib/squad/render.ts`): één tekenfunctie van t, zoals de walkout. Afbeelding = eindbeeld;
   video = kaarten vliegen één voor één op, dan de lijnen, dan tikt de rating op (±7 s), met
   dezelfde video-engine en geluidsrecepten. Standaard zonder ratings (ook de squad-rating wordt
-  "–") en zonder naam.
+  "–") en zonder naam. Vóór het maken zie je een voorbeeld; bij een video speelt dat voorbeeld af.
 - **Oefenwedstrijd** (`lib/squad/match.ts`): sterkte = 75% rating + 25% chemie (minder als je
-  elftal niet vol is), doelpunten uit een Poisson-verdeling, scorers vaker uit de aanval.
-  Verzonnen tegenstanders, nooit echte clubs, personen of docenten. Clubnamen komen uit
-  schoolwoorden; zelf een bekende club invullen mag niet.
-- **Statistieken:** vijf nieuwe anonieme events (elftal geopend, gebouwd, gedeeld, video,
+  elftal niet vol is). Verwachte doelpunten 1,35 × e^(verschil/22), tussen 0,25 en 3, Poisson,
+  hooguit 6: meestal 0 tot 4 per team. Negentig minuten in precies tien seconden (elk moment op
+  zijn minuut). Commentaar (`commentary`): binnen één wedstrijd geen zin twee keer, en een vak-grap
+  alleen bij een vak uit die groep (exact, talen, M&M, kunst). Aan het eind: uitslag, man van de
+  wedstrijd en de beste chemie-lijn. Verzonnen tegenstanders, nooit echte clubs, personen of
+  docenten. Clubnamen komen uit schoolwoorden; zelf een bekende club invullen mag niet.
+- **Rest van de app:** toasts zijn dicht van kleur (`--sm-surface`) in plaats van glas, de
+  mobiele kopbalk krijgt bij scrollen een dichte, wazige achtergrond, en de demo-banner is op een
+  telefoon compacter.
+- **Statistieken:** vijf anonieme events (elftal geopend, gebouwd, gedeeld, video,
   oefenwedstrijd), ook op het dashboard en in /privacy.
 
 ## Ontwikkelaarsdashboard en anonieme statistieken (9 oktober 2026)

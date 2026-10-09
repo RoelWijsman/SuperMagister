@@ -1,48 +1,210 @@
 "use client";
 
-import { Pencil, Plus } from "lucide-react";
+import {
+  ChevronDown,
+  CircleHelp,
+  Clapperboard,
+  Copy,
+  Eraser,
+  Image as ImageIcon,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+  Trophy,
+  Wand2,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Menu, type MenuItem } from "@/components/ui/Menu";
 import { cn } from "@/lib/cn";
 import type { SquadEvaluation } from "@/lib/squad/chemistry";
 import type { Club } from "@/lib/squad/club";
-import { LINES, type Line } from "@/lib/squad/formations";
+import { FORMATION_IDS, LINE_LABELS, LINES, type FormationId } from "@/lib/squad/formations";
 import { MAX_SQUADS, type SavedSquad } from "@/stores/squad";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { Crest } from "./Crest";
 
-const LINE_SHORT: Readonly<Record<Line, string>> = {
-  aanval: "AAN",
-  middenveld: "MID",
-  verdediging: "VER",
-  keeper: "KEE",
-};
+export interface ToolbarActions {
+  onClub: () => void;
+  onSelectSquad: (id: string) => void;
+  onAddSquad: (copy: boolean) => void;
+  onRenameSquad: () => void;
+  onRemoveSquad: () => void;
+  onFormation: (formation: FormationId) => void;
+  onBuild: () => void;
+  onMatch: () => void;
+  onShare: (mode: "afbeelding" | "video") => void;
+  onHelp: () => void;
+  onClear: () => void;
+}
 
-/** Bovenaan, zoals in FUT: de squad-rating groot linksboven, de chemie ernaast en per linie. */
-export function SquadHeader({
-  evaluation,
+/**
+ * De balk boven het veld: je club (naam en wapen) met de naam van deze
+ * opstelling eronder, de formatie, één hoofdknop en een menu met de rest.
+ * "FC Herkansing" is je club, "Mijn elftal" is een van je drie opstellingen.
+ */
+export function SquadToolbar({
   club,
-  onClub,
+  squads,
+  activeId,
+  formation,
+  actions,
+}: {
+  club: Club;
+  squads: readonly SavedSquad[];
+  activeId: string;
+  formation: FormationId;
+  actions: ToolbarActions;
+}) {
+  const active = squads.find((s) => s.id === activeId);
+  const squadItems: MenuItem[] = [
+    ...squads.map((squad) => ({
+      label: squad.name,
+      checked: squad.id === activeId,
+      onSelect: () => actions.onSelectSquad(squad.id),
+    })),
+    {
+      label: "Naam wijzigen",
+      icon: Pencil,
+      onSelect: actions.onRenameSquad,
+      separated: true,
+    },
+    ...(squads.length < MAX_SQUADS
+      ? [
+          { label: "Nieuwe opstelling", icon: Plus, onSelect: () => actions.onAddSquad(false) },
+          {
+            label: "Kopie van deze opstelling",
+            icon: Copy,
+            onSelect: () => actions.onAddSquad(true),
+          },
+        ]
+      : []),
+    ...(squads.length > 1
+      ? [{ label: "Deze opstelling verwijderen", icon: Trash2, onSelect: actions.onRemoveSquad }]
+      : []),
+  ];
+  const moreItems: MenuItem[] = [
+    { label: "Oefenwedstrijd", icon: Trophy, onSelect: actions.onMatch },
+    {
+      label: "Delen als afbeelding",
+      icon: ImageIcon,
+      onSelect: () => actions.onShare("afbeelding"),
+    },
+    { label: "Delen als video", icon: Clapperboard, onSelect: () => actions.onShare("video") },
+    { label: "Hoe werkt chemie?", icon: CircleHelp, onSelect: actions.onHelp, separated: true },
+    { label: "Leegmaken", icon: Eraser, onSelect: actions.onClear },
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
+      <div className="flex min-w-0 flex-1 basis-56 items-center gap-2.5">
+        {/* Het wapen is ook aanklikbaar, maar voor toetsenbord en schermlezer is de naam de knop. */}
+        <button
+          type="button"
+          onClick={actions.onClub}
+          aria-hidden
+          tabIndex={-1}
+          className="shrink-0 rounded-xl p-0.5 transition-transform hover:scale-105"
+        >
+          <Crest name={club.name} shape={club.crest} size={38} />
+        </button>
+        <div className="min-w-0">
+          <button
+            type="button"
+            onClick={actions.onClub}
+            aria-label={`Club: ${club.name}. Naam en wapen aanpassen`}
+            className="group flex max-w-full items-center gap-1.5 rounded-lg text-left"
+          >
+            <span className="truncate font-display text-[1.05rem] leading-tight font-semibold text-ink">
+              {club.name}
+            </span>
+            <Pencil
+              size={13}
+              aria-hidden
+              className="shrink-0 text-ink-3 transition-colors group-hover:text-ink"
+            />
+          </button>
+          <Menu
+            label={`Opstelling: ${active?.name ?? "Mijn elftal"}. Wisselen of aanpassen`}
+            items={squadItems}
+            align="start"
+            buttonClassName="flex max-w-full items-center gap-1 rounded-lg text-left text-sm text-ink-2 hover:text-ink"
+          >
+            <span className="shrink-0 text-ink-3">Opstelling:</span>
+            <span className="truncate font-medium">{active?.name ?? "Mijn elftal"}</span>
+            <ChevronDown size={14} aria-hidden className="shrink-0" />
+          </Menu>
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2">
+        <label className="relative">
+          <span className="sr-only">Formatie</span>
+          <select
+            id="elftal-formatie"
+            value={formation}
+            onChange={(event) => actions.onFormation(event.target.value as FormationId)}
+            className="h-9 cursor-pointer appearance-none rounded-full glass pr-8 pl-3.5 font-card text-lg tracking-wider text-ink outline-offset-2"
+          >
+            {FORMATION_IDS.map((id) => (
+              <option key={id} value={id}>
+                {id}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={15}
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-ink-3"
+          />
+        </label>
+        <Button variant="primary" size="sm" icon={Wand2} onClick={actions.onBuild}>
+          Bouw beste elftal
+        </Button>
+        <Menu
+          label="Meer"
+          items={moreItems}
+          buttonClassName="inline-flex h-9 items-center gap-1.5 rounded-full glass px-3 text-sm font-medium text-ink hover:bg-glass-hover"
+        >
+          <MoreHorizontal size={16} aria-hidden />
+          <span className="max-[380px]:sr-only">Meer</span>
+        </Menu>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Squad-rating, teamchemie en de rating per linie, klein en op één plek. Groot
+ * linksboven, zoals in FUT. Een lege linie krijgt een rustig streepje.
+ */
+export function SquadStats({
+  evaluation,
+  stacked = false,
+  className,
 }: {
   evaluation: SquadEvaluation;
-  club: Club;
-  onClub: () => void;
+  /** Linies onder de getallen in plaats van ernaast (in de smalle kolom naast het veld). */
+  stacked?: boolean;
+  className?: string;
 }) {
   const chemistry = evaluation.chemistry;
   const tone =
     chemistry >= 70 ? "var(--sm-good)" : chemistry >= 40 ? "var(--sm-warn)" : "var(--sm-bad)";
   return (
-    <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-      <div className="flex items-end gap-5">
+    <div className={cn("flex gap-x-5 gap-y-3", stacked ? "flex-col" : "items-center", className)}>
+      <div className="flex shrink-0 items-end gap-4">
         <div>
-          <p className="text-xs font-semibold tracking-[0.2em] text-ink-3">RATING</p>
-          <p className="sensitive font-card text-[3.6rem] leading-[0.85] text-ink tabular-nums">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-3">RATING</p>
+          <p className="sensitive font-card text-[2.6rem] leading-[0.85] text-ink tabular-nums">
             <AnimatedNumber value={evaluation.rating} />
           </p>
         </div>
-        <div className="min-w-[7.5rem]">
-          <p className="text-xs font-semibold tracking-[0.2em] text-ink-3">CHEMIE</p>
-          <p className="font-card text-[2.4rem] leading-[0.9] text-ink tabular-nums">
+        <div className="min-w-[5.5rem]">
+          <p className="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-3">CHEMIE</p>
+          <p className="font-card text-[2rem] leading-[0.9] text-ink tabular-nums">
             <AnimatedNumber value={chemistry} />
-            <span className="text-lg text-ink-3">/100</span>
+            <span className="text-base text-ink-3">/100</span>
           </p>
           <span
             aria-hidden
@@ -55,87 +217,31 @@ export function SquadHeader({
           </span>
         </div>
       </div>
-      <ul className="flex flex-wrap gap-1.5" aria-label="Rating per linie">
+      <dl
+        aria-label="Rating per linie"
+        className={cn(
+          "grid min-w-0 flex-1 gap-x-4",
+          stacked
+            ? "grid-cols-2 gap-y-1 border-t border-line pt-3 text-sm"
+            : "grid-cols-1 gap-y-0.5 text-xs sm:grid-cols-2 sm:gap-y-1 sm:text-sm",
+        )}
+      >
         {LINES.map((line) => {
           const rating = evaluation.lineRatings[line];
           return (
-            <li
-              key={line}
-              className="flex items-baseline gap-1.5 rounded-full glass px-3 py-1"
-              title={line}
-            >
-              <span className="text-[0.7rem] font-semibold tracking-wider text-ink-3">
-                {LINE_SHORT[line]}
-              </span>
-              <span className="sensitive font-card text-lg leading-none text-ink tabular-nums">
-                {rating ?? "–"}
-              </span>
-              <span className="sr-only">{line}</span>
-            </li>
+            <div key={line} className="flex items-baseline justify-between gap-2">
+              <dt className="truncate text-ink-3">{LINE_LABELS[line]}</dt>
+              <dd className="sensitive font-semibold text-ink tabular-nums">
+                {rating ?? (
+                  <span className="font-normal text-ink-3" aria-label="leeg">
+                    —
+                  </span>
+                )}
+              </dd>
+            </div>
           );
         })}
-      </ul>
-      <button
-        type="button"
-        onClick={onClub}
-        className="ml-auto flex items-center gap-2.5 rounded-2xl px-2 py-1 text-left transition-colors hover:bg-glass"
-        aria-label={`Club: ${club.name}. Aanpassen`}
-      >
-        <Crest name={club.name} shape={club.crest} size={34} />
-        <span className="max-w-[11rem] truncate font-display font-semibold text-ink">
-          {club.name}
-        </span>
-      </button>
-    </div>
-  );
-}
-
-/** Je drie bewaarde elftallen, met een eigen naam. */
-export function SquadsBar({
-  squads,
-  activeId,
-  onSelect,
-  onAdd,
-  onEdit,
-}: {
-  squads: readonly SavedSquad[];
-  activeId: string;
-  onSelect: (id: string) => void;
-  onAdd: () => void;
-  onEdit: (squad: SavedSquad) => void;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Je elftallen">
-      {squads.map((squad) => {
-        const active = squad.id === activeId;
-        return (
-          <span key={squad.id} className="flex items-center">
-            <button
-              type="button"
-              aria-pressed={active}
-              onClick={() => (active ? onEdit(squad) : onSelect(squad.id))}
-              className={cn(
-                "flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-colors",
-                active
-                  ? "bg-[color-mix(in_oklab,var(--sm-accent)_22%,transparent)] text-ink shadow-[inset_0_0_0_1.5px_var(--sm-accent)]"
-                  : "glass text-ink-2 hover:text-ink",
-              )}
-            >
-              {squad.name}
-              {active && <Pencil size={13} aria-label="hernoemen" />}
-            </button>
-          </span>
-        );
-      })}
-      {squads.length < MAX_SQUADS && (
-        <button
-          type="button"
-          onClick={onAdd}
-          className="flex h-9 items-center gap-1 rounded-full border border-dashed border-line-strong px-3 text-sm font-medium text-ink-2 hover:text-ink"
-        >
-          <Plus size={15} aria-hidden /> Nieuw elftal
-        </button>
-      )}
+      </dl>
     </div>
   );
 }

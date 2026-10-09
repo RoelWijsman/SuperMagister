@@ -104,12 +104,15 @@ const slot = (id: string, position: Position, x: number, y: number): Slot => ({
   y,
 });
 
+// Plekken zo verdeeld dat kaartjes in opeenvolgende linies om elkaar heen vallen
+// (de centrale verdedigers staan naast de keeper, niet erboven): zo kunnen de
+// kaartjes groot zijn zonder te overlappen. Zie lib/squad/layout.ts.
 const K = slot("k", "K", 50, 88);
 const BACK_FOUR = [
-  slot("lb", "LB", 13, 66),
-  slot("cv-l", "CV", 37, 69),
-  slot("cv-r", "CV", 63, 69),
-  slot("rb", "RB", 87, 66),
+  slot("lb", "LB", 10, 66),
+  slot("cv-l", "CV", 30, 72),
+  slot("cv-r", "CV", 70, 72),
+  slot("rb", "RB", 90, 66),
 ];
 const BACK_FOUR_LINKS: readonly (readonly [string, string])[] = [
   ["k", "cv-l"],
@@ -119,9 +122,9 @@ const BACK_FOUR_LINKS: readonly (readonly [string, string])[] = [
   ["cv-r", "rb"],
 ];
 const BACK_THREE = [
-  slot("cv-l", "CV", 28, 68),
-  slot("cv-m", "CV", 50, 70),
-  slot("cv-r", "CV", 72, 68),
+  slot("cv-l", "CV", 30, 72),
+  slot("cv-m", "CV", 50, 63),
+  slot("cv-r", "CV", 70, 72),
 ];
 const BACK_THREE_LINKS: readonly (readonly [string, string])[] = [
   ["k", "cv-l"],
@@ -137,12 +140,12 @@ export const FORMATIONS: Readonly<Record<FormationId, Formation>> = {
     slots: [
       K,
       ...BACK_FOUR,
-      slot("cm-l", "CM", 28, 42),
-      slot("cm-m", "CM", 50, 46),
-      slot("cm-r", "CM", 72, 42),
-      slot("lv", "LV", 16, 19),
-      slot("sp", "SP", 50, 13),
-      slot("rv", "RV", 84, 19),
+      slot("cm-l", "CM", 30, 43),
+      slot("cm-m", "CM", 50, 39),
+      slot("cm-r", "CM", 70, 43),
+      slot("lv", "LV", 13, 18),
+      slot("sp", "SP", 50, 12),
+      slot("rv", "RV", 87, 18),
     ],
     links: [
       ...BACK_FOUR_LINKS,
@@ -164,12 +167,12 @@ export const FORMATIONS: Readonly<Record<FormationId, Formation>> = {
     slots: [
       K,
       ...BACK_FOUR,
-      slot("lm", "LM", 13, 39),
-      slot("cm-l", "CM", 38, 44),
-      slot("cm-r", "CM", 62, 44),
-      slot("rm", "RM", 87, 39),
-      slot("sp-l", "SP", 36, 14),
-      slot("sp-r", "SP", 64, 14),
+      slot("lm", "LM", 10, 40),
+      slot("cm-l", "CM", 34, 45),
+      slot("cm-r", "CM", 66, 45),
+      slot("rm", "RM", 90, 40),
+      slot("sp-l", "SP", 36, 13),
+      slot("sp-r", "SP", 64, 13),
     ],
     links: [
       ...BACK_FOUR_LINKS,
@@ -192,11 +195,11 @@ export const FORMATIONS: Readonly<Record<FormationId, Formation>> = {
     slots: [
       K,
       ...BACK_FOUR,
-      slot("cvm-l", "CVM", 37, 49),
-      slot("cvm-r", "CVM", 63, 49),
-      slot("lm", "LM", 15, 29),
-      slot("cam", "CAM", 50, 31),
-      slot("rm", "RM", 85, 29),
+      slot("cvm-l", "CVM", 30, 47),
+      slot("cvm-r", "CVM", 70, 47),
+      slot("lm", "LM", 10, 31),
+      slot("cam", "CAM", 50, 35),
+      slot("rm", "RM", 90, 31),
       slot("sp", "SP", 50, 11),
     ],
     links: [
@@ -220,13 +223,13 @@ export const FORMATIONS: Readonly<Record<FormationId, Formation>> = {
     slots: [
       K,
       ...BACK_THREE,
-      slot("lm", "LM", 10, 40),
-      slot("cvm-l", "CVM", 34, 49),
-      slot("cam", "CAM", 50, 31),
-      slot("cvm-r", "CVM", 66, 49),
-      slot("rm", "RM", 90, 40),
-      slot("sp-l", "SP", 35, 12),
-      slot("sp-r", "SP", 65, 12),
+      slot("lm", "LM", 10, 39),
+      slot("cvm-l", "CVM", 30, 47),
+      slot("cam", "CAM", 50, 35),
+      slot("cvm-r", "CVM", 70, 47),
+      slot("rm", "RM", 90, 39),
+      slot("sp-l", "SP", 30, 12),
+      slot("sp-r", "SP", 70, 12),
     ],
     links: [
       ...BACK_THREE_LINKS,
@@ -252,14 +255,14 @@ export const FORMATIONS: Readonly<Record<FormationId, Formation>> = {
     id: "5-3-2",
     slots: [
       K,
-      slot("lvb", "LVB", 9, 56),
+      slot("lvb", "LVB", 10, 56),
       ...BACK_THREE,
-      slot("rvb", "RVB", 91, 56),
-      slot("cm-l", "CM", 28, 38),
-      slot("cm-m", "CM", 50, 42),
-      slot("cm-r", "CM", 72, 38),
-      slot("sp-l", "SP", 35, 13),
-      slot("sp-r", "SP", 65, 13),
+      slot("rvb", "RVB", 90, 56),
+      slot("cm-l", "CM", 30, 41),
+      slot("cm-m", "CM", 50, 37),
+      slot("cm-r", "CM", 70, 41),
+      slot("sp-l", "SP", 35, 12),
+      slot("sp-r", "SP", 65, 12),
     ],
     links: [
       ...BACK_THREE_LINKS,

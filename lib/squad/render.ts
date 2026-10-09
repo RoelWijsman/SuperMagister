@@ -18,6 +18,7 @@ import { stageFor } from "@/lib/walkout/scene";
 import { drawWatermark } from "@/lib/walkout/video-render";
 import type { LinkStrength, SquadEvaluation } from "./chemistry";
 import { clubInitials, CREST_INNER, CREST_PATHS, type Club } from "./club";
+import type { SquadPlayer } from "./players";
 
 /**
  * Jouw Elftal als afbeelding en als korte video: het veld met de kaarten, de
@@ -96,10 +97,11 @@ const LINK_COLORS: Readonly<Record<LinkStrength, string>> = {
   oranje: "#ffb547",
   rood: "#ff6b81",
 };
+// Net als op het scherm: groen doorgetrokken, oranje streepjes, rood stipjes.
 const LINK_DASH: Readonly<Record<LinkStrength, number[]>> = {
   groen: [],
-  oranje: [16, 10],
-  rood: [5, 12],
+  oranje: [26, 16],
+  rood: [0.1, 18],
 };
 
 interface Layout {
@@ -121,7 +123,7 @@ function layoutFor(stage: Stage): Layout {
   return {
     header: { y: top, h: headerH },
     pitch: { x: (stage.w - w) / 2, y: top + headerH + (availH - h) / 2, w, h },
-    cardW: w * 0.135,
+    cardW: w * 0.15,
   };
 }
 
@@ -185,15 +187,19 @@ function drawPitch(ctx: CanvasRenderingContext2D, p: Layout["pitch"], alpha: num
   ctx.restore();
 }
 
+const chemistryColor = (value: number) =>
+  value >= 7 ? "#4fe3a3" : value >= 4 ? "#ffb547" : "#ff6b81";
+
 function drawMiniCard(
   ctx: CanvasRenderingContext2D,
   card: CardData,
+  player: SquadPlayer,
   cx: number,
   cy: number,
   w: number,
   info: {
     position: string;
-    chemistry: number;
+    chemistry: number | null;
     captain: boolean;
     showRating: boolean;
     family: string;
@@ -222,52 +228,61 @@ function drawMiniCard(
   ctx.fillStyle = tint;
   ctx.fillRect(0, 0, 500, 720);
 
+  // Dezelfde rating als op het scherm: bij een beoordeling de vaste rating, met "G" erbij.
   ctx.fillStyle = style.text;
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
   if (info.showRating) {
     ctx.font = `150px ${info.family}`;
-    ctx.fillText(card.ratingLabel, 125, 230);
+    ctx.fillText(String(player.rating), 125, 230);
+    if (player.judged) {
+      ctx.font = `64px ${info.family}`;
+      ctx.textAlign = "left";
+      ctx.fillText(player.judged, 215, 150);
+      ctx.textAlign = "center";
+    }
   }
   ctx.font = `${info.showRating ? 82 : 110}px ${info.family}`;
   ctx.fillText(info.position, 125, info.showRating ? 320 : 250);
   drawSubjectIcon(ctx, card.icon, 230, 150, 210, style.text, 2.2);
-  const name = card.subjectName.toUpperCase();
-  fitFont(ctx, name, info.family, 420, 92, 54);
-  ctx.fillText(ellipsize(ctx, name, 430), 250, 560);
+  const name = player.shortName.toUpperCase();
+  fitFont(ctx, name, info.family, 420, 120, 60);
+  ctx.fillText(ellipsize(ctx, name, 430), 250, 540);
   ctx.globalAlpha = 0.7;
   ctx.font = `58px ${info.family}`;
-  ctx.fillText(spaced(cardTierLabel(card)), 250, 640);
+  ctx.fillText(spaced(cardTierLabel(card)), 250, 625);
   ctx.restore();
 
   if (info.captain) {
     ctx.fillStyle = "#ffd25c";
     ctx.beginPath();
-    ctx.arc(w * 0.95, h * 0.04, w * 0.15, 0, Math.PI * 2);
+    ctx.roundRect(w * 0.72, h * 0.02, w * 0.3, w * 0.22, w * 0.06);
     ctx.fill();
     ctx.fillStyle = "#2b1d03";
-    ctx.font = `${w * 0.2}px ${info.family}`;
+    ctx.font = `${w * 0.17}px ${info.family}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("C", w * 0.95, h * 0.05);
+    ctx.fillText("C", w * 0.87, h * 0.02 + w * 0.12);
   }
 
-  // Chemie onder de kaart.
-  const barY = h + w * 0.08;
-  const tone = info.chemistry >= 7 ? "#4fe3a3" : info.chemistry >= 4 ? "#ffb547" : "#ff6b81";
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  ctx.beginPath();
-  ctx.roundRect(w * 0.22, barY, w * 0.78, w * 0.09, w * 0.045);
-  ctx.fill();
-  ctx.fillStyle = tone;
-  ctx.beginPath();
-  ctx.roundRect(w * 0.22, barY, (w * 0.78 * info.chemistry) / 10, w * 0.09, w * 0.045);
-  ctx.fill();
-  ctx.fillStyle = "#fff";
-  ctx.font = `${w * 0.17}px ${info.family}`;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "middle";
-  ctx.fillText(String(info.chemistry), 0, barY + w * 0.05);
+  // Chemie rechtsonder op de kaart, als bolletje (net als op het scherm).
+  if (info.chemistry !== null) {
+    const r = w * 0.15;
+    const x = w - r * 1.05;
+    const y = h - r * 1.05;
+    ctx.fillStyle = chemistryColor(info.chemistry);
+    ctx.strokeStyle = "rgba(0,0,0,0.45)";
+    ctx.lineWidth = w * 0.015;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#0b0a1a";
+    ctx.font = `${w * 0.19}px ${info.family}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(info.chemistry), x, y + w * 0.01);
+  }
   ctx.restore();
 }
 
@@ -391,6 +406,7 @@ export function drawSquadFrame(
     const progress = clamp01((t - timeline.cardStart(index)) / CARD_FLIGHT);
     if (progress <= 0) return;
     const card = data.cards.get(result.slot.id)!;
+    const player = result.player!;
     const end = at(result.slot.id);
     const startY = stage.h + cardW * 1.6;
     const e = easeOut(progress);
@@ -399,9 +415,9 @@ export function drawSquadFrame(
     const scale = 1.6 - 0.6 * e;
     ctx.save();
     ctx.globalAlpha = clamp01(progress * 2);
-    drawMiniCard(ctx, card, x, y, cardW * scale, {
+    drawMiniCard(ctx, card, player, x, y, cardW * scale, {
       position: result.slot.position,
-      chemistry: lines > 0 ? result.chemistry : 0,
+      chemistry: lines > 0 ? result.chemistry : null,
       captain: result.captain,
       showRating: options.showRatings,
       family,

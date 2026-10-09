@@ -1,26 +1,21 @@
 "use client";
 
 import { Sheet } from "@/components/ui/Sheet";
-import { LINK_COLORS, LINK_LABELS } from "./Pitch";
-
-const LINE_STYLE = {
-  groen: undefined,
-  oranje: "5 3",
-  rood: "1.5 3.5",
-} as const;
+import { TEXT_RATINGS } from "@/lib/squad/players";
+import { LINK_COLORS, LINK_LABELS, LINK_STYLE } from "./Pitch";
 
 function LinkSwatch({ strength }: { strength: keyof typeof LINK_COLORS }) {
   return (
-    <svg aria-hidden width="34" height="8" className="shrink-0">
+    <svg aria-hidden width="40" height="8" className="shrink-0">
       <line
-        x1="2"
+        x1="3"
         y1="4"
-        x2="32"
+        x2="37"
         y2="4"
         stroke={LINK_COLORS[strength]}
-        strokeWidth="3"
+        strokeWidth={LINK_STYLE[strength].width}
         strokeLinecap="round"
-        strokeDasharray={LINE_STYLE[strength]}
+        strokeDasharray={LINK_STYLE[strength].dash}
       />
     </svg>
   );
@@ -41,22 +36,23 @@ export function ChemistryHelp({ open, onClose }: { open: boolean; onClose: () =>
             <li className="flex items-center gap-2.5">
               <LinkSwatch strength="groen" />
               <span>
-                <strong className="text-ink">Groen ({LINK_LABELS.groen})</strong>: zelfde vakgroep,
-                bijvoorbeeld twee exacte vakken.
+                <strong className="text-ink">Groen, doorgetrokken ({LINK_LABELS.groen})</strong>:
+                zelfde vakgroep, bijvoorbeeld twee exacte vakken.
               </span>
             </li>
             <li className="flex items-center gap-2.5">
               <LinkSwatch strength="oranje" />
               <span>
-                <strong className="text-ink">Oranje ({LINK_LABELS.oranje})</strong>: andere
-                vakgroep, maar uit dezelfde periode, of allebei hetzelfde soort toets (bijvoorbeeld
-                twee SO&apos;s).
+                <strong className="text-ink">Oranje, streepjes ({LINK_LABELS.oranje})</strong>:
+                andere vakgroep, maar uit dezelfde periode, of allebei hetzelfde soort toets
+                (bijvoorbeeld twee SO&apos;s).
               </span>
             </li>
             <li className="flex items-center gap-2.5">
               <LinkSwatch strength="rood" />
               <span>
-                <strong className="text-ink">Rood ({LINK_LABELS.rood})</strong>: niets gemeen.
+                <strong className="text-ink">Rood, stipjes ({LINK_LABELS.rood})</strong>: niets
+                gemeen, of een van de twee staat uit positie.
               </span>
             </li>
           </ul>
@@ -84,8 +80,10 @@ export function ChemistryHelp({ open, onClose }: { open: boolean; onClose: () =>
           <ul className="list-disc pl-5">
             <li>Op je natuurlijke plek: 4 punten, plus tot 6 punten voor de lijnen.</li>
             <li>Flexibel (kunst en overig): één punt minder, dus hooguit 9.</li>
-            <li>In de verkeerde linie: hooguit 5.</li>
-            <li>Een keeper op het veld, of een veldspeler op doel: altijd 0.</li>
+            <li>
+              Uit positie (de verkeerde linie, een keeper op het veld of een veldspeler op doel):
+              altijd 0, en zijn lijnen worden rood. Zoals in Ultimate Team.
+            </li>
             <li>De aanvoerder (de band met de C) krijgt er 1 bij, tot 10.</li>
           </ul>
           <p className="mt-2">
@@ -100,6 +98,33 @@ export function ChemistryHelp({ open, onClose }: { open: boolean; onClose: () =>
             Teamchemie is de spelerschemie van je elf spelers bij elkaar, op 100 gezet (elf keer een
             10 is 100). De squad-rating is het gemiddelde van de ratings op het veld. De bank telt
             nergens mee.
+          </p>
+          <p className="mt-2">
+            &quot;Bouw beste elftal&quot; telt één ratingpunt even zwaar als twee punten chemie.
+            Moet er iemand uit positie, dan liefst in de linie ernaast.
+          </p>
+        </section>
+
+        <section>
+          <h3>V, G en andere beoordelingen</h3>
+          <p>
+            Sommige vakken (vaak LO) geven een beoordeling in plaats van een cijfer. In je elftal
+            telt die als een vaste rating, en dat getal staat ook op het kaartje, met de letter
+            erbij:
+          </p>
+          <p className="mt-2 tabular-nums">
+            {(["ZG", "G", "RV", "V", "R", "M", "O", "ZS"] as const)
+              .map((value) => `${value} = ${TEXT_RATINGS[value]}`)
+              .join(" · ")}
+          </p>
+          <p className="mt-2">Vrijstelling en inhalen spelen niet mee.</p>
+        </section>
+
+        <section>
+          <h3>Eén kaart per vak</h3>
+          <p>
+            Op het veld staat elk vak maar één keer. Op de bank mag een tweede kaart van een vak
+            wel: die valt in voor dat vak.
           </p>
         </section>
 

@@ -65,45 +65,103 @@ function fixCaptain(lineup: Lineup): Lineup {
   return lineup;
 }
 
+/** Een zet die niet mag: er staat al een kaart van hetzelfde vak op het veld. */
+export interface FieldConflict {
+  /** De kaart van hetzelfde vak die al op het veld staat. */
+  cardId: string;
+  slot: string;
+}
+
+export interface MoveResult {
+  lineup: Lineup;
+  /** Gezet als de zet niet mag; de opstelling is dan onveranderd. */
+  conflict: FieldConflict | null;
+}
+
+/** Staat deze kaart op het veld naast een andere kaart van hetzelfde vak? */
+function conflictFor(
+  lineup: Lineup,
+  cardId: string,
+  vakOf: (cardId: string) => string | undefined,
+): FieldConflict | null {
+  if (!Object.values(lineup.slots).includes(cardId)) return null;
+  const vak = vakOf(cardId);
+  if (vak === undefined) return null;
+  for (const [slot, id] of Object.entries(lineup.slots))
+    if (id && id !== cardId && vakOf(id) === vak) return { cardId: id, slot };
+  return null;
+}
+
+/** Wisselt twee plekken om (veld of bank), tenzij er dan twee keer hetzelfde vak op het veld staat. */
+export function trySwap(
+  lineup: Lineup,
+  a: Spot,
+  b: Spot,
+  vakOf?: (cardId: string) => string | undefined,
+): MoveResult {
+  if (sameSpot(a, b)) return { lineup, conflict: null };
+  const first = cardAt(lineup, a);
+  const second = cardAt(lineup, b);
+  const next = fixCaptain(withCard(withCard(lineup, a, second), b, first));
+  if (vakOf)
+    for (const id of [first, second]) {
+      const conflict = id ? conflictFor(next, id, vakOf) : null;
+      if (conflict) return { lineup, conflict };
+    }
+  return { lineup: next, conflict: null };
+}
+
 /**
  * Zet een kaart op een plek.
  * - Staat de kaart al in de selectie, dan wisselt hij van plek met wat er stond.
- * - Geen dubbele vakken: staat er al een kaart van hetzelfde vak, dan gaat die
- *   eruit (terug naar de lijst) en neemt de nieuwe kaart het over.
  * - Wie er op de plek stond, gaat terug naar de lijst.
+ * - Op het veld één kaart per vak: staat het vak al ergens anders op het veld,
+ *   dan mag het niet (eerst die kaart vervangen of wisselen). Op de bank mag een
+ *   tweede kaart van een vak wel: dat is een reserve.
  */
+export function tryPlace(
+  lineup: Lineup,
+  spot: Spot,
+  cardId: string,
+  vakOf: (cardId: string) => string | undefined,
+): MoveResult {
+  const current = spotOf(lineup, cardId);
+  if (current) return trySwap(lineup, current, spot, vakOf);
+  const next = fixCaptain(withCard(lineup, spot, cardId));
+  const conflict = conflictFor(next, cardId, vakOf);
+  return conflict ? { lineup, conflict } : { lineup: next, conflict: null };
+}
+
 export function placeCard(
   lineup: Lineup,
   spot: Spot,
   cardId: string,
   vakOf: (cardId: string) => string | undefined,
 ): Lineup {
-  const current = spotOf(lineup, cardId);
-  if (current) return swapSpots(lineup, current, spot);
-
-  const vak = vakOf(cardId);
-  let next = lineup;
-  if (vak !== undefined) {
-    for (const other of squadCardIds(lineup)) {
-      if (other !== cardId && vakOf(other) === vak) {
-        const otherSpot = spotOf(next, other);
-        if (otherSpot) next = withCard(next, otherSpot, null);
-      }
-    }
-  }
-  return fixCaptain(withCard(next, spot, cardId));
+  return tryPlace(lineup, spot, cardId, vakOf).lineup;
 }
 
-/** Wisselt twee plekken om (veld of bank). */
-export function swapSpots(lineup: Lineup, a: Spot, b: Spot): Lineup {
-  if (sameSpot(a, b)) return lineup;
-  const first = cardAt(lineup, a);
-  const second = cardAt(lineup, b);
-  return fixCaptain(withCard(withCard(lineup, a, second), b, first));
+export function swapSpots(
+  lineup: Lineup,
+  a: Spot,
+  b: Spot,
+  vakOf?: (cardId: string) => string | undefined,
+): Lineup {
+  return trySwap(lineup, a, b, vakOf).lineup;
 }
 
 export function removeAt(lineup: Lineup, spot: Spot): Lineup {
   return fixCaptain(withCard(lineup, spot, null));
+}
+
+/** Van het veld naar de eerste vrije plek op de bank; null als de bank vol is. */
+export function toBench(lineup: Lineup, spot: Spot): Lineup | null {
+  if (spot.kind === "bank") return lineup;
+  const cardId = cardAt(lineup, spot);
+  if (!cardId) return lineup;
+  const free = lineup.bench.indexOf(null);
+  if (free < 0) return null;
+  return fixCaptain(withCard(withCard(lineup, spot, null), { kind: "bank", index: free }, cardId));
 }
 
 /** Aanvoerder kiezen (alleen iemand op het veld), of opnieuw tikken om hem weg te halen. */
@@ -118,55 +176,9 @@ export function clearLineup(lineup: Lineup): Lineup {
 }
 
 /**
- * Andere formatie: iedereen blijft zoveel mogelijk op een passende plek. Eerst
- * dezelfde plek (slot-id), dan dezelfde positie, dan dezelfde linie, dan wat er
- * over is. Wie geen plek meer heeft, gaat naar de bank (als daar ruimte is).
- */
-export function changeFormation(lineup: Lineup, to: FormationId): Lineup {
-  if (lineup.formation === to) return lineup;
-  const from = FORMATIONS[lineup.formation];
-  const target = FORMATIONS[to];
-  const placed = from.slots.flatMap((slot) => {
-    const id = lineup.slots[slot.id];
-    return id ? [{ id, slot }] : [];
-  });
-
-  const slots: Record<string, string | null> = Object.fromEntries(
-    target.slots.map((s) => [s.id, null]),
-  );
-  const open = new Set(target.slots.map((s) => s.id));
-  const waiting = [...placed];
-  const passes: ((
-    old: (typeof placed)[number]["slot"],
-    next: (typeof target.slots)[number],
-  ) => boolean)[] = [
-    (old, next) => old.id === next.id,
-    (old, next) => old.position === next.position,
-    (old, next) => slotLine(old) === slotLine(next),
-    (old, next) => slotLine(old) !== "keeper" && slotLine(next) !== "keeper",
-  ];
-  for (const matches of passes) {
-    for (const item of [...waiting]) {
-      const spot = target.slots.find((s) => open.has(s.id) && matches(item.slot, s));
-      if (!spot) continue;
-      slots[spot.id] = item.id;
-      open.delete(spot.id);
-      waiting.splice(waiting.indexOf(item), 1);
-    }
-  }
-
-  const bench = [...lineup.bench];
-  for (const item of waiting) {
-    const free = bench.indexOf(null);
-    if (free >= 0) bench[free] = item.id;
-  }
-  return fixCaptain({ formation: to, slots, bench, captain: lineup.captain });
-}
-
-/**
  * Maakt een bewaarde opstelling weer geldig: kaarten die er niet meer zijn eruit,
- * geen dubbele vakken (het veld wint van de bank), de plekken van de formatie,
- * zeven plekken op de bank en een aanvoerder die op het veld staat.
+ * geen dubbele vakken op het veld, elke kaart maar één keer, de plekken van de
+ * formatie, zeven plekken op de bank en een aanvoerder die op het veld staat.
  */
 export function cleanLineup(
   lineup: Lineup,
@@ -174,18 +186,25 @@ export function cleanLineup(
   vakOf: (cardId: string) => string | undefined,
 ): Lineup {
   const formation = FORMATIONS[lineup.formation] ? lineup.formation : "4-3-3";
-  const seen = new Set<string>();
-  const keep = (id: string | null | undefined): string | null => {
-    if (!id || !exists(id)) return null;
-    const vak = vakOf(id) ?? id;
-    if (seen.has(vak)) return null;
-    seen.add(vak);
-    return id;
-  };
+  const used = new Set<string>();
+  const fieldVakken = new Set<string>();
   const slots = Object.fromEntries(
-    FORMATIONS[formation].slots.map((s) => [s.id, keep(lineup.slots?.[s.id])]),
+    FORMATIONS[formation].slots.map((s) => {
+      const id = lineup.slots?.[s.id];
+      if (!id || used.has(id) || !exists(id)) return [s.id, null];
+      const vak = vakOf(id) ?? id;
+      if (fieldVakken.has(vak)) return [s.id, null];
+      used.add(id);
+      fieldVakken.add(vak);
+      return [s.id, id];
+    }),
   );
-  const bench = Array.from({ length: BENCH_SIZE }, (_, i) => keep(lineup.bench?.[i]));
+  const bench = Array.from({ length: BENCH_SIZE }, (_, i) => {
+    const id = lineup.bench?.[i];
+    if (!id || used.has(id) || !exists(id)) return null;
+    used.add(id);
+    return id;
+  });
   return fixCaptain({ formation, slots, bench, captain: lineup.captain ?? null });
 }
 

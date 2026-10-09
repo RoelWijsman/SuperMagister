@@ -62,7 +62,7 @@ export function DemoBanner({
     <div
       role="status"
       className={cn(
-        "mb-5 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-3xl border border-[color-mix(in_oklab,var(--sm-warn)_45%,transparent)] bg-[color-mix(in_oklab,var(--sm-warn)_10%,transparent)] px-4 py-3",
+        "mb-4 flex flex-wrap items-center gap-x-4 gap-y-2.5 rounded-3xl border border-[color-mix(in_oklab,var(--sm-warn)_45%,transparent)] bg-[color-mix(in_oklab,var(--sm-warn)_10%,transparent)] px-4 py-3 sm:mb-5 sm:gap-y-3",
         className,
       )}
     >
@@ -70,6 +70,7 @@ export function DemoBanner({
         DEMO
       </span>
       <p className="min-w-0 flex-1 text-sm text-ink-2">{text}</p>
+      {/* Op een telefoon passen beide knoppen op één regel. */}
       <div className="flex flex-wrap gap-2">
         <LinkButton href="/koppelen" variant="primary" icon={Plug} size="sm">
           Nu echt koppelen
@@ -82,8 +83,12 @@ export function DemoBanner({
             useConnection.getState().stopDemo();
             notify("toast.demoUit", {}, { emoji: "👋" });
           }}
+          aria-label="Demo stoppen"
         >
-          Demo stoppen
+          <span>
+            <span className="max-sm:hidden">Demo stoppen</span>
+            <span className="sm:hidden">Stoppen</span>
+          </span>
         </Button>
       </div>
     </div>

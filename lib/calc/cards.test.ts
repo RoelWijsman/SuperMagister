@@ -98,9 +98,33 @@ describe("computeCards: stats", () => {
 });
 
 describe("computeCards: varianten", () => {
-  it("geeft een comeback, record en In Form na een onvoldoende", () => {
-    expect(card(2).variants).toEqual(["inform", "record", "comeback"]);
-    expect(card(2).primaryVariant).toBe("inform");
+  it("geeft een comeback en record na een onvoldoende", () => {
+    // 7,0 ligt 1,5 boven het gemiddelde ervoor, maar hoort niet bij je beste 10%: geen In Form.
+    expect(card(2).variants).toEqual(["record", "comeback"]);
+    expect(card(2).primaryVariant).toBe("record");
+  });
+
+  it("In Form alleen bij je beste 10% kaarten én minstens 1 punt boven het gemiddelde", () => {
+    // 9,0 is je beste cijfer en ligt ruim boven het gemiddelde ervoor.
+    expect(card(4).variants).toContain("inform");
+    expect(card(4).primaryVariant).toBe("inform");
+    // 8,5 ligt ook ruim boven het gemiddelde, maar 9,0 is beter (top 10% van 5 = alleen de beste).
+    expect(card(3).variants).not.toContain("inform");
+  });
+
+  it("maakt In Form zeldzaam: hooguit een op de tien kaarten", () => {
+    // Vijf vakken met elk een stijgende reeks: bijna elk cijfer ligt 1 punt boven het gemiddelde.
+    const grades = ["wi", "ne", "en", "gs", "bi"].flatMap((vak, v) =>
+      [5, 6.2, 7.4, 8.6, 9.6 - v * 0.1].map((value, i) => g(vak, value, 1, `2026-09-0${i + 1}`)),
+    );
+    const all = [...computeCards(grades).values()];
+    const inform = all.filter((c) => c.variants.includes("inform"));
+    expect(inform.length).toBeGreaterThan(0);
+    expect(inform.length).toBeLessThanOrEqual(Math.ceil(all.length * 0.1));
+    // De In Form-kaarten zijn de hoogste cijfers.
+    const lowest = Math.min(...inform.map((c) => c.rating!));
+    const better = all.filter((c) => c.rating! > lowest && !c.variants.includes("inform"));
+    expect(better).toEqual([]);
   });
 
   it("geeft een reeks bij de derde voldoende op rij", () => {

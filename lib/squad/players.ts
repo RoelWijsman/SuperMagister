@@ -1,6 +1,7 @@
 import type { CardTier } from "@/lib/calc/tiers";
 import { normalizeText } from "@/lib/search/fuzzy";
 import { matchSubjectInfo } from "@/lib/subjects/catalog";
+import { shortSubjectName } from "@/lib/subjects/short";
 import type { SubjectGroup, TextGradeValue } from "@/lib/types";
 import type { Line } from "./formations";
 
@@ -10,9 +11,10 @@ import type { Line } from "./formations";
  * natuurlijke linie.
  *
  * Een beoordeling (V, G, …) heeft geen cijfer, maar LO krijgt op bijna elke
- * school alleen V's en G's, en zonder LO heb je geen keeper. Daarom tellen
- * beoordelingen in het elftal met een vaste rating (op de kaart blijft "G"
- * staan). Vrijstelling, inhalen en "niet beoordeeld" spelen niet mee.
+ * school alleen V's en G's, en zonder LO heb je geen keeper. Daarom spelen
+ * beoordelingen mee met een vaste, zichtbare rating: een G is in het elftal
+ * overal 80, ook op het kaartje ("80" met een klein "G" erbij). Vrijstelling,
+ * inhalen en "niet beoordeeld" spelen niet mee.
  */
 
 /** Rating in het elftal voor een beoordeling. */
@@ -99,10 +101,14 @@ export interface SquadPlayer {
   id: string;
   vak: string;
   subjectName: string;
+  /** Korte naam voor op het kaartje: "Wis A", "LO". */
+  shortName: string;
   group: SubjectGroup;
   natural: NaturalLine;
-  /** Cijfer × 10. */
+  /** Cijfer × 10, of de vaste rating van een beoordeling. */
   rating: number;
+  /** De beoordeling (V, G, …) als de rating vast is; null bij een cijfer. */
+  judged: TextGradeValue | null;
   tier: CardTier;
   isIcon: boolean;
   /** Schooljaar en periode samen; null als onbekend. */
@@ -140,12 +146,19 @@ export function toSquadPlayer(
     id: card.id,
     vak,
     subjectName: card.subjectName,
+    shortName: shortSubjectName(card.subjectName, card.subjectCode),
     group,
     natural: lineOverrides[vak] ?? GROUP_LINE[group],
     rating,
+    judged: card.rating === null && card.grade.kind === "text" ? card.grade.value : null,
     tier: card.tier,
     isIcon: card.tier === "icon",
     period: card.grade.periodId ? `${card.periodName ?? ""}|${card.grade.periodId}` : null,
     testKind: testKindOf(card.grade.description),
   };
+}
+
+/** "G telt als 80" bij een beoordeling, anders null. */
+export function ratingNote(player: Pick<SquadPlayer, "judged" | "rating">): string | null {
+  return player.judged ? `${player.judged} telt als ${player.rating}` : null;
 }

@@ -11,37 +11,28 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import {
-  ArrowLeftRight,
-  ChevronDown,
-  CircleHelp,
-  Clapperboard,
-  Crown,
-  Eraser,
-  Share2,
-  Trophy,
-  Undo2,
-  Wand2,
-  X,
-} from "lucide-react";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { Armchair, ArrowLeftRight, Crown, Replace, Sparkles, Wand2, X } from "lucide-react";
+import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Sheet } from "@/components/ui/Sheet";
+import type { CopyKey } from "@/content/copy";
 import { useMediaQuery } from "@/lib/hooks";
-import { notify } from "@/lib/notify";
 import { track } from "@/lib/stats/client";
 import type { BuildResult } from "@/lib/squad/build";
+import { inPosition, type SquadEvaluation } from "@/lib/squad/chemistry";
+import { FORMATIONS, LINE_LABELS, POSITION_NAMES, type FormationId } from "@/lib/squad/formations";
 import {
-  FORMATION_IDS,
-  LINE_LABELS,
-  POSITION_NAMES,
-  type FormationId,
-} from "@/lib/squad/formations";
-import { cardAt, parseSpotKey, sameSpot, spotKey, type Spot } from "@/lib/squad/lineup";
-import { NATURAL_LINE_LABELS } from "@/lib/squad/players";
-import { bestEmptySpot } from "@/lib/squad/suggest";
+  cardAt,
+  parseSpotKey,
+  sameSpot,
+  spotKey,
+  type FieldConflict,
+  type Spot,
+} from "@/lib/squad/lineup";
+import { bestEmptySpot, type MoveAdvice, type MoveEffect } from "@/lib/squad/suggest";
+import { cn } from "@/lib/cn";
 import { useCopy, useCopyParts } from "@/lib/use-copy";
 import { toast } from "@/stores/toast";
 import type { SavedSquad } from "@/stores/squad";
@@ -53,10 +44,9 @@ import { MatchSheet } from "./MatchSheet";
 import { Pitch } from "./Pitch";
 import { SquadCard } from "./SquadCard";
 import { SquadShareSheet } from "./SquadShareSheet";
-import { SquadHeader, SquadsBar } from "./SquadHeader";
+import { SquadStats, SquadToolbar } from "./SquadHeader";
+import { usePitchSize } from "./usePitchSize";
 import { useSquad, type SquadApi } from "./useSquad";
-
-const FORMATION_KEY = "elftal-formatie";
 
 function spotName(api: SquadApi, spot: Spot): string {
   if (spot.kind === "bank") return `bank ${spot.index + 1}`;
@@ -64,9 +54,78 @@ function spotName(api: SquadApi, spot: Spot): string {
   return slot ? POSITION_NAMES[slot.position].toLowerCase() : "plek";
 }
 
-/** De analyse: sterkste linie, zwakste plek en een tip, in de toon van de app. */
-function Analysis({ api }: { api: SquadApi }) {
-  const { strongest, weakest, tip } = api.analysis;
+const signed = (value: number) => (value > 0 ? `+${value}` : `−${Math.abs(value)}`);
+
+/** "+4 chemie, −1 rating", alleen wat verandert. */
+function effectLabel(effect: MoveEffect): string {
+  return [
+    effect.chemistry ? `${signed(effect.chemistry)} chemie` : null,
+    effect.rating ? `${signed(effect.rating)} rating` : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+/** Wie er uit positie staat, en in welke linie. */
+function outOfPosition(evaluation: SquadEvaluation): string[] {
+  return evaluation.slots
+    .filter((s) => s.player && !inPosition(s.fit))
+    .map((s) => `${s.player!.subjectName} (${LINE_LABELS[s.line].toLowerCase()})`);
+}
+
+/** De tekst van een tip-zet: welke sleutel en welke vakken. */
+function moveCopy(api: SquadApi, advice: MoveAdvice): { key: CopyKey; vak: string; vak2: string } {
+  const name = (id: string | null | undefined) =>
+    (id ? api.players.get(id)?.subjectName : null) ?? "een lege plek";
+  const { move } = advice;
+  if (move.kind === "wissel")
+    return {
+      key: "elftal.tip.wissel",
+      vak: name(api.lineup.slots[move.a]),
+      vak2: name(api.lineup.slots[move.b]),
+    };
+  const keeper =
+    FORMATIONS[api.lineup.formation].slots.find((s) => s.id === move.slot)?.position === "K";
+  return {
+    key: keeper ? "elftal.tip.keeper" : "elftal.tip.vervang",
+    vak: name(move.cardId),
+    vak2: name(move.replaces),
+  };
+}
+
+/** De tip: een zet die echt kan en echt beter is, met een knop om hem te doen. */
+function Tip({ api, onApply }: { api: SquadApi; onApply: (advice: MoveAdvice) => void }) {
+  const { tip } = api.analysis;
+  const move = tip.kind === "zet" ? moveCopy(api, tip.advice) : null;
+  const key: CopyKey = move ? move.key : `elftal.tip.${tip.kind as "leeg" | "aanvoerder" | "top"}`;
+  const text = useCopy(key, {
+    aantal: tip.kind === "leeg" ? (tip.open === 1 ? "1 plek" : `${tip.open} plekken`) : "",
+    vak: move?.vak ?? "",
+    vak2: move?.vak2 ?? "",
+  });
+  if (!text) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <p className="min-w-0 flex-1 basis-48 text-sm text-ink-2">
+        {text}
+        {tip.kind === "zet" && (
+          <span className="ml-1 font-semibold whitespace-nowrap text-good">
+            ({effectLabel(tip.advice.effect)})
+          </span>
+        )}
+      </p>
+      {tip.kind === "zet" && (
+        <Button size="sm" variant="glass" icon={Sparkles} onClick={() => onApply(tip.advice)}>
+          Doen
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/** De analyse: sterkste en zwakste linie, en de tip. */
+function Analysis({ api, onApply }: { api: SquadApi; onApply: (advice: MoveAdvice) => void }) {
+  const { strongest, weakest } = api.analysis;
   const strong = useCopy(strongest ? "elftal.sterk" : null, {
     linie: strongest ? LINE_LABELS[strongest.line].toLowerCase() : "",
     vak: strongest?.subject ?? "",
@@ -75,28 +134,18 @@ function Analysis({ api }: { api: SquadApi }) {
     linie: weakest ? LINE_LABELS[weakest.line].toLowerCase() : "",
     vak: weakest?.subject ?? "",
   });
-  const tipText = useCopy(`elftal.tip.${tip.kind}`, {
-    aantal: tip.kind === "leeg" ? String(tip.open) : tip.kind === "chemie" ? String(tip.red) : "",
-    vak: tip.kind === "positie" ? tip.subject : "",
-    linie:
-      tip.kind === "positie"
-        ? tip.natural === "flexibel"
-          ? "het veld"
-          : NATURAL_LINE_LABELS[tip.natural].toLowerCase()
-        : "",
-  });
-  const rows: [string, string | null][] = [
-    ["Sterkst", strong],
-    ["Zwakst", weak],
-    ["Tip", tipText],
-  ];
   return (
     <GlassPanel as="section" aria-labelledby="analyse-titel" padding="md">
       <h3 id="analyse-titel" className="mb-2 font-display font-semibold text-ink">
         Analyse
       </h3>
       <dl className="space-y-2 text-sm">
-        {rows.map(([label, text]) =>
+        {(
+          [
+            ["Sterkst", strong],
+            ["Zwakst", weak],
+          ] as const
+        ).map(([label, text]) =>
           text ? (
             <div key={label} className="grid grid-cols-[4.5rem_1fr] gap-2">
               <dt className="font-semibold text-ink-3">{label}</dt>
@@ -104,79 +153,142 @@ function Analysis({ api }: { api: SquadApi }) {
             </div>
           ) : null,
         )}
+        <div className="grid grid-cols-[4.5rem_1fr] gap-2">
+          <dt className="pt-0.5 font-semibold text-ink-3">Tip</dt>
+          <dd>
+            <Tip api={api} onApply={onApply} />
+          </dd>
+        </div>
       </dl>
     </GlassPanel>
   );
 }
 
-/** Wat "Bouw beste elftal" afwoog. */
-function BuildNote({
-  result,
-  onFormation,
+type Note =
+  | { kind: "gebouwd"; result: BuildResult }
+  | { kind: "formatie"; formation: FormationId; before: number };
+
+/** Wat er net gebeurde: het beste elftal, of een nieuwe formatie. Met een vervolgknop. */
+function NoteCard({
+  note,
+  api,
+  bare = false,
+  onBuild,
   onClose,
 }: {
-  result: BuildResult;
-  onFormation: (formation: FormationId) => void;
+  note: Note;
+  api: SquadApi;
+  /** Zonder eigen paneel (in het paneel met de statistieken). */
+  bare?: boolean;
+  onBuild: (formation: FormationId) => void;
   onClose: () => void;
 }) {
-  const { evaluation, ratingOnly, betterFormation } = result;
-  const givenUp = ratingOnly.rating - evaluation.rating;
-  const gained = evaluation.chemistry - ratingOnly.chemistry;
-  return (
-    <GlassPanel padding="md" className="relative text-sm text-ink-2">
+  const built = note.kind === "gebouwd" ? note.result : null;
+  const title = useCopy(built ? "elftal.gebouwd" : null, {
+    cijfer: String(built?.evaluation.rating ?? ""),
+    aantal: String(built?.evaluation.chemistry ?? ""),
+  });
+  const out = outOfPosition(api.evaluation);
+  const outText =
+    out.length > 0
+      ? `${out.join(" en ")} ${out.length === 1 ? "staat" : "staan"} uit positie: met deze kaarten past het niet anders.`
+      : null;
+
+  let body: ReactNode;
+  if (note.kind === "gebouwd") {
+    const { evaluation, ratingOnly, betterFormation } = note.result;
+    const givenUp = ratingOnly.rating - evaluation.rating;
+    const gained = evaluation.chemistry - ratingOnly.chemistry;
+    body = (
+      <>
+        <p>
+          {givenUp > 0 && gained > 0
+            ? `${gained} chemie erbij voor ${givenUp} rating, vergeleken met alleen de hoogste ratings.`
+            : gained > 0
+              ? `${gained} chemie erbij, zonder rating in te leveren.`
+              : "Rating en chemie wezen hier dezelfde kant op."}
+        </p>
+        {outText && <p className="mt-1.5">{outText}</p>}
+        {betterFormation && (
+          <p className="mt-2">
+            In {betterFormation.formation} kom je op rating{" "}
+            <span className="sensitive">{betterFormation.rating}</span> en chemie{" "}
+            {betterFormation.chemistry}.{" "}
+            <button
+              type="button"
+              onClick={() => onBuild(betterFormation.formation)}
+              className="font-semibold text-accent-ink underline-offset-2 hover:underline"
+            >
+              Probeer {betterFormation.formation}
+            </button>
+          </p>
+        )}
+      </>
+    );
+  } else {
+    const now = api.evaluation.chemistry;
+    body = (
+      <>
+        <p>
+          Dezelfde elf, ieder in zijn eigen linie waar het kan. Chemie {note.before} → {now}.
+        </p>
+        {outText && <p className="mt-1.5">{outText}</p>}
+        <Button
+          size="sm"
+          variant="glass"
+          icon={Wand2}
+          className="mt-2.5"
+          onClick={() => onBuild(api.lineup.formation)}
+        >
+          Opnieuw beste elftal voor {api.lineup.formation}
+        </Button>
+      </>
+    );
+  }
+
+  const content = (
+    <>
       <button
         type="button"
         onClick={onClose}
         aria-label="Sluiten"
-        className="absolute top-2 right-2 rounded-full p-1.5 text-ink-3 hover:text-ink"
+        className={cn(
+          "absolute rounded-full p-1.5 text-ink-3 hover:text-ink",
+          bare ? "-top-1.5 -right-1.5" : "top-2 right-2",
+        )}
       >
         <X size={16} aria-hidden />
       </button>
-      <p className="pr-6 font-semibold text-ink">Zo is er gekozen</p>
-      <p className="mt-1">
-        Rating <span className="sensitive">{evaluation.rating}</span>, chemie {evaluation.chemistry}
-        . Alleen op de hoogste ratings was het rating{" "}
-        <span className="sensitive">{ratingOnly.rating}</span>, chemie {ratingOnly.chemistry}.{" "}
-        {givenUp > 0 && gained > 0
-          ? `Je levert ${givenUp} rating in voor ${gained} chemie: één ratingpunt telt als vier punten chemie.`
-          : gained > 0
-            ? `${gained} chemie erbij, zonder rating in te leveren.`
-            : "Rating en chemie wezen hier dezelfde kant op."}
+      <p className="pr-7 font-semibold text-ink">
+        {note.kind === "gebouwd" ? title : `Formatie ${note.formation}`}
       </p>
-      {betterFormation && (
-        <p className="mt-2">
-          In {betterFormation.formation} kom je op rating{" "}
-          <span className="sensitive">{betterFormation.rating}</span> en chemie{" "}
-          {betterFormation.chemistry}.{" "}
-          <button
-            type="button"
-            onClick={() => onFormation(betterFormation.formation)}
-            className="font-semibold text-accent-ink underline-offset-2 hover:underline"
-          >
-            Probeer {betterFormation.formation}
-          </button>
-        </p>
-      )}
+      <div className="mt-1">{body}</div>
+    </>
+  );
+  return bare ? (
+    <div className="relative mt-3 border-t border-line pt-3 text-sm text-ink-2" role="status">
+      {content}
+    </div>
+  ) : (
+    <GlassPanel padding="md" className="relative text-sm text-ink-2" role="status">
+      {content}
     </GlassPanel>
   );
 }
 
 function RenameSheet({
   squad,
-  canRemove,
   onClose,
   onRename,
-  onRemove,
 }: {
   squad: SavedSquad | null;
-  canRemove: boolean;
   onClose: () => void;
   onRename: (name: string) => void;
-  onRemove: () => void;
 }) {
   const [name, setName] = useState(squad?.name ?? "");
+  const id = useId();
   return (
-    <Sheet open={squad !== null} onClose={onClose} title="Elftal hernoemen" size="sm">
+    <Sheet open={squad !== null} onClose={onClose} title="Naam van deze opstelling" size="sm">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -185,53 +297,63 @@ function RenameSheet({
         }}
         className="space-y-4"
       >
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-ink">Naam</span>
+        <div>
+          <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-ink">
+            Naam
+          </label>
           <input
+            id={id}
             value={name}
             maxLength={24}
             onChange={(event) => setName(event.target.value)}
             placeholder="Bijv. Chaos XI"
             className="h-11 w-full rounded-xl border border-line-strong bg-glass-strong px-3.5 text-ink outline-none focus-visible:ring-2 focus-visible:ring-[var(--sm-accent)]"
           />
-        </label>
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" variant="primary" className="flex-1">
-            Opslaan
-          </Button>
-          {canRemove && (
-            <Button
-              variant="ghost"
-              onClick={() => {
-                onRemove();
-                onClose();
-              }}
-            >
-              Verwijderen
-            </Button>
-          )}
         </div>
+        <Button type="submit" variant="primary" className="w-full">
+          Opslaan
+        </Button>
       </form>
     </Sheet>
   );
 }
 
-function ActionButton({
-  icon,
-  children,
-  onClick,
-  primary = false,
-}: {
-  icon: typeof Wand2;
-  children: ReactNode;
-  onClick: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <Button variant={primary ? "primary" : "glass"} size="sm" icon={icon} onClick={onClick}>
-      {children}
-    </Button>
-  );
+/** Pijltjes: naar de dichtstbijzijnde plek in die richting (veld en bank). */
+function moveFocus(event: KeyboardEvent<HTMLDivElement>) {
+  const directions: Record<string, [number, number]> = {
+    ArrowUp: [0, -1],
+    ArrowDown: [0, 1],
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
+  };
+  const direction = directions[event.key];
+  const current = (event.target as HTMLElement).closest<HTMLElement>("[data-spot]");
+  if (!direction || !current) return;
+  const center = (el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  };
+  const from = center(current);
+  let best: HTMLElement | null = null;
+  let bestScore = Infinity;
+  for (const el of event.currentTarget.querySelectorAll<HTMLElement>("[data-spot]")) {
+    if (el === current) continue;
+    const to = center(el);
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const along = dx * direction[0] + dy * direction[1];
+    if (along <= 4) continue;
+    const across = Math.abs(dx * direction[1]) + Math.abs(dy * direction[0]);
+    const score = along + across * 2;
+    if (score < bestScore) {
+      bestScore = score;
+      best = el;
+    }
+  }
+  if (best) {
+    event.preventDefault();
+    best.focus();
+  }
 }
 
 /** Jouw Elftal: de squad builder van de collectie. */
@@ -241,11 +363,14 @@ export function SquadView() {
   const mouse = useMediaQuery("(pointer: fine)");
   const dndId = useId();
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 6 } }));
+  // Vanaf een tablet past het hele veld in de hoogte van het scherm; op een telefoon is het zo breed als de pagina.
+  const fitHeight = useMediaQuery("(min-width: 640px)");
+  const { ref: pitchRef, size: pitchSize, cardWidth } = usePitchSize(fitHeight);
 
   const [selected, setSelected] = useState<Spot | null>(null);
   const [picker, setPicker] = useState<Spot | null>(null);
   const [dragging, setDragging] = useState<{ key: string; cardId: string } | null>(null);
-  const [built, setBuilt] = useState<BuildResult | null>(null);
+  const [note, setNote] = useState<Note | null>(null);
   const [help, setHelp] = useState(false);
   const [clubOpen, setClubOpen] = useState(false);
   const [renaming, setRenaming] = useState<SavedSquad | null>(null);
@@ -270,7 +395,7 @@ export function SquadView() {
   // Escape: selectie weg.
   useEffect(() => {
     if (!selected) return;
-    const onKey = (event: KeyboardEvent) => {
+    const onKey = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") setSelected(null);
     };
     window.addEventListener("keydown", onKey);
@@ -278,33 +403,56 @@ export function SquadView() {
   }, [selected]);
 
   const nameOf = (cardId: string | null) =>
-    cardId ? (api.cardById(cardId)?.subjectName ?? "Kaart") : "Lege plek";
+    cardId ? (api.players.get(cardId)?.subjectName ?? "Kaart") : "Lege plek";
+  const positionOf = (slot: string) =>
+    FORMATIONS[lineup.formation].slots.find((s) => s.id === slot)?.position ?? "het veld";
+
+  /** Een zet die niet mag: zeg waarom, en wat wel kan. */
+  const refuse = (conflict: FieldConflict) => {
+    const vak = nameOf(conflict.cardId);
+    const where = positionOf(conflict.slot);
+    toast({
+      tone: "warning",
+      emoji: "✋",
+      title: `${vak} staat al op ${where}`,
+      description: "Eén kaart per vak op het veld. Wissel met die kaart, of kies een ander vak.",
+    });
+    setAnnouncement(`Kan niet: ${vak} staat al op het veld.`);
+  };
+
+  const changed = () => setNote(null);
 
   const placeAt = (spot: Spot, cardId: string) => {
-    api.place(spot, cardId);
-    setBuilt(null);
+    const conflict = api.place(spot, cardId);
+    if (conflict) return refuse(conflict);
+    changed();
     setAnnouncement(`${nameOf(cardId)} op ${spotName(api, spot)} gezet.`);
   };
 
-  /** Tikken op een plek: kiezen, selecteren of wisselen. */
+  const swap = (a: Spot, b: Spot) => {
+    const first = cardAt(lineup, a);
+    const second = cardAt(lineup, b);
+    const conflict = api.swap(a, b);
+    if (conflict) return refuse(conflict);
+    changed();
+    setAnnouncement(`${nameOf(first)} en ${nameOf(second)} gewisseld.`);
+  };
+
+  /** Tikken (of Enter) op een plek: kiezen, selecteren of wisselen. */
   const activate = (spot: Spot) => {
     if (selected) {
       if (sameSpot(selected, spot)) {
         setSelected(null);
         return;
       }
-      api.swap(selected, spot);
-      setBuilt(null);
-      setAnnouncement(
-        `${nameOf(cardAt(lineup, selected))} en ${nameOf(cardAt(lineup, spot))} gewisseld.`,
-      );
+      swap(selected, spot);
       setSelected(null);
       return;
     }
     if (cardAt(lineup, spot)) {
       setSelected(spot);
       setAnnouncement(
-        `${nameOf(cardAt(lineup, spot))} geselecteerd. Tik op een andere plek om te wisselen, of kies hieronder.`,
+        `${nameOf(cardAt(lineup, spot))} gekozen. Kies een andere plek om te wisselen, of kies hieronder wat je wilt doen.`,
       );
     } else setPicker(spot);
   };
@@ -313,11 +461,11 @@ export function SquadView() {
   const pickFromList = (cardId: string) => {
     const player = api.players.get(cardId);
     if (!player) return;
-    const target = selected ?? bestEmptySpot(lineup, player);
+    const target = selected ?? bestEmptySpot(lineup, player, api.vakOf);
     if (!target) {
       toast({
         title: "Alles vol",
-        description: "Tik eerst op een plek om hem te vervangen.",
+        description: "Kies eerst een plek om te vervangen.",
         emoji: "🧤",
       });
       return;
@@ -345,17 +493,14 @@ export function SquadView() {
       if (fromSpot) {
         setAnnouncement(`${nameOf(cardAt(lineup, fromSpot))} uit je elftal gehaald.`);
         api.remove(fromSpot);
-        setBuilt(null);
+        changed();
       }
       return;
     }
     const target = parseSpotKey(String(over.id));
     if (!target) return;
-    if (fromSpot) {
-      api.swap(fromSpot, target);
-      setBuilt(null);
-      setAnnouncement(`${nameOf(cardAt(lineup, fromSpot))} naar ${spotName(api, target)}.`);
-    } else if (cardId) placeAt(target, cardId);
+    if (fromSpot) swap(fromSpot, target);
+    else if (cardId) placeAt(target, cardId);
   };
 
   const announcements: Announcements = {
@@ -375,19 +520,19 @@ export function SquadView() {
     onDragCancel: () => "Slepen afgebroken.",
   };
 
-  const build = () => {
-    const result = api.build();
+  const build = (formation?: FormationId) => {
+    const result = api.build(formation);
     track("elftal-gebouwd");
-    setBuilt(result);
+    setNote({ kind: "gebouwd", result });
     setSelected(null);
-    notify(
-      "elftal.gebouwd",
-      {
-        cijfer: String(result.evaluation.rating),
-        aantal: String(result.evaluation.chemistry),
-      },
-      { emoji: "🪄" },
+    setAnnouncement(
+      `Beste elftal staat: rating ${result.evaluation.rating}, chemie ${result.evaluation.chemistry}.`,
     );
+  };
+
+  const applyTip = (advice: MoveAdvice) => {
+    api.apply(advice.next);
+    setAnnouncement(`Gedaan: ${effectLabel(advice.effect)}.`);
   };
 
   if (api.isLoading) return null;
@@ -402,6 +547,135 @@ export function SquadView() {
 
   const selectedCard = selected ? cardAt(lineup, selected) : null;
   const pickerName = picker ? spotName(api, picker) : "";
+  const activeSquad = api.squads.find((s) => s.id === api.activeId) ?? null;
+  const dragCard = dragging ? api.cardById(dragging.cardId) : null;
+
+  /** Wat je met een gekozen kaart kunt doen. Op een computer staat "kiezen" al in de lijst ernaast. */
+  const selectionButtons = (withReplace: boolean) =>
+    selected && (
+      <>
+        {withReplace && (
+          <Button
+            size="sm"
+            variant="glass"
+            icon={Replace}
+            onClick={() => {
+              setPicker(selected);
+              setSelected(null);
+            }}
+          >
+            Vervangen
+          </Button>
+        )}
+        {selected.kind === "veld" && selectedCard && (
+          <>
+            <Button
+              size="sm"
+              variant="glass"
+              icon={Crown}
+              onClick={() => {
+                api.toggleCaptain(selectedCard);
+                setAnnouncement(
+                  lineup.captain === selectedCard
+                    ? "Aanvoerdersband weggehaald."
+                    : `${nameOf(selectedCard)} is aanvoerder.`,
+                );
+                setSelected(null);
+              }}
+            >
+              {lineup.captain === selectedCard ? "Geen aanvoerder" : "Aanvoerder"}
+            </Button>
+            {api.canBench(selected) && (
+              <Button
+                size="sm"
+                variant="glass"
+                icon={Armchair}
+                onClick={() => {
+                  const incoming = api.toBench(selected);
+                  if (incoming !== false) {
+                    setAnnouncement(
+                      incoming
+                        ? `${nameOf(selectedCard)} naar de bank, ${nameOf(incoming)} erin.`
+                        : `${nameOf(selectedCard)} naar de bank.`,
+                    );
+                    changed();
+                  }
+                  setSelected(null);
+                }}
+              >
+                Naar bank
+              </Button>
+            )}
+          </>
+        )}
+        <Button
+          size="sm"
+          variant="ghost"
+          icon={X}
+          onClick={() => {
+            api.remove(selected);
+            setAnnouncement(`${nameOf(selectedCard)} uit je elftal gehaald.`);
+            setSelected(null);
+            changed();
+          }}
+        >
+          Haal weg
+        </Button>
+      </>
+    );
+
+  const toolbar = (
+    <SquadToolbar
+      club={api.club}
+      squads={api.squads}
+      activeId={api.activeId}
+      formation={lineup.formation}
+      actions={{
+        onClub: () => setClubOpen(true),
+        onSelectSquad: (id) => {
+          api.setActive(id);
+          setSelected(null);
+          setNote(null);
+        },
+        onAddSquad: (copy) => {
+          api.addSquad(copy);
+          setNote(null);
+        },
+        onRenameSquad: () => setRenaming(activeSquad),
+        onRemoveSquad: () => {
+          if (activeSquad) api.removeSquad(activeSquad.id);
+          setNote(null);
+        },
+        onFormation: (formation) => {
+          const before = evaluation.chemistry;
+          api.setFormation(formation);
+          setSelected(null);
+          setNote({ kind: "formatie", formation, before });
+        },
+        onBuild: () => build(),
+        onMatch: () => setMatch(true),
+        onShare: setShare,
+        onHelp: () => setHelp(true),
+        onClear: () => {
+          api.clear();
+          setSelected(null);
+          setNote(null);
+          setAnnouncement("Elftal leeggemaakt.");
+        },
+      }}
+    />
+  );
+
+  const noteCard = (bare: boolean) =>
+    note && (
+      <NoteCard
+        note={note}
+        api={api}
+        bare={bare}
+        onBuild={(formation) => build(formation)}
+        onClose={() => setNote(null)}
+      />
+    );
 
   return (
     <DndContext
@@ -415,7 +689,7 @@ export function SquadView() {
         announcements,
         screenReaderInstructions: {
           draggable:
-            "Sleep met de muis naar een plek. Met het toetsenbord: druk op Enter op een plek om een kaart te kiezen of te wisselen.",
+            "Sleep met de muis naar een plek. Met het toetsenbord: pijltjes om tussen plekken te gaan, Enter om een kaart te kiezen of te wisselen.",
         },
       }}
     >
@@ -423,191 +697,121 @@ export function SquadView() {
         {announcement}
       </p>
       <div className="space-y-4">
-        <GlassPanel padding="md" className="space-y-4">
-          <SquadHeader evaluation={evaluation} club={api.club} onClub={() => setClubOpen(true)} />
-          <div className="flex flex-wrap items-center gap-2">
-            <SquadsBar
-              squads={api.squads}
-              activeId={api.activeId}
-              onSelect={(id) => {
-                api.setActive(id);
-                setSelected(null);
-                setBuilt(null);
-              }}
-              onAdd={() => api.addSquad(false)}
-              onEdit={setRenaming}
-            />
-            <label className="relative ml-auto">
-              <span className="sr-only">Formatie</span>
-              <select
-                id={FORMATION_KEY}
-                value={lineup.formation}
-                onChange={(event) => {
-                  api.setFormation(event.target.value as FormationId);
-                  setSelected(null);
-                  setBuilt(null);
-                }}
-                className="h-9 cursor-pointer appearance-none rounded-full glass pr-8 pl-3.5 font-card text-lg tracking-wider text-ink outline-offset-2"
-              >
-                {FORMATION_IDS.map((id) => (
-                  <option key={id} value={id}>
-                    {id}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={15}
-                aria-hidden
-                className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-ink-3"
-              />
-            </label>
-          </div>
-          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible [&>*]:shrink-0">
-            <ActionButton icon={Wand2} primary onClick={build}>
-              Bouw beste elftal
-            </ActionButton>
-            <ActionButton
-              icon={Eraser}
-              onClick={() => {
-                api.clear();
-                setSelected(null);
-                setBuilt(null);
-                setAnnouncement("Elftal leeggemaakt.");
-              }}
-            >
-              Leegmaken
-            </ActionButton>
-            <ActionButton icon={Share2} onClick={() => setShare("afbeelding")}>
-              Delen
-            </ActionButton>
-            <ActionButton icon={Clapperboard} onClick={() => setShare("video")}>
-              Video
-            </ActionButton>
-            <ActionButton icon={Trophy} onClick={() => setMatch(true)}>
-              Oefenwedstrijd
-            </ActionButton>
-            <ActionButton icon={CircleHelp} onClick={() => setHelp(true)}>
-              Hoe werkt chemie?
-            </ActionButton>
-          </div>
+        {/* Boven de rest, zodat de uitklapmenu's over het veld en de kaarten vallen. */}
+        <GlassPanel padding="sm" className="relative z-30 px-4 py-3">
+          {toolbar}
+          {!wide && (
+            <SquadStats evaluation={evaluation} className="mt-3 border-t border-line pt-3" />
+          )}
         </GlassPanel>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(300px,360px)]">
-          <div className="min-w-0 space-y-4">
-            <Pitch
-              evaluation={evaluation}
-              cardById={api.cardById}
-              selected={selected}
-              draggingKey={dragging?.key ?? null}
-              onActivate={activate}
-            />
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(300px,340px)]">
+          <div className="min-w-0 space-y-4" onKeyDown={moveFocus}>
+            <div ref={pitchRef} className="w-full">
+              {pitchSize && (
+                <Pitch
+                  evaluation={evaluation}
+                  cardById={api.cardById}
+                  size={pitchSize}
+                  cardWidth={cardWidth}
+                  selected={selected}
+                  draggingKey={dragging?.key ?? null}
+                  onActivate={activate}
+                />
+              )}
+            </div>
 
-            {selected && (
-              <GlassPanel
-                padding="sm"
-                className="sticky bottom-[calc(env(safe-area-inset-bottom)+5rem)] z-20 flex flex-wrap items-center gap-2 lg:bottom-4"
+            {selected && !wide && (
+              <div
+                role="toolbar"
+                aria-label="Wat wil je met deze kaart?"
+                className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-20 rounded-2xl border border-line-strong bg-surface p-2.5 shadow-[0_18px_44px_-14px_rgb(0_0_0/0.6)]"
               >
-                <p className="min-w-0 flex-1 px-1 text-sm text-ink-2">
+                <p className="mb-2 px-1 text-sm text-ink-2">
                   <ArrowLeftRight size={14} aria-hidden className="mr-1 inline" />
-                  {selectedCard ? nameOf(selectedCard) : spotName(api, selected)}: tik op een andere
-                  plek om te wisselen.
+                  <strong className="text-ink">{nameOf(selectedCard)}</strong>: tik op een andere
+                  plek om te wisselen, of:
                 </p>
-                <Button
-                  size="sm"
-                  variant="glass"
-                  icon={Undo2}
-                  onClick={() => {
-                    setPicker(selected);
-                    setSelected(null);
-                  }}
-                >
-                  Vervangen
-                </Button>
-                {selected.kind === "veld" && selectedCard && (
-                  <Button
-                    size="sm"
-                    variant="glass"
-                    icon={Crown}
-                    onClick={() => {
-                      api.toggleCaptain(selectedCard);
-                      setAnnouncement(
-                        lineup.captain === selectedCard
-                          ? "Aanvoerdersband weggehaald."
-                          : `${nameOf(selectedCard)} is aanvoerder.`,
-                      );
-                      setSelected(null);
-                    }}
-                  >
-                    {lineup.captain === selectedCard ? "Geen aanvoerder" : "Aanvoerder"}
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  icon={X}
-                  onClick={() => {
-                    api.remove(selected);
-                    setAnnouncement(`${nameOf(selectedCard)} uit je elftal gehaald.`);
-                    setSelected(null);
-                    setBuilt(null);
-                  }}
-                >
-                  Haal weg
-                </Button>
-              </GlassPanel>
+                <div className="flex flex-wrap gap-2">{selectionButtons(true)}</div>
+              </div>
             )}
+
+            {!wide && noteCard(false)}
 
             <GlassPanel padding="md">
               <Bench
                 bench={lineup.bench}
                 cardById={api.cardById}
+                players={api.players}
                 selected={selected}
                 draggingKey={dragging?.key ?? null}
                 onActivate={activate}
               />
             </GlassPanel>
 
-            {built && (
-              <BuildNote
-                result={built}
-                onClose={() => setBuilt(null)}
-                onFormation={(formation) => setBuilt(api.build(formation))}
-              />
-            )}
-            <Analysis api={api} />
+            <Analysis api={api} onApply={applyTip} />
           </div>
 
           {wide && (
-            <GlassPanel
-              as="aside"
-              padding="md"
-              aria-labelledby="kaarten-titel"
-              className="flex max-h-[calc(100dvh-7rem)] flex-col lg:sticky lg:top-6 lg:self-start"
+            <aside
+              className="flex flex-col gap-3"
+              style={{ height: pitchSize?.height }}
+              aria-label="Statistieken en kaarten"
             >
-              <h3 id="kaarten-titel" className="mb-1 font-display font-semibold text-ink">
-                {selected ? `Kies voor ${spotName(api, selected)}` : "Je kaarten"}
-              </h3>
-              <p className="mb-3 text-xs text-ink-3">
-                {mouse
-                  ? "Sleep naar het veld, of klik om op te stellen. Sleep terug om weg te halen."
-                  : "Tik om op te stellen."}
-              </p>
-              <CardList
-                api={api}
-                target={selected}
-                draggable={mouse}
-                onPick={pickFromList}
-                className="min-h-0 flex-1"
-              />
-            </GlassPanel>
+              <GlassPanel padding="md" className="max-h-[55%] shrink-0 overflow-y-auto">
+                <SquadStats evaluation={evaluation} stacked />
+                {/* Tijdens het kiezen krijgt de lijst de ruimte. */}
+                {!selected && noteCard(true)}
+              </GlassPanel>
+              <GlassPanel
+                padding="md"
+                aria-labelledby="kaarten-titel"
+                className="flex min-h-0 flex-1 flex-col"
+              >
+                <h3 id="kaarten-titel" className="mb-1 font-display font-semibold text-ink">
+                  {selected ? `Kies voor ${spotName(api, selected)}` : "Je kaarten"}
+                </h3>
+                <p className="mb-2 text-xs text-ink-3">
+                  {selected
+                    ? "Per vak de beste kaart voor deze plek. Of klik een andere plek om te wisselen."
+                    : mouse
+                      ? "Sleep of klik om op te stellen."
+                      : "Tik om op te stellen."}
+                </p>
+                {selected && (
+                  <div
+                    role="toolbar"
+                    aria-label="Wat wil je met deze kaart?"
+                    className="mb-3 flex flex-wrap gap-1.5"
+                  >
+                    {selectionButtons(false)}
+                  </div>
+                )}
+                <CardList
+                  api={api}
+                  target={selected}
+                  draggable={mouse}
+                  onPick={pickFromList}
+                  className="min-h-0 flex-1"
+                />
+              </GlassPanel>
+            </aside>
           )}
         </div>
       </div>
 
       <DragOverlay dropAnimation={null}>
-        {dragging && api.cardById(dragging.cardId) && (
-          <div className="w-20 rotate-3 drop-shadow-[0_14px_20px_rgb(0_0_0/0.6)]">
-            <SquadCard card={api.cardById(dragging.cardId)!} chemistry={null} />
+        {dragCard && (
+          <div
+            className="rotate-3 drop-shadow-[0_14px_20px_rgb(0_0_0/0.6)]"
+            style={{ width: cardWidth || 80 }}
+          >
+            <SquadCard
+              card={dragCard}
+              player={api.players.get(dragCard.id) ?? null}
+              chemistry={null}
+              animate={false}
+            />
           </div>
         )}
       </DragOverlay>
@@ -616,7 +820,7 @@ export function SquadView() {
         open={picker !== null}
         onClose={() => setPicker(null)}
         title={`Kies voor ${pickerName}`}
-        description="Beste chemie voor deze plek bovenaan, daarna de hoogste rating."
+        description="Per vak de beste kaart voor deze plek. Plus en min is wat je rating en chemie doen."
         size="md"
       >
         {picker && (
@@ -628,7 +832,7 @@ export function SquadView() {
               placeAt(picker, cardId);
               setPicker(null);
             }}
-            className="max-h-[60dvh]"
+            className="max-h-[62dvh]"
           />
         )}
       </Sheet>
@@ -641,10 +845,8 @@ export function SquadView() {
         <RenameSheet
           key={renaming.id}
           squad={renaming}
-          canRemove={api.squads.length > 1}
           onClose={() => setRenaming(null)}
           onRename={(name) => api.renameSquad(renaming.id, name)}
-          onRemove={() => api.removeSquad(renaming.id)}
         />
       )}
       <SquadShareSheet mode={share} api={api} onClose={() => setShare(null)} />

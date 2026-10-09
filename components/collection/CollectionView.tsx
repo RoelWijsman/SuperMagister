@@ -146,22 +146,39 @@ export function CollectionView() {
   const set = <K extends keyof AlbumFilters>(key: K, value: AlbumFilters[K]) =>
     setFilters((f) => ({ ...f, [key]: value }));
 
-  const header = (
-    <>
-      <PageHeader eyebrow="Je verzamelkaarten" title="Collectie" subtitle={subtitle ?? undefined} />
-      <Tabs<CollectionTab>
-        id="collectie-tab"
-        aria-label="Onderdeel"
-        value={tab}
-        onValueChange={setTab}
-        items={[
-          { value: "album", label: "Album" },
-          { value: "elftal", label: "Elftal" },
-        ]}
-        className="mb-5"
-      />
-    </>
+  const tabs = (
+    <Tabs<CollectionTab>
+      id="collectie-tab"
+      aria-label="Onderdeel"
+      value={tab}
+      onValueChange={setTab}
+      size={tab === "elftal" ? "sm" : "md"}
+      items={[
+        { value: "album", label: "Album" },
+        { value: "elftal", label: "Elftal" },
+      ]}
+      className={tab === "elftal" ? undefined : "mb-5"}
+    />
   );
+  // Op het Elftal-tabblad een smalle kop: titel en tabbladen op één regel, zodat het veld in beeld is.
+  const header =
+    tab === "elftal" ? (
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
+          Collectie
+        </h1>
+        {tabs}
+      </div>
+    ) : (
+      <>
+        <PageHeader
+          eyebrow="Je verzamelkaarten"
+          title="Collectie"
+          subtitle={subtitle ?? undefined}
+        />
+        {tabs}
+      </>
+    );
 
   if (collection.isLoading && gradesQuery.isError && !gradesQuery.data) {
     return (
@@ -190,7 +207,7 @@ export function CollectionView() {
     <>
       {header}
 
-      {collection.pack.length > 0 && (
+      {tab === "album" && collection.pack.length > 0 && (
         <GlassPanel className="mb-5 flex flex-wrap items-center gap-4 bg-[color-mix(in_oklab,var(--sm-accent)_10%,transparent)]">
           <span className="grid size-11 place-items-center rounded-2xl bg-[linear-gradient(135deg,var(--sm-accent),var(--sm-accent-2))] text-on-accent">
             <Gift size={22} strokeWidth={2.2} aria-hidden />

@@ -39,7 +39,7 @@ function ToastItem({ toast }: { toast: Toast }) {
       onPointerEnter={() => setPaused(true)}
       onPointerLeave={() => setPaused(false)}
       className={cn(
-        "pointer-events-auto flex w-full items-start gap-3 rounded-2xl glass-strong py-3 pr-2 pl-4",
+        "pointer-events-auto flex w-full items-start gap-3 rounded-2xl border border-line-strong bg-surface py-3 pr-2 pl-4 shadow-[0_18px_44px_-14px_rgb(0_0_0/0.6)]",
         toneRing[toast.tone],
       )}
       role={toast.tone === "warning" ? "alert" : "status"}
@@ -65,7 +65,11 @@ function ToastItem({ toast }: { toast: Toast }) {
   );
 }
 
-/** Toasts: vliegen zacht in van onder en glijden opzij weg. */
+/**
+ * Toasts: vliegen zacht in van onder en glijden opzij weg. Dicht van kleur (geen
+ * glas), zodat ze leesbaar blijven boven kaarten en tekst, en na een paar
+ * seconden weg. Op mobiel net boven de navigatie, op een computer rechtsonder.
+ */
 export function Toaster() {
   const toasts = useToasts((s) => s.toasts);
   return (

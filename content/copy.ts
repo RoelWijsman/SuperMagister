@@ -1468,43 +1468,47 @@ export const COPY = {
     "Je {linie} is het sterkst. {vak} doet daar al het werk.",
     "{vak} houdt je {linie} overeind. Iemand moet het doen.",
     "Je {linie} is op orde. Bedank {vak} even.",
-    "De {linie} is je beste linie. {vak} weet ervan.",
+    "Je {linie} is je beste linie. {vak} weet ervan.",
   ],
   /** Zwakste linie, met het vak met de laagste rating daar. */
   "elftal.zwak": [
     "Je {linie} is van papier. {vak}, we kijken naar jou.",
-    "Zwakste plek: de {linie}. {vak} weet waarom.",
+    "Zwakste plek: je {linie}. {vak} weet waarom.",
     "Je {linie} lekt. {vak} heeft er geen zin in vandaag.",
-    "De {linie} wankelt. {vak} staat te kijken.",
+    "Je {linie} wankelt. {vak} staat te kijken.",
     "Je {linie} is het zwakst. {vak} heeft een herkansing nodig.",
   ],
+  /** {aantal} is "1 plek" of "3 plekken". */
   "elftal.tip.leeg": [
-    "Nog {aantal} lege plekken. Een elftal met gaten is een elftal met een probleem.",
-    "{aantal} plekken leeg. Zo speel je met minder man, en dat mag niet eens.",
-    "Er ontbreken er nog {aantal}. Tik op een lege plek en kies een kaart.",
-    "Vul de {aantal} lege plekken. Een spelersbus is geen tactiek.",
-    "Nog {aantal} plekken vrij. Het veld is groot, je kaarten ook.",
+    "Nog {aantal} leeg. Een elftal met gaten is een elftal met een probleem.",
+    "{aantal} leeg. Zo speel je met minder man, en dat mag niet eens.",
+    "Nog {aantal} te vullen. Tik erop en kies een kaart.",
+    "Nog {aantal} open. Een spelersbus is geen tactiek.",
+    "Nog {aantal} vrij. Het veld is groot, je kaarten ook.",
   ],
+  /** Tip: deze kaart op doel, in plaats van {vak2}. Alleen als dat echt beter is. */
   "elftal.tip.keeper": [
-    "Je keeper is geen keeper. Zet LO op doel: de enige die officieel mag duiken.",
-    "Er staat geen LO op doel. Een keeper zonder gymkleren, dat gaat mis.",
-    "Op doel hoort LO. Alleen die heeft ooit een bal tegengehouden.",
-    "Je doel is onbewaakt. Ja, er staat iemand. Nee, dat telt niet.",
-    "Keeper gezocht. Bij voorkeur iemand die weleens een gymles heeft gehad.",
+    "Zet {vak} op doel in plaats van {vak2}. De enige die officieel mag duiken.",
+    "{vak} hoort op doel, niet {vak2}. Gymkleren aan, handschoenen aan.",
+    "Op doel hoort {vak}. {vak2} heeft nog nooit een bal tegengehouden.",
+    "Wissel je keeper: {vak} in plaats van {vak2}. Je doel zal je dankbaar zijn.",
+    "Keeper gezocht, keeper gevonden: {vak}. {vak2} mag weer gewoon meedoen.",
   ],
-  "elftal.tip.positie": [
-    "{vak} staat verkeerd. Die hoort in de {linie}.",
-    "Zet {vak} in de {linie}. Daar voelt hij zich thuis.",
-    "{vak} speelt uit positie. Terug naar de {linie} ermee.",
-    "{vak} in de {linie} geeft meer chemie. Gewoon even schuiven.",
-    "{vak} staat er een beetje verloren bij. De {linie} is waar hij hoort.",
+  /** Tip: twee spelers op het veld wisselen van plek. */
+  "elftal.tip.wissel": [
+    "Wissel {vak} en {vak2} van plek. Ze kijken elkaar al de hele wedstrijd aan.",
+    "Laat {vak} en {vak2} even van plek ruilen. Kleine moeite.",
+    "{vak} en {vak2} staan elkaars plek in te nemen. Draai ze om.",
+    "Ruil {vak} en {vak2}. Zelfde spelers, betere opstelling.",
+    "Probeer {vak} en {vak2} andersom. Je trainer zou het ook doen.",
   ],
-  "elftal.tip.chemie": [
-    "{aantal} rode lijnen. Zet vakken uit dezelfde vakgroep naast elkaar.",
-    "Veel rood op het veld. Talen naast talen, exact naast exact.",
-    "{aantal} rode lijnen. Je elftal praat niet met elkaar.",
-    "Rode lijnen kosten chemie. Dezelfde periode of allebei een SO helpt ook.",
-    "{aantal} keer rood. Dit is geen team, dit is een groepsopdracht.",
+  /** Tip: een andere kaart (uit je kaarten of van de bank) op de plek van {vak2}. */
+  "elftal.tip.vervang": [
+    "Zet {vak} op de plek van {vak2}. Dat scheelt.",
+    "{vak} in plaats van {vak2}. Geen persoonlijke kritiek, gewoon tactiek.",
+    "Haal {vak2} eraf en zet {vak} erin. De bank went wel.",
+    "{vak2} mag even uitrusten. {vak} staat te trappelen.",
+    "Wissel {vak2} voor {vak}. Je elftal wordt er beter van, {vak2} komt er wel overheen.",
   ],
   "elftal.tip.aanvoerder": [
     "Nog geen aanvoerder. Tik op een kaart en geef hem de band.",
@@ -1537,13 +1541,47 @@ export const COPY = {
   ],
 
   // ——— Oefenwedstrijd ——————————————————————————————————————————————————
+  /** Doelpunt van ons, past bij elk vak. */
   "wedstrijd.goalOns": [
-    "{vak} loopt alleen op de keeper af… en scoort. Net als in H4.",
     "Goal. {vak} schiet hem erin. Zo gaat dat met een goede voorbereiding.",
     "{vak} kopt raak. Niemand had het verwacht, {vak} zelf ook niet.",
-    "Doelpunt van {vak}. Strak in de hoek, zoals een sommetje dat in één keer klopt.",
     "{vak} scoort. Het hele lokaal juicht. Ja, ook achterin.",
     "Wat een goal van {vak}. Voor de herhaling: dit was geen herkansing.",
+    "{vak} schiet van afstand. Raak. De keeper zoekt nog steeds de bal.",
+    "Doelpunt {vak}, na een mooie combinatie. Zo hoort samenwerken te gaan.",
+    "{vak} staat op de goede plek en tikt hem binnen. Aanwezigheid loont.",
+  ],
+  /** Doelpunt van een exact vak (wiskunde, natuurkunde, scheikunde, biologie, …). */
+  "wedstrijd.goalOns.exact": [
+    "{vak} loopt alleen op de keeper af en scoort. Netjes uitgerekend.",
+    "Doelpunt van {vak}. Strak in de hoek, als een som die in één keer klopt.",
+    "{vak} scoort. Hoek, snelheid, effect: alles klopt.",
+    "Goal van {vak}. Proefondervindelijk bewezen: die bal gaat erin.",
+    "{vak} maakt hem. Met uitwerking erbij, dus alle punten.",
+  ],
+  /** Doelpunt van een taal (Nederlands, Engels, Duits, Frans, …). */
+  "wedstrijd.goalOns.talen": [
+    "{vak} scoort. Grammaticaal ook nog helemaal in orde.",
+    "Goal van {vak}. Geen spelfout in die afronding.",
+    "Doelpunt {vak}. De keeper begreep de vraag niet.",
+    "{vak} schiet raak en vat het daarna samen in één zin.",
+    "{vak} maakt hem. Woordjes leren is één ding, dit is iets anders.",
+  ],
+  /** Doelpunt van een mens- en maatschappijvak (geschiedenis, aardrijkskunde, economie, …). */
+  "wedstrijd.goalOns.mensMaatschappij": [
+    "Goal van {vak}, vanuit de verdediging. De tegenstander keek de andere kant op.",
+    "{vak} scoort. Eerst het overzicht, dan de hoek.",
+    "Doelpunt van {vak}. Oorzaak en gevolg, in één beweging.",
+    "{vak} schiet raak. Dat stond in je samenvatting, als je die had gemaakt.",
+    "{vak} maakt hem. Een verdediger die scoort: daar praten ze later nog over.",
+  ],
+  /** Doelpunt van een kunstvak (tekenen, muziek, drama, CKV, …). */
+  "wedstrijd.goalOns.kunst": [
+    "{vak} scoort. Kunstzinnig verantwoord, en ook nog raak.",
+    "Goal van {vak}. Dat was geen schot, dat was een kunstwerk.",
+    "{vak} maakt hem met een omhaal. Creatief proces: geslaagd.",
+    "Doelpunt {vak}. Een tien voor uitvoering.",
+    "{vak} scoort. Mooi gedaan, en het telt ook nog.",
   ],
   "wedstrijd.goalZij": [
     "Tegendoelpunt. {tegenstander} profiteert van een slaapje. Typisch het eerste uur.",
@@ -1551,6 +1589,8 @@ export const COPY = {
     "Au. {tegenstander} maakt hem. Niemand stond op zijn plek, net als bij een brandoefening.",
     "Goal voor {tegenstander}. Je keeper keek naar zijn telefoon.",
     "{tegenstander} scoort uit een counter. Sneller dan de bel om 15:10.",
+    "{tegenstander} kopt raak uit een hoekschop. Niemand had zijn man.",
+    "Weer {tegenstander}. Je achterhoede overlegt nog wie er had moeten staan.",
   ],
   "wedstrijd.kansOns": [
     "{vak} schiet net naast. Dat was bijna een voldoende.",

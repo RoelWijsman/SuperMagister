@@ -9,6 +9,14 @@ import { cardRating, cardTier, TIER_ORDER, type CardTier } from "./tiers";
  */
 export type CardVariant = "inform" | "record" | "comeback" | "reeks";
 
+/**
+ * In Form is zeldzaam: het cijfer ligt minstens 1,0 boven je vakgemiddelde van
+ * daarvoor én hoort bij je beste 10% kaarten (minder dan 10% van je cijfers is
+ * hoger). Anders zou de helft van je album zwart-goud zijn en betekent het niks.
+ */
+export const IN_FORM_MARGIN = 1;
+export const IN_FORM_TOP_SHARE = 0.1;
+
 /** Volgorde van belangrijkheid; de eerste bepaalt de look (In Form = zwart met goud). */
 export const VARIANT_ORDER: readonly CardVariant[] = ["inform", "record", "comeback", "reeks"];
 
@@ -143,7 +151,7 @@ export function computeCards(grades: readonly Grade[]): Map<string, CardCore> {
       const nextStreak = grade.isSufficient === null ? streak : sufficient ? streak + 1 : 0;
 
       const variants: CardVariant[] = [];
-      if (numeric && avgBefore !== null && grade.value >= avgBefore + 1 - 1e-9)
+      if (numeric && avgBefore !== null && grade.value >= avgBefore + IN_FORM_MARGIN - 1e-9)
         variants.push("inform");
       if (numeric && top !== null && grade.value > top) variants.push("record");
       if (sufficient && lastSufficient === false) variants.push("comeback");
@@ -175,7 +183,29 @@ export function computeCards(grades: readonly Grade[]): Map<string, CardCore> {
       if (grade.isSufficient !== null) lastSufficient = sufficient;
     }
   }
-  return result;
+  return keepInFormRare(result);
+}
+
+/** Haalt In Form weg bij kaarten die niet bij je beste 10% horen. */
+function keepInFormRare(cards: Map<string, CardCore>): Map<string, CardCore> {
+  const values = [...cards.values()]
+    .flatMap((card) =>
+      card.grade.kind === "numeric" && countsTowardHistory(card.grade) ? [card.grade.value] : [],
+    )
+    .sort((a, b) => b - a);
+  const limit = values.length * IN_FORM_TOP_SHARE;
+  const higherThan = (value: number) => {
+    let count = 0;
+    while (count < values.length && values[count]! > value + 1e-9) count++;
+    return count;
+  };
+  for (const [id, card] of cards) {
+    if (!card.variants.includes("inform") || card.grade.kind !== "numeric") continue;
+    if (higherThan(card.grade.value) < limit) continue;
+    const variants = card.variants.filter((v) => v !== "inform");
+    cards.set(id, { ...card, variants, primaryVariant: variants[0] ?? null });
+  }
+  return cards;
 }
 
 /** Ongeveer welke rating een beoordeling (V, G, …) waard is, om packs te sorteren. */

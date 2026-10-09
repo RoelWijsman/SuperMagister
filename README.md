@@ -129,21 +129,23 @@ geanonimiseerde testbestanden.
 Op **Collectie → Elftal** (of via Ctrl/⌘ K, "elftal") zet je je onthulde kaarten in een
 opstelling, zoals de squad builder van Ultimate Team.
 
-- **Spelers zijn kaarten:** rating = cijfer × 10. Een beoordeling telt met een vaste rating (G 80,
-  V 65, …), zodat LO ook op doel kan. Hooguit één kaart per vak; kies je een tweede kaart van
-  hetzelfde vak, dan gaat de oude terug naar de lijst.
+- **Spelers zijn kaarten:** rating = cijfer × 10. Een beoordeling telt met een vaste rating die
+  ook op het kaartje staat (G = 80, V = 65, …), zodat LO ook op doel kan. Eén kaart per vak op het
+  veld; op de bank mag een reserve van hetzelfde vak.
 - **Natuurlijke posities:** exact valt aan, talen op het middenveld, Mens & Maatschappij verdedigt,
   LO staat op doel, kunst en overige vakken kunnen overal (behalve op doel). Per vak aan te
   passen bij **Instellingen → Vakken**.
 - **Chemie:** groen tussen dezelfde vakgroep, oranje bij dezelfde periode of toetssoort, anders
-  rood. Spelerschemie 0–10, teamchemie 0–100, aanvoerder +1, ICON altijd minstens oranje. Alles
-  staat ook in de app onder **Hoe werkt chemie?**.
+  rood. Uit positie is 0 chemie. Spelerschemie 0–10, teamchemie 0–100, aanvoerder +1, ICON altijd
+  minstens oranje. Alles staat ook in de app onder **Hoe werkt chemie?**.
 - **Bouwen:** op een computer sleep je kaarten van de lijst naar het veld (en terug om weg te
-  halen); overal kun je op een plek tikken om te kiezen, en op twee kaarten om te wisselen.
-  **Bouw beste elftal** zet de beste opstelling neer en laat zien wat hij afwoog.
+  halen); overal kun je op een plek tikken om te kiezen, en op twee kaarten om te wisselen. Per
+  kaart zie je wat er gebeurt (+3 chemie, −1 rating). **Bouw beste elftal** zet de beste
+  opstelling en een volle bank neer, en laat zien wat hij afwoog. De tip stelt alleen zetten voor
+  die echt kunnen en beter zijn.
 - **Bewaren en delen:** drie elftallen per account (en los voor de demo), een clubnaam met
   generator en een wapen. Delen als afbeelding of video, standaard zonder cijfers en naam.
-- **Oefenwedstrijd:** negentig minuten in tien seconden, met commentaar.
+- **Oefenwedstrijd:** negentig minuten in tien seconden, met commentaar en een samenvatting.
 
 ## Sneltoetsen
 
