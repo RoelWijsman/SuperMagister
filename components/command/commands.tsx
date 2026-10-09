@@ -11,6 +11,7 @@ import {
   Paintbrush,
   Plug,
   Shield,
+  Shirt,
   SlidersHorizontal,
   Sun,
   type LucideIcon,
@@ -201,6 +202,15 @@ export function useCommands({ page, query, close, goToPage }: Options): Command[
       keywords: ["account", "inloggen", "token"],
       icon: <IconBox icon={Plug} />,
       run: () => go("/koppelen"),
+    });
+    commands.push({
+      id: "pagina-elftal",
+      group: "Pagina's",
+      title: "Jouw Elftal",
+      subtitle: "Zet je kaarten in een opstelling, met chemie",
+      keywords: ["elftal", "opstelling", "formatie", "squad", "team", "chemie", "ultimate team"],
+      icon: <IconBox icon={Shirt} />,
+      run: () => go("/collectie?tab=elftal"),
     });
 
     if (query.trim()) {

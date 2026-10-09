@@ -143,7 +143,8 @@ export function PrivacyView() {
               gestart, er is gekoppeld (met de bladwijzer of door te plakken), een koppeling is
               verlopen of ontkoppeld, een pack of walkout is geopend of overgeslagen, er is gegokt
               (en of dat precies goed was), er is een video gemaakt (welk formaat, wel of geen
-              mysterie), de calculator is gebruikt, of de app is geïnstalleerd.
+              mysterie), de calculator is gebruikt, je elftal is geopend, gebouwd of gedeeld, er is
+              een oefenwedstrijd gespeeld, of de app is geïnstalleerd.
             </li>
             <li>
               <strong>Fouten</strong>: hoe vaak er iets misging, en wat voor soort fout (bijv. “het

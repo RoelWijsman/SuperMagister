@@ -10,7 +10,16 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
 import { useSubjectAppearance, type SubjectAppearance } from "@/lib/data/hooks";
 import { SUBJECT_ICON_NAMES } from "@/lib/subjects/icons";
+import { matchSubjectInfo } from "@/lib/subjects/catalog";
 import { SUBJECT_PALETTE } from "@/lib/subjects/palette";
+import {
+  GROUP_LABELS,
+  GROUP_LINE,
+  NATURAL_LINE_LABELS,
+  NATURAL_LINES,
+  vakKey,
+  type NaturalLine,
+} from "@/lib/squad/players";
 import { useSettings } from "@/stores/settings";
 
 function SubjectEditor({
@@ -22,6 +31,7 @@ function SubjectEditor({
 }) {
   const setColor = useSettings((s) => s.setSubjectColor);
   const setIcon = useSettings((s) => s.setSubjectIcon);
+  const setSquadLine = useSettings((s) => s.setSquadLine);
   const appearance = useSubjectAppearance();
   // Altijd de actuele versie tonen, ook direct na een wijziging.
   const live = subject ? appearance.get(subject.id) : null;
@@ -31,7 +41,7 @@ function SubjectEditor({
       open={Boolean(subject)}
       onClose={onClose}
       title={live ? live.name : "Vak"}
-      description="Kies een kleur en een icoon. Ze komen overal terug: rooster, huiswerk, cijfers en kaarten."
+      description="Kies een kleur, een icoon en een positie in je elftal. Kleur en icoon komen overal terug: rooster, huiswerk, cijfers en kaarten."
     >
       {live && (
         <>
@@ -101,6 +111,8 @@ function SubjectEditor({
             })}
           </div>
 
+          <SquadLinePicker name={live.name} code={live.code} />
+
           <Button
             variant="ghost"
             icon={RotateCcw}
@@ -108,6 +120,7 @@ function SubjectEditor({
             onClick={() => {
               setColor(live.id, null);
               setIcon(live.id, null);
+              setSquadLine(vakKey(live.name), null);
             }}
           >
             Standaard herstellen
@@ -115,6 +128,49 @@ function SubjectEditor({
         </>
       )}
     </Sheet>
+  );
+}
+
+/**
+ * Jouw Elftal: waar dit vak van nature staat. Standaard volgt het de vakgroep
+ * (exact valt aan, talen op het middenveld, …), maar scholen verschillen.
+ */
+function SquadLinePicker({ name, code }: { name: string; code: string }) {
+  const vak = vakKey(name);
+  const override = useSettings((s) => s.squadLines[vak]);
+  const setSquadLine = useSettings((s) => s.setSquadLine);
+  const group = matchSubjectInfo(code, name).group;
+  const standard = GROUP_LINE[group];
+  const current: NaturalLine = override ?? standard;
+  return (
+    <>
+      <h3 className="mt-6 mb-1 text-sm font-semibold text-ink-2">Positie in je elftal</h3>
+      <p className="mb-3 text-sm text-ink-3">
+        Standaard: {NATURAL_LINE_LABELS[standard].toLowerCase()} ({GROUP_LABELS[group]}).
+      </p>
+      <div role="radiogroup" aria-label="Positie in je elftal" className="flex flex-wrap gap-2">
+        {NATURAL_LINES.map((line) => {
+          const selected = current === line;
+          return (
+            <button
+              key={line}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => setSquadLine(vak, line === standard ? null : line)}
+              className={cn(
+                "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+                selected
+                  ? "border-transparent bg-[color-mix(in_oklab,var(--sm-accent)_24%,transparent)] text-ink shadow-[inset_0_0_0_1.5px_var(--sm-accent)]"
+                  : "border-line text-ink-2 hover:text-ink",
+              )}
+            >
+              {NATURAL_LINE_LABELS[line]}
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

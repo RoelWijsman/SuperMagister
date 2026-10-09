@@ -639,6 +639,52 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
   in de onboarding): geen meldingen meer. Het koppelscherm heeft nu een h1, de Meer-knop een
   duidelijke naam.
 
+## Jouw Elftal (9 oktober 2026)
+
+- **Plek:** een tabblad op Collectie (`?tab=elftal`, zodat de command palette ernaartoe kan),
+  naast het album. Per databron opgeslagen (`sm-elftal`): demo, echte data en eerdere jaren lopen
+  nooit door elkaar, en ontkoppelen wist de echte. Alleen kaart-id's, nooit cijfers.
+- **Spelers** (`lib/squad/players.ts`): alleen onthulde kaarten. Rating = cijfer × 10 van de kaart.
+  Afwijking: beoordelingen (V, G, …) spelen mee met een vaste rating (ZG 90, G 80, RV 72, V 65,
+  O 45); vrijstelling, inhalen en "niet beoordeeld" niet. Zonder dit had bijna niemand een keeper,
+  want LO krijgt op de meeste scholen alleen V's en G's (in de demo ook). "Geen dubbele spelers" gaat
+  op de vaknaam (`vakKey`), zodat wiskunde A van dit en vorig jaar hetzelfde vak is.
+- **Toetssoort** bestaat niet in Magister; we leiden hem af uit de omschrijving (SO, proefwerk, PO,
+  mondeling, SE, toets, …). Onbekend telt nooit als "dezelfde soort". Periode = schooljaar + periode.
+- **Formaties** (`lib/squad/formations.ts`): vijf, met posities in procenten en de lijnen per
+  formatie. Een andere formatie houdt iedereen zo goed mogelijk op zijn plek (zelfde plek, dan
+  positie, dan linie, dan wat over is); wie geen plek heeft, gaat naar de bank.
+- **Chemie** (`lib/squad/chemistry.ts`): lijnwaarde groen 10, oranje 5, rood 0, het gemiddelde over
+  de bezette buren. Spelerschemie = basis per soort plek plus een deel van dat gemiddelde:
+  natuurlijk 4 + 0,6×, flexibel 3 + 0,6× (max 9), verkeerde linie 1 + 0,4× (max 5), keeper ↔
+  veld altijd 0. Aanvoerder +1 (max 10), maar een keeper-fout blijft 0. Teamchemie = som / 110 ×
+  100; een lege plek telt als 0. Squad-rating = afgerond gemiddelde van wie er staat.
+- **Beste elftal** (`lib/squad/build.ts`): score = gemiddelde rating (lege plek = 0) + ¼ ×
+  teamchemie. Per vak de beste kaart, een eerste opstelling op natuurlijke linie en rating, dan
+  "beste wissel" (twee plekken omdraaien of iemand van de bank erin) tot het niet beter wordt.
+  Altijd dezelfde uitkomst. Ter vergelijking rekent hij ook "alleen de hoogste ratings" uit en
+  noemt hij een formatie die minstens 2 punten beter is.
+- **Bediening:** tikken werkt overal (en met het toetsenbord: elke plek is een knop): lege plek →
+  een lijst schuift omhoog, gesorteerd op chemie voor die plek en dan rating; volle plek →
+  selecteren, dan een andere plek tikken om te wisselen, of Vervangen, Aanvoerder, Haal weg.
+  Slepen alleen met de muis (dnd-kit, `MouseSensor`), zodat vegen op een telefoon gewoon scrolt.
+  Elke plek heeft een naam als "Spits, Wiskunde, rating 82, chemie 9"; dnd-kit's
+  `aria-disabled`/`aria-roledescription` halen we weg, anders klinkt een lege plek "uitgeschakeld".
+- **Veld:** CSS-gras met gemaaide banen, stadionlicht in de themakleur, lijnen als SVG. Lijnen
+  hebben naast de kleur ook een lijnsoort (doorgetrokken, gestreept, gestippeld). Kaartjes zijn
+  HTML met de kleuren en vorm van de echte kaart (`faceStyleFor`, kaartmasker); de rating vervaagt
+  in de privacymodus.
+- **Delen** (`lib/squad/render.ts`): één tekenfunctie van t, zoals de walkout. Afbeelding = eindbeeld;
+  video = kaarten vliegen één voor één op, dan de lijnen, dan tikt de rating op (±7 s), met
+  dezelfde video-engine en geluidsrecepten. Standaard zonder ratings (ook de squad-rating wordt
+  "–") en zonder naam.
+- **Oefenwedstrijd** (`lib/squad/match.ts`): sterkte = 75% rating + 25% chemie (minder als je
+  elftal niet vol is), doelpunten uit een Poisson-verdeling, scorers vaker uit de aanval.
+  Verzonnen tegenstanders, nooit echte clubs, personen of docenten. Clubnamen komen uit
+  schoolwoorden; zelf een bekende club invullen mag niet.
+- **Statistieken:** vijf nieuwe anonieme events (elftal geopend, gebouwd, gedeeld, video,
+  oefenwedstrijd), ook op het dashboard en in /privacy.
+
 ## Ontwikkelaarsdashboard en anonieme statistieken (9 oktober 2026)
 
 - **Niet vindbaar.** Het adres komt uit `DEV_DASHBOARD_PATH`; `proxy.ts` stuurt het intern door naar

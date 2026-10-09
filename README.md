@@ -24,6 +24,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | —    | Onboarding: de eerste keer openen, van intro tot je welkomstpack                       | ✅ Klaar   |
 | —    | Live: supermagister.nl op Vercel, privacy, beveiliging (v1.0.0)                        | ✅ Klaar   |
 | —    | Ontwikkelaarsdashboard en anonieme statistieken                                        | ✅ Klaar   |
+| —    | Jouw Elftal: opstelling met chemie, delen, oefenwedstrijd                              | ✅ Klaar   |
 | 6    | Gamification: XP, levels, quests, mascotte, weekrecap, Wrapped                         | Vervallen  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                      | Geparkeerd |
 | 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid     | Gepland    |
@@ -122,6 +123,27 @@ geanonimiseerde testbestanden.
   "Raad mijn cijfer.". Zonder mysterie zie je je gok rollen en daarna de flip. Kies 9:16 of 1:1,
   een sticker over je cijfer en of je naam erop staat; daarna delen of downloaden.
 - Alle soorten kaarten bekijken? Kies **Oefen een walkout** in Instellingen of via Ctrl/⌘ K.
+
+## Jouw Elftal
+
+Op **Collectie → Elftal** (of via Ctrl/⌘ K, "elftal") zet je je onthulde kaarten in een
+opstelling, zoals de squad builder van Ultimate Team.
+
+- **Spelers zijn kaarten:** rating = cijfer × 10. Een beoordeling telt met een vaste rating (G 80,
+  V 65, …), zodat LO ook op doel kan. Hooguit één kaart per vak; kies je een tweede kaart van
+  hetzelfde vak, dan gaat de oude terug naar de lijst.
+- **Natuurlijke posities:** exact valt aan, talen op het middenveld, Mens & Maatschappij verdedigt,
+  LO staat op doel, kunst en overige vakken kunnen overal (behalve op doel). Per vak aan te
+  passen bij **Instellingen → Vakken**.
+- **Chemie:** groen tussen dezelfde vakgroep, oranje bij dezelfde periode of toetssoort, anders
+  rood. Spelerschemie 0–10, teamchemie 0–100, aanvoerder +1, ICON altijd minstens oranje. Alles
+  staat ook in de app onder **Hoe werkt chemie?**.
+- **Bouwen:** op een computer sleep je kaarten van de lijst naar het veld (en terug om weg te
+  halen); overal kun je op een plek tikken om te kiezen, en op twee kaarten om te wisselen.
+  **Bouw beste elftal** zet de beste opstelling neer en laat zien wat hij afwoog.
+- **Bewaren en delen:** drie elftallen per account (en los voor de demo), een clubnaam met
+  generator en een wapen. Delen als afbeelding of video, standaard zonder cijfers en naam.
+- **Oefenwedstrijd:** negentig minuten in tien seconden, met commentaar.
 
 ## Sneltoetsen
 

@@ -8,6 +8,7 @@ import { useGuessStore } from "@/stores/guesses";
 import { useHomeworkStore } from "@/stores/homework";
 import { useReveal } from "@/stores/reveal";
 import { useScheduleTracker, useScheduleUi } from "@/stores/schedule";
+import { useSquadStore } from "@/stores/squad";
 
 /**
  * Ontkoppelen: alles van je echte Magister-account gaat van dit apparaat af.
@@ -30,6 +31,7 @@ export async function wipeMagisterData(): Promise<void> {
   useHomeworkStore.getState().forgetSources(match);
   useGradesStore.getState().forgetSources(match);
   useScheduleUi.getState().forgetSources(match);
+  useSquadStore.getState().forgetSources(match);
 
   // Wat al in het geheugen geladen is.
   if (match(useReveal.getState().sourceId ?? ""))

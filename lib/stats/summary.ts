@@ -79,6 +79,11 @@ export const FEATURE_METRICS: readonly Metric[] = [
   { id: "welkomstpack", label: "Welkomstpack geopend", fields: [e("welkomstpack-geopend")] },
   { id: "walkout-skip", label: "Walkout overgeslagen", fields: [e("walkout-overgeslagen")] },
   { id: "pwa", label: "App geïnstalleerd (PWA)", fields: [e("pwa-geinstalleerd")] },
+  { id: "elftal", label: "Elftal geopend", fields: [e("elftal-geopend")] },
+  { id: "elftal-gebouwd", label: "Beste elftal gebouwd", fields: [e("elftal-gebouwd")] },
+  { id: "elftal-delen", label: "Elftal gedeeld (afbeelding)", fields: [e("elftal-gedeeld")] },
+  { id: "elftal-video", label: "Elftal als video", fields: [e("elftal-video")] },
+  { id: "oefenwedstrijd", label: "Oefenwedstrijd gespeeld", fields: [e("oefenwedstrijd")] },
 ];
 
 export function metricValue(day: Day | undefined, metric: Metric): number {

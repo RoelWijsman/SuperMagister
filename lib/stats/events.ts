@@ -59,6 +59,11 @@ const FIXED_EVENTS = [
   "oefen-walkout",
   "pwa-geinstalleerd",
   "fout-open-meteo",
+  "elftal-geopend",
+  "elftal-gebouwd",
+  "elftal-gedeeld",
+  "elftal-video",
+  "oefenwedstrijd",
 ] as const;
 
 /** Alle events die geteld mogen worden. */

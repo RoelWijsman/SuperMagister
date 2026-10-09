@@ -2,6 +2,7 @@
 
 import { DataErrorState } from "@/components/koppelen/DataErrorState";
 import { ChevronDown, Gift, Star, X } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
 import { TIER_GLOW } from "@/components/cards/tier-style";
@@ -30,6 +31,7 @@ import { cn } from "@/lib/cn";
 import { useAccount, useGrades } from "@/lib/data/hooks";
 import { useCopy, useCopyParts } from "@/lib/use-copy";
 import { useCollectionStore } from "@/stores/collection";
+import { SquadView } from "@/components/squad/SquadView";
 import { CardViewer } from "./CardViewer";
 import { GoalsPanel } from "./GoalsPanel";
 import { ShareSheet, type ShareRequest } from "./ShareSheet";
@@ -106,8 +108,16 @@ function TierCounter({
   );
 }
 
-/** De collectie (§12): album, vitrine, verzameldoelen en folies. */
+type CollectionTab = "album" | "elftal";
+
+/** De collectie (§12): album, vitrine, verzameldoelen en folies, en Jouw Elftal. */
 export function CollectionView() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const tab: CollectionTab = params.get("tab") === "elftal" ? "elftal" : "album";
+  const setTab = (next: CollectionTab) =>
+    router.replace(next === "elftal" ? `${pathname}?tab=elftal` : pathname, { scroll: false });
   const collection = useCollection();
   const gradesQuery = useGrades();
   const account = useAccount();
@@ -137,7 +147,20 @@ export function CollectionView() {
     setFilters((f) => ({ ...f, [key]: value }));
 
   const header = (
-    <PageHeader eyebrow="Je verzamelkaarten" title="Collectie" subtitle={subtitle ?? undefined} />
+    <>
+      <PageHeader eyebrow="Je verzamelkaarten" title="Collectie" subtitle={subtitle ?? undefined} />
+      <Tabs<CollectionTab>
+        id="collectie-tab"
+        aria-label="Onderdeel"
+        value={tab}
+        onValueChange={setTab}
+        items={[
+          { value: "album", label: "Album" },
+          { value: "elftal", label: "Elftal" },
+        ]}
+        className="mb-5"
+      />
+    </>
   );
 
   if (collection.isLoading && gradesQuery.isError && !gradesQuery.data) {
@@ -182,7 +205,9 @@ export function CollectionView() {
         </GlassPanel>
       )}
 
-      {cards.length === 0 ? (
+      {tab === "elftal" ? (
+        <SquadView />
+      ) : cards.length === 0 ? (
         <GlassPanel padding="lg">
           <EmptyState illustration="kaarten" title={empty?.title ?? ""} description={empty?.body} />
         </GlassPanel>

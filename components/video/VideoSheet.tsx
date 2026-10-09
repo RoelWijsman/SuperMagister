@@ -146,7 +146,7 @@ function VideoFlow({ request, onDone }: { request: VideoRequest; onDone: () => v
     setStep({ kind: "opties" });
   };
 
-  if (step.kind === "bezig") return <Progress percent={step.percent} onCancel={cancel} />;
+  if (step.kind === "bezig") return <VideoProgress percent={step.percent} onCancel={cancel} />;
   if (step.kind === "klaar") {
     return (
       <Preview
@@ -253,7 +253,8 @@ function VideoFlow({ request, onDone }: { request: VideoRequest; onDone: () => v
   );
 }
 
-function Progress({ percent, onCancel }: { percent: number; onCancel: () => void }) {
+/** Voortgang van een video, met wisselende teksten (ook voor Jouw Elftal). */
+export function VideoProgress({ percent, onCancel }: { percent: number; onCancel: () => void }) {
   const [quip, setQuip] = useState(() => copyText("video.voortgang"));
   useEffect(() => {
     const id = setInterval(() => setQuip(copyText("video.voortgang")), PROGRESS_QUIP_MS);

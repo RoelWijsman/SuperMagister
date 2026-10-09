@@ -1460,6 +1460,140 @@ export const COPY = {
     "Goed geraden = eeuwige roem. Fout = tosti's halen.",
     "Wie fout zit, staat morgen in de rij bij de aula.",
   ],
+
+  // ——— Jouw Elftal ————————————————————————————————————————————————————
+  /** Sterkste linie, met het vak dat hem draagt. */
+  "elftal.sterk": [
+    "Je {linie} draait op {vak}. Respect, eerlijk gezegd.",
+    "Je {linie} is het sterkst. {vak} doet daar al het werk.",
+    "{vak} houdt je {linie} overeind. Iemand moet het doen.",
+    "Je {linie} is op orde. Bedank {vak} even.",
+    "De {linie} is je beste linie. {vak} weet ervan.",
+  ],
+  /** Zwakste linie, met het vak met de laagste rating daar. */
+  "elftal.zwak": [
+    "Je {linie} is van papier. {vak}, we kijken naar jou.",
+    "Zwakste plek: de {linie}. {vak} weet waarom.",
+    "Je {linie} lekt. {vak} heeft er geen zin in vandaag.",
+    "De {linie} wankelt. {vak} staat te kijken.",
+    "Je {linie} is het zwakst. {vak} heeft een herkansing nodig.",
+  ],
+  "elftal.tip.leeg": [
+    "Nog {aantal} lege plekken. Een elftal met gaten is een elftal met een probleem.",
+    "{aantal} plekken leeg. Zo speel je met minder man, en dat mag niet eens.",
+    "Er ontbreken er nog {aantal}. Tik op een lege plek en kies een kaart.",
+    "Vul de {aantal} lege plekken. Een spelersbus is geen tactiek.",
+    "Nog {aantal} plekken vrij. Het veld is groot, je kaarten ook.",
+  ],
+  "elftal.tip.keeper": [
+    "Je keeper is geen keeper. Zet LO op doel: de enige die officieel mag duiken.",
+    "Er staat geen LO op doel. Een keeper zonder gymkleren, dat gaat mis.",
+    "Op doel hoort LO. Alleen die heeft ooit een bal tegengehouden.",
+    "Je doel is onbewaakt. Ja, er staat iemand. Nee, dat telt niet.",
+    "Keeper gezocht. Bij voorkeur iemand die weleens een gymles heeft gehad.",
+  ],
+  "elftal.tip.positie": [
+    "{vak} staat verkeerd. Die hoort in de {linie}.",
+    "Zet {vak} in de {linie}. Daar voelt hij zich thuis.",
+    "{vak} speelt uit positie. Terug naar de {linie} ermee.",
+    "{vak} in de {linie} geeft meer chemie. Gewoon even schuiven.",
+    "{vak} staat er een beetje verloren bij. De {linie} is waar hij hoort.",
+  ],
+  "elftal.tip.chemie": [
+    "{aantal} rode lijnen. Zet vakken uit dezelfde vakgroep naast elkaar.",
+    "Veel rood op het veld. Talen naast talen, exact naast exact.",
+    "{aantal} rode lijnen. Je elftal praat niet met elkaar.",
+    "Rode lijnen kosten chemie. Dezelfde periode of allebei een SO helpt ook.",
+    "{aantal} keer rood. Dit is geen team, dit is een groepsopdracht.",
+  ],
+  "elftal.tip.aanvoerder": [
+    "Nog geen aanvoerder. Tik op een kaart en geef hem de band.",
+    "Kies een aanvoerder: dat is één chemie extra, gratis.",
+    "Geen aanvoerder. Iemand moet de toss doen.",
+    "Een aanvoerder geeft +1 chemie. Wie verdient de band?",
+    "Wie wordt aanvoerder? Tip: niet degene die altijd te laat is.",
+  ],
+  "elftal.tip.top": [
+    "Niks op aan te merken. Verdacht, maar goed.",
+    "Dit elftal klopt. Laat het niet aan je mentor zien, die wil ook meedoen.",
+    "Alles staat goed. Nu nog die cijfers omhoog, dan ben je klaar.",
+    "Geen tips. Je weet wat je doet. Of je hebt geluk.",
+    "Perfect opgesteld. De rest is aan de docenten.",
+  ],
+  /** Lege staat: nog geen onthulde kaarten met een cijfer (titel\nuitleg). */
+  "elftal.leeg": [
+    "Nog geen spelers.\nOpen eerst je pack. Een elftal zonder kaarten is een schoolplein.",
+    "Geen selectie.\nOnthul een paar cijfers, dan heb je spelers.",
+    "Leeg veld.\nJe kaarten zitten nog in het pack. Trainer zijn is wachten.",
+    "Niemand komt opdagen.\nOnthul eerst cijfers in je pack, dan kun je opstellen.",
+    "Nog geen elftal.\nZonder onthulde cijfers geen spelers. Zo werkt de transfermarkt.",
+  ],
+  "elftal.gebouwd": [
+    "Opgesteld. Rating {cijfer}, chemie {aantal}.",
+    "Daar staat je beste elftal. Rating {cijfer}, chemie {aantal}.",
+    "Klaar. De trainer heeft gesproken: rating {cijfer}, chemie {aantal}.",
+    "Beste elftal staat. {cijfer} rating, {aantal} chemie. Niet slecht.",
+    "Opstelling gemaakt. Rating {cijfer}, chemie {aantal}. Wissel gerust.",
+  ],
+
+  // ——— Oefenwedstrijd ——————————————————————————————————————————————————
+  "wedstrijd.goalOns": [
+    "{vak} loopt alleen op de keeper af… en scoort. Net als in H4.",
+    "Goal. {vak} schiet hem erin. Zo gaat dat met een goede voorbereiding.",
+    "{vak} kopt raak. Niemand had het verwacht, {vak} zelf ook niet.",
+    "Doelpunt van {vak}. Strak in de hoek, zoals een sommetje dat in één keer klopt.",
+    "{vak} scoort. Het hele lokaal juicht. Ja, ook achterin.",
+    "Wat een goal van {vak}. Voor de herhaling: dit was geen herkansing.",
+  ],
+  "wedstrijd.goalZij": [
+    "Tegendoelpunt. {tegenstander} profiteert van een slaapje. Typisch het eerste uur.",
+    "{tegenstander} scoort. Je verdediging was even naar de kantine.",
+    "Au. {tegenstander} maakt hem. Niemand stond op zijn plek, net als bij een brandoefening.",
+    "Goal voor {tegenstander}. Je keeper keek naar zijn telefoon.",
+    "{tegenstander} scoort uit een counter. Sneller dan de bel om 15:10.",
+  ],
+  "wedstrijd.kansOns": [
+    "{vak} schiet net naast. Dat was bijna een voldoende.",
+    "Grote kans voor {vak}. Paal. Er is altijd een paal.",
+    "{vak} kapt er twee uit en schiet over. Mooi bedacht, minder mooi uitgevoerd.",
+    "{vak} komt vrij voor de keeper. Te lang nagedacht. Net als bij vraag 4.",
+    "Schot van {vak}. De keeper heeft er gelukkig geen moeite mee. Voor hem dan.",
+  ],
+  "wedstrijd.kansZij": [
+    "{tegenstander} krijgt een kans. Over. Opgelucht ademhalen.",
+    "Paniek achterin. {tegenstander} mist van dichtbij.",
+    "{tegenstander} raakt de lat. Iedereen kijkt de andere kant op.",
+    "Kans voor {tegenstander}. Je keeper redt, met zijn gezicht.",
+    "{tegenstander} schiet. Gelukkig net zo raak als de schoolwifi.",
+  ],
+  "wedstrijd.rust": [
+    "Rust. Iedereen haalt een tosti.",
+    "Rust. De trainer zegt iets over inzet. Niemand luistert.",
+    "Rust. Kwartiertje pauze, net als op school, maar dan met gras.",
+    "Rust. Drinken, ademen, niet aan je proefwerk denken.",
+    "Rust. De tweede helft is als het zesde uur: zwaar.",
+  ],
+  "wedstrijd.winst": [
+    "Gewonnen van {tegenstander}. Leg het vast, voor de ouderavond.",
+    "Winst tegen {tegenstander}. Je elftal kan wat je cijferlijst soms niet kan.",
+    "Overwinning. {tegenstander} gaat met de bus naar huis. Met vertraging.",
+    "Gewonnen. {tegenstander} vraagt om een herkansing. Die krijgen ze niet.",
+    "Drie punten tegen {tegenstander}. Het bord in de aula wordt bijgewerkt.",
+  ],
+  "wedstrijd.gelijk": [
+    "Gelijk tegen {tegenstander}. Een voldoende, net.",
+    "Gelijkspel. {tegenstander} en jij delen de punten en de tosti's.",
+    "Gelijk. Niemand blij, niemand boos. Net als na een mentoruur.",
+    "Remise tegen {tegenstander}. De 5,5 onder de uitslagen.",
+    "Gelijk. Volgende keer beter, zegt iedereen, altijd.",
+  ],
+  "wedstrijd.verlies": [
+    "Verloren van {tegenstander}. Het was maar een oefenwedstrijd. Het was maar een oefentoets.",
+    "Verlies. {tegenstander} was beter. Dat mag gezegd.",
+    "Verloren. Je elftal neemt de fiets naar huis. Tegenwind.",
+    "Nederlaag tegen {tegenstander}. Wissel een paar kaarten en probeer het nog eens.",
+    "Verloren van {tegenstander}. Niet erg. Morgen weer school, ook niet erg.",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 /** Feature B: de vaste teksten van de video (geen grappen die moeten wisselen). */
@@ -1477,6 +1611,63 @@ export const VIDEO_STICKERS = [
   "Vraag mijn advocaat",
   "Niet vandaag",
   "Boeieuh",
+] as const;
+
+/**
+ * Jouw Elftal: de clubnaam-generator plakt een voorvoegsel aan een schoolwoord.
+ * Alleen schoolwoorden, dus er komt nooit een echte clubnaam uit.
+ */
+export const CLUB_PREFIXES = [
+  "FC",
+  "SV",
+  "VV",
+  "AC",
+  "Atletico",
+  "Olympique",
+  "Dynamo",
+  "Real",
+  "Inter",
+  "Sporting",
+  "Racing",
+  "Athletic",
+  "United",
+] as const;
+
+export const CLUB_WORDS = [
+  "Herkansing",
+  "Tussenuur",
+  "Aula",
+  "Oefentoets",
+  "Mentoruur",
+  "Rooster",
+  "Uitval",
+  "Absentie",
+  "Kluisje",
+  "Studiewijzer",
+  "Proefwerkweek",
+  "Fietsenstalling",
+  "Tostiapparaat",
+  "Beamer",
+  "Huiswerkklas",
+  "Spiekbriefje",
+  "Pauzebel",
+  "Gymzaal",
+  "Rode Pen",
+  "Nakijkstapel",
+  "Conciërge",
+  "Zesje",
+] as const;
+
+/** Verzonnen tegenstanders voor de oefenwedstrijd. Geen echte clubs, mensen of docenten. */
+export const MATCH_OPPONENTS = [
+  "De Huiswerkploeg XI",
+  "Team Maandagochtend",
+  "Sportclub Studiewijzer",
+  "De Nablijvers",
+  "Teams-deadline 23:59",
+  "Ouderavond United",
+  "De Rode Pennen",
+  "Real Toetsweek",
 ] as const;
 
 export type CopyKey = keyof typeof COPY;

@@ -5,6 +5,7 @@ import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { SubjectIconName } from "@/lib/subjects/icons";
 import type { GuessMode } from "@/lib/guess/input";
 import type { HolidayRegion } from "@/lib/school/holidays";
+import type { NaturalLine } from "@/lib/squad/players";
 import type { Compass } from "@/lib/weather/advice";
 import { customThemeVars, DEFAULT_THEME, type ThemeId } from "@/lib/theme/themes";
 
@@ -52,6 +53,8 @@ export interface SettingsValues {
   /** Eigen vakkleur (paletindex) per vak-id. */
   subjectColors: Record<string, number>;
   subjectIcons: Record<string, SubjectIconName>;
+  /** Jouw Elftal: eigen natuurlijke positie per vak (sleutel: vakKey van de naam). */
+  squadLines: Record<string, NaturalLine>;
   /** Fase 3a, fietsweer: waar je woont. Leeg tot je zelf iets kiest. */
   weatherPlace: WeatherPlace | null;
   /** In welke richting je naar school fietst (voor tegenwind). */
@@ -77,6 +80,7 @@ interface SettingsActions {
   set: <K extends keyof SettingsValues>(key: K, value: SettingsValues[K]) => void;
   setSubjectColor: (subjectId: string, paletteIndex: number | null) => void;
   setSubjectIcon: (subjectId: string, icon: SubjectIconName | null) => void;
+  setSquadLine: (vak: string, line: NaturalLine | null) => void;
   resetAppearance: () => void;
 }
 
@@ -99,6 +103,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   guessMode: "elke",
   subjectColors: {},
   subjectIcons: {},
+  squadLines: {},
   weatherPlace: null,
   bikeHeading: "O",
   bikeMinutes: 15,
@@ -166,6 +171,13 @@ export const useSettings = create<SettingsValues & SettingsActions>()(
           if (icon === null) delete subjectIcons[subjectId];
           else subjectIcons[subjectId] = icon;
           return { subjectIcons };
+        }),
+      setSquadLine: (vak, line) =>
+        set((state) => {
+          const squadLines = { ...state.squadLines };
+          if (line === null) delete squadLines[vak];
+          else squadLines[vak] = line;
+          return { squadLines };
         }),
       resetAppearance: () =>
         set({

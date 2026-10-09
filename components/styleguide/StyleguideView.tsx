@@ -13,6 +13,7 @@ import { HomeworkSamples } from "./HomeworkSamples";
 import { LinkSamples } from "./LinkSamples";
 import { OnboardingSamples } from "./OnboardingSamples";
 import { ScheduleSamples } from "./ScheduleSamples";
+import { SquadSamples } from "./SquadSamples";
 import { TodaySamples } from "./TodaySamples";
 import { VideoSamples } from "./VideoSamples";
 import { WalkoutScrubber } from "./WalkoutScrubber";
@@ -154,6 +155,13 @@ export function StyleguideView() {
           note="De kaart uit de collectie: kantelen, omdraaien en zes folies. In de app speel je folies vrij met verzameldoelen."
         >
           <CollectionSamples deck={deck} />
+        </Block>
+
+        <Block
+          title="Jouw Elftal"
+          note="Het kaartje op het veld met chemiebalk en aanvoerdersband, de lijnsoorten, de vier wapenvormen en een veld met de oefenkaarten (Bouw beste elftal)."
+        >
+          <SquadSamples deck={deck} />
         </Block>
 
         <Block

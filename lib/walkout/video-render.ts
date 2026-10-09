@@ -114,7 +114,7 @@ const WATERMARK = (() => {
 })();
 
 /** Klein SuperMagister-logo onderaan, met de disclaimer eronder. */
-function drawWatermark(ctx: CanvasRenderingContext2D, stage: Stage, family: string) {
+export function drawWatermark(ctx: CanvasRenderingContext2D, stage: Stage, family: string) {
   const portrait = stage.h > stage.w;
   const tile = portrait ? 46 : 38;
   const y = stage.h - (portrait ? 110 : 74);

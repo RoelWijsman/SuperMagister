@@ -13,6 +13,8 @@ export const STORAGE_KEYS = {
   onboarding: "sm-onboarding",
   /** Anonieme statistieken: alleen of je eerste walkout en je welkomstpack al geteld zijn. */
   stats: "sm-statistiek",
+  /** Jouw Elftal: opstellingen en club per databron. */
+  squad: "sm-elftal",
 } as const;
 
 /** Prefix voor alles wat in IndexedDB staat (via idb-keyval). */
