@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { track } from "@/lib/stats/client";
 import type { WeatherPlace } from "@/stores/settings";
 import { parseForecast, type HourWeather } from "./advice";
 
@@ -42,12 +43,19 @@ export async function fetchForecast(
   return hours;
 }
 
-/** Het weer van de komende week, een half uur vers. */
 /** Het weer voor je woonplaats; vraagt niets op zolang je er geen hebt gekozen. */
 export function useForecast(place: WeatherPlace | null) {
   return useQuery({
     queryKey: ["weer", place?.latitude, place?.longitude],
-    queryFn: ({ signal }) => fetchForecast(place!, signal),
+    queryFn: async ({ signal }) => {
+      try {
+        return await fetchForecast(place!, signal);
+      } catch (error) {
+        // Anoniem tellen dat Open-Meteo faalde (niet als we zelf afbraken).
+        if (!signal.aborted) track("fout-open-meteo");
+        throw error;
+      }
+    },
     enabled: place !== null,
     staleTime: 30 * 60_000,
     gcTime: 2 * 60 * 60_000,

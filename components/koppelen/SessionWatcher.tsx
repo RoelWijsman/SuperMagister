@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { useDataSource } from "@/lib/data/context";
 import { useSession, useSessionStatus } from "@/lib/koppelen/runtime";
 import { notify } from "@/lib/notify";
+import { track } from "@/lib/stats/client";
 import { useConnection } from "@/stores/connection";
 import { RelinkSheet } from "./RelinkSheet";
 
@@ -69,6 +70,7 @@ export function SessionWatcher() {
       () => {
         if (cancelled) return;
         prompted.current = tokenKey;
+        track("koppeling-verlopen");
         if (laterFor() !== tokenKey) show();
       },
       status === "geen" ? 1200 : 0,

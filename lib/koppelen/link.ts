@@ -6,6 +6,7 @@ import { createTransport, transportFor } from "@/lib/magister/config";
 import { parseAccount } from "@/lib/magister/parse/account";
 import { MagisterError, type MagisterSession } from "@/lib/magister/transport";
 import { notify } from "@/lib/notify";
+import { trackLinked } from "@/lib/stats/client";
 import { useConnection } from "@/stores/connection";
 import { getSessionStore } from "./runtime";
 import type { LinkMethod } from "./session";
@@ -108,6 +109,7 @@ export async function completeLink(
       school: account.schoolName,
     };
     useLinkFlow.setState({ status: "gelukt", method, result, failure: null });
+    trackLinked(method, isNew);
     if (isNew)
       notify(
         "toast.gekoppeld",

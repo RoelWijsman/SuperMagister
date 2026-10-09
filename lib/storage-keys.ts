@@ -11,6 +11,8 @@ export const STORAGE_KEYS = {
   connection: "sm-koppeling",
   /** Waar je in de onboarding was, en of hij klaar is. */
   onboarding: "sm-onboarding",
+  /** Anonieme statistieken: alleen of je eerste walkout en je welkomstpack al geteld zijn. */
+  stats: "sm-statistiek",
 } as const;
 
 /** Prefix voor alles wat in IndexedDB staat (via idb-keyval). */

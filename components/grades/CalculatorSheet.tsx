@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useTrackOpen } from "@/lib/stats/use-track";
 import { Sheet } from "@/components/ui/Sheet";
 import { formatGrade, gradeTone, roundHalfUp } from "@/lib/calc/average";
 import { averageWith, requiredGrade } from "@/lib/calc/whatif";
@@ -233,6 +234,7 @@ export function CalculatorSheet({
   subject: (id: string | null) => SubjectAppearance;
   initialSubject: string | null;
 }) {
+  useTrackOpen(open, "calculator-gebruikt");
   return (
     <Sheet open={open} onClose={onClose} title="Wat moet ik halen?" size="md">
       {data && (

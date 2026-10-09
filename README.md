@@ -4,8 +4,9 @@ Je rooster, huiswerk en cijfers uit Magister. Mooi, supersnel en vooral leuk. Ni
 je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 
 > **Disclaimer:** SuperMagister is onofficieel. Het gebruikt een interne Magister-API die kan
-> veranderen, is niet verbonden aan Magister of Iddink, slaat geen gegevens op een server op en is
-> alleen bedoeld voor je eigen account.
+> veranderen, is niet verbonden aan Magister of Iddink, slaat je gegevens niet op een server op
+> (alleen anonieme dagtellers, zie [Anonieme statistieken](#anonieme-statistieken)) en is alleen
+> bedoeld voor je eigen account.
 
 ## Status
 
@@ -22,6 +23,7 @@ je met een walkout in FIFA-stijl, en elk cijfer wordt een verzamelkaart.
 | 5    | Koppeling: bladwijzer, plakken, koppelpagina, proxy en echte data                      | ✅ Klaar   |
 | —    | Onboarding: de eerste keer openen, van intro tot je welkomstpack                       | ✅ Klaar   |
 | —    | Live: supermagister.nl op Vercel, privacy, beveiliging (v1.0.0)                        | ✅ Klaar   |
+| —    | Ontwikkelaarsdashboard en anonieme statistieken                                        | ✅ Klaar   |
 | 6    | Gamification: XP, levels, quests, mascotte, weekrecap, Wrapped                         | Vervallen  |
 | C    | Laatste schooldag voor de zomer, met jaar-Wrapped                                      | Geparkeerd |
 | 7    | Afwerking: PWA, offline, meldingen, seizoensthema's, easter eggs, toegankelijkheid     | Gepland    |
@@ -211,15 +213,105 @@ SuperMagister** zeven keer snel op het versienummer om ze aan (of weer uit) te z
 
 ## Omgevingsvariabelen
 
-Er is er maar één, zie [`.env.example`](.env.example). Er zijn geen geheimen: geen database, geen
-API-sleutels, geen accounts.
+Alles staat met uitleg in [`.env.example`](.env.example). Lokaal: kopieer het naar `.env.local`.
+Zonder de variabelen werkt de app ook; dan is er alleen geen dashboard en wordt er niets geteld.
 
-| Variabele              | Lokaal                  | Live                       | Waarvoor                                                    |
-| ---------------------- | ----------------------- | -------------------------- | ----------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://supermagister.nl` | De bladwijzer, de deelafbeelding, robots.txt en de sitemap. |
+| Variabele                     | Waarvoor                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`        | Het adres van de site: bladwijzer, deelafbeelding, robots.txt en sitemap.    |
+| `DEV_DASHBOARD_PATH`          | Het geheime adres van het ontwikkelaarsdashboard, bijv. `/dev-Xk3v9x7q2Lr8`. |
+| `DEV_DASHBOARD_PASSWORD`      | Het wachtwoord voor het dashboard (minstens 12 tekens).                      |
+| `DEV_DASHBOARD_KEY`           | Zonder `?key=<deze waarde>` is zelfs de inlogpagina een 404 (minstens 12).   |
+| `DEV_DASHBOARD_ANALYTICS_URL` | Optioneel: de directe link naar Vercel Analytics van dit project.            |
+| `UPSTASH_REDIS_REST_URL`      | De opslag voor de tellers. Vult Vercel zelf in (als `KV_REST_API_URL`).      |
+| `UPSTASH_REDIS_REST_TOKEN`    | Hoort bij de opslag. Vult Vercel zelf in (als `KV_REST_API_TOKEN`).          |
 
-Lokaal: kopieer `.env.example` naar `.env.local`. Zonder de variabele werkt alles ook; de
-bladwijzer gebruikt dan het adres waarop de app draait.
+## Anonieme statistieken
+
+SuperMagister telt een paar dingen, anoniem en alleen als dagteller: hoe vaak de app geopend
+wordt, of de onboarding afgerond of overgeslagen wordt (en bij welke stap), koppelingen, walkouts,
+gokken, video's, de calculator, fouten (alleen de soort) en hoe het met de proxy gaat. Nooit een
+IP-adres, id, user-agent, school, naam, vak of cijfer, ook niet in logs.
+
+- **Bezoekers:** [Vercel Web Analytics](https://vercel.com/docs/analytics), zonder cookies. Het
+  adres gaat zonder `?…` en `#…` mee, en `/cijfers/<vak>` wordt `/cijfers/[vak]`.
+- **Eigen tellers:** `POST /api/telling` met alleen `{"e":"<eventnaam>"}`. Alleen namen uit de
+  whitelist in [`lib/stats/events.ts`](lib/stats/events.ts) tellen; rem van 60 per minuut per IP
+  (alleen in het geheugen). Per dag één hash in Redis (`sm:dag:<datum>`) met alleen tellers; na
+  400 dagen (ruim 13 maanden) verdwijnt hij vanzelf. De proxy telt zelf mee (aantal, statusgroep,
+  responstijd per uur), zonder dat de browser iets stuurt.
+- **Uit:** Instellingen → Privacy → "Anonieme statistieken delen". Do Not Track of Global Privacy
+  Control in de browser: dan wordt er niets geteld.
+
+**Wat de gratis plannen kunnen** (oktober 2026, check de actuele prijzen):
+
+- _Vercel Web Analytics op Hobby (gratis):_ 50.000 events per maand, alleen paginabezoeken
+  (pagina's, verwijzers, landen, apparaten, browsers) en een maand terugkijken. Geen eigen events
+  (`track()`), daarvoor is Pro nodig. Ga je over de 50.000, dan pauzeert Vercel het verzamelen
+  (er komt nooit een rekening). Daarom staan onze eigen events niet in Vercel maar in Redis.
+  Wil je bezoekers langer dan een maand terugzien zonder Pro, dan past **Plausible** beter
+  (cookieloos, EU-gehost, vanaf ongeveer $9 per maand, of gratis als je het zelf host).
+- _Upstash Redis (via de Vercel Marketplace):_ gratis tot 500.000 commando's per maand en
+  256 MB. Daarboven $0,20 per 100.000 commando's. De tellers worden per serverinstantie gebundeld
+  en hooguit eens per 5 seconden weggeschreven, dus ook met een paar honderd gebruikers per dag
+  blijf je ruim binnen het gratis deel.
+
+## Ontwikkelaarsdashboard
+
+Een privé dashboard voor de maker, met de tellers van hierboven: vandaag in één oogopslag (met het
+verschil met gisteren en vorige week), grafieken over 7, 30 of 90 dagen, de trechter van openen tot
+eerste walkout, waar mensen in de onboarding afhaken, populariteit per onderdeel, en de gezondheid
+van de proxy (statuscodes met een waarschuwing als 401 of 5xx ineens stijgt, responstijd van
+Magister, rate-limit-blokkades, Open-Meteo, de vakantie-API en fouten in de browser). Verder een
+knop **Test nu**, build-info, een link naar Vercel Analytics en **CSV** om alles te downloaden.
+
+- **Niet te vinden:** het adres komt uit `DEV_DASHBOARD_PATH` en staat nergens in de app, het
+  menu, de command palette, robots.txt of de sitemap. Zonder geldige sessie geeft het precies
+  dezelfde 404 als elke pagina die niet bestaat. Ook de inlogpagina, tenzij je `?key=` meegeeft.
+- **Inloggen:** het wachtwoord wordt in constante tijd vergeleken; hooguit 5 pogingen per 15
+  minuten per IP-adres. Daarna een httpOnly-, secure-, sameSite=strict-cookie dat 7 dagen geldig
+  is en alleen naar het geheime adres gaat. **Uitloggen** staat rechtsboven.
+- **Altijd noindex** (meta robots en `X-Robots-Tag`). Alle data komt van de server, alleen met een
+  geldige sessie; er zit niets van in de JavaScript van de app.
+- Hoe het werkt: `proxy.ts` stuurt het geheime adres intern door naar `/dev-dashboard-intern`
+  (dat adres rechtstreeks openen geeft altijd een 404), en elke pagina en route daar controleert
+  de sessie zelf nog een keer (`lib/dev-dashboard/guard.ts`).
+
+**Zo zet je het aan op Vercel**
+
+1. **Opslag koppelen.** Ga in Vercel naar je project → **Storage** → **Create Database** (of
+   **Marketplace**) → kies **Upstash** → **Upstash for Redis** → **Continue**. Kies de gratis
+   variant en een regio dicht bij je functies (Frankfurt, `fra1`/`eu-central-1`, als je project
+   daar draait; anders Washington, `iad1`). Geef hem een naam (bijv. `supermagister-tellers`) en
+   koppel hem bij **Connect Project** aan SuperMagister, voor alle omgevingen. Vercel zet daarna
+   zelf `KV_REST_API_URL` en `KV_REST_API_TOKEN` (en een paar andere) bij je variabelen. Daar hoef
+   je niets aan te doen.
+2. **Drie geheimen maken.** Draai dit drie keer in een terminal en bewaar de uitkomsten in je
+   wachtwoordmanager:
+
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(18).toString('base64url'))"
+   ```
+
+3. **Variabelen invullen.** Project → **Settings** → **Environment Variables** → **Add New**,
+   steeds alleen voor **Production**:
+   - `DEV_DASHBOARD_PATH` = `/dev-` plus de eerste uitkomst (bijv. `/dev-Xk3v9x7q2Lr8aB…`)
+   - `DEV_DASHBOARD_PASSWORD` = de tweede uitkomst
+   - `DEV_DASHBOARD_KEY` = de derde uitkomst
+   - optioneel `DEV_DASHBOARD_ANALYTICS_URL` = `https://vercel.com/<jouw-team>/<project>/analytics`
+
+   Zet ze op **Sensitive** als Vercel dat aanbiedt.
+
+4. **Vercel Web Analytics aanzetten.** Project → **Analytics** → **Enable**. De app laadt het
+   script zelf al (alleen op Vercel).
+5. **Opnieuw deployen.** **Deployments** → de bovenste → **…** → **Redeploy**. Variabelen gelden
+   pas na een nieuwe deploy.
+6. **Eerste keer inloggen.** Open `https://supermagister.nl<DEV_DASHBOARD_PATH>?key=<DEV_DASHBOARD_KEY>`,
+   vul het wachtwoord in en zet het adres zonder `?key=…` in je bladwijzers (een week lang kom je
+   er dan zonder inloggen in). Verlopen? Gebruik de link met `?key=` weer.
+
+Lokaal kan het ook: zet de drie `DEV_DASHBOARD_`-variabelen in `.env.local`. Zonder Upstash zegt
+het dashboard dat er nog geen opslag is gekoppeld.
 
 ## Live zetten op Vercel (supermagister.nl)
 
@@ -272,6 +364,8 @@ en regelt het vanzelf een https-certificaat.
 - Elke push naar `main` wordt vanzelf live gezet. Een andere branch krijgt een eigen
   testadres (preview).
 - Zoekmachines zien alleen de voorkant en `/privacy` (zie `app/robots.ts`).
+- Het dashboard en de statistieken zet je aan zoals beschreven bij
+  [Ontwikkelaarsdashboard](#ontwikkelaarsdashboard).
 
 ## Techniek in het kort
 
@@ -287,5 +381,5 @@ en regelt het vanzelf een https-certificaat.
 ## Disclaimer
 
 SuperMagister is onofficieel. Het gebruikt een interne Magister-API die zonder aankondiging kan
-veranderen, is niet verbonden aan Magister of Iddink, slaat geen gegevens op een server op en is
-alleen bedoeld voor je eigen account. Gebruik op eigen risico.
+veranderen, is niet verbonden aan Magister of Iddink, slaat je gegevens niet op een server op
+(alleen anonieme dagtellers) en is alleen bedoeld voor je eigen account. Gebruik op eigen risico.

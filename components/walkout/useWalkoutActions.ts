@@ -7,6 +7,7 @@ import type { CardData } from "@/lib/cards/model";
 import { useCards } from "@/lib/data/cards";
 import { useAccount, useCollectionGrades, useGrades } from "@/lib/data/hooks";
 import { notify } from "@/lib/notify";
+import { trackWalkoutStart } from "@/lib/stats/client";
 import { practiceDeck } from "@/lib/walkout/practice";
 import { useWalkout } from "@/stores/walkout";
 
@@ -33,6 +34,7 @@ export function useWalkoutActions() {
       notify("toast.geenPack", {}, { emoji: "📭" });
       return;
     }
+    trackWalkoutStart("pack");
     start({
       mode: "pack",
       entries: cards.pack.map((card) => ({ card, grades: subjectGrades(card) })),
@@ -44,6 +46,7 @@ export function useWalkoutActions() {
       unlockAudio();
       const deck = practiceDeck(account.data?.fullName ?? "Jij");
       const chosen = ids ? deck.filter((entry) => ids.includes(entry.id)) : deck;
+      trackWalkoutStart("oefen");
       start({ mode: "oefen", entries: chosen.map(({ card, grades: g }) => ({ card, grades: g })) });
     },
     [account.data, start],
@@ -52,6 +55,7 @@ export function useWalkoutActions() {
   const replay = useCallback(
     (card: CardData) => {
       unlockAudio();
+      trackWalkoutStart("opnieuw");
       start({ mode: "opnieuw", entries: [{ card, grades: subjectGrades(card) }] });
     },
     [start, subjectGrades],

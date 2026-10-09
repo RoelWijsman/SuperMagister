@@ -1,7 +1,17 @@
-import { HardDrive, KeyRound, Mail, Server, ShieldCheck, Trash2, Wifi } from "lucide-react";
+import {
+  BarChart3,
+  HardDrive,
+  KeyRound,
+  Mail,
+  Server,
+  ShieldCheck,
+  Trash2,
+  Wifi,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
+import Link from "next/link";
 import { CONTACT_EMAIL } from "@/lib/site";
 import { Disclaimer } from "./Disclaimer";
 
@@ -9,13 +19,15 @@ function Part({
   icon: Icon,
   title,
   children,
+  id,
 }: {
   icon: typeof HardDrive;
   title: string;
   children: ReactNode;
+  id?: string;
 }) {
   return (
-    <GlassPanel as="section" padding="lg">
+    <GlassPanel as="section" padding="lg" id={id} className="scroll-mt-24">
       <h2 className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-ink">
         <Icon size={20} strokeWidth={2.2} aria-hidden className="text-accent-ink" />
         {title}
@@ -34,7 +46,7 @@ export function PrivacyView() {
       <PageHeader
         eyebrow="Privacy"
         title="Je gegevens blijven van jou"
-        subtitle="Kort gezegd: alles staat op je eigen apparaat. SuperMagister heeft geen database, geen accounts en geen tracking."
+        subtitle="Kort gezegd: je rooster, huiswerk en cijfers staan alleen op je eigen apparaat. Er zijn geen accounts. Wat we wel bijhouden, zijn anonieme tellers, zoals hoe vaak er een walkout start. Nooit iets over jou, en je kunt het uitzetten."
       />
       <div className="mx-auto max-w-3xl space-y-4">
         <Part icon={KeyRound} title="Je wachtwoord">
@@ -60,6 +72,10 @@ export function PrivacyView() {
               <strong>Wat je zelf in de app doet</strong>: je instellingen, afgevinkt huiswerk,
               notities, gokken, je kaartencollectie en je woonplaats voor het fietsweer.
             </li>
+            <li>
+              <strong>Twee vinkjes voor de statistieken</strong>: of je eerste walkout en je
+              welkomstpack al geteld zijn, zodat we ze niet dubbel tellen.
+            </li>
           </ul>
           <p>
             Dat staat allemaal in de opslag van je browser (localStorage en IndexedDB), op dit
@@ -79,6 +95,11 @@ export function PrivacyView() {
             <li>bewaart niets en schrijft niets op: geen token, geen cijfers, geen logboek.</li>
           </ul>
           <p>
+            Wel telt de proxy per dag hoeveel verzoeken er waren, hoe Magister antwoordde (gelukt,
+            verlopen, plat) en hoe snel. Dat zijn alleen getallen, zonder wie, welke school of welke
+            gegevens. Zo zien we het als Magister iets verandert.
+          </p>
+          <p>
             Om misbruik te voorkomen telt de proxy hoeveel verzoeken er per minuut van één IP-adres
             komen. Die teller staat alleen in het werkgeheugen en is na een minuut weer weg. De site
             draait bij Vercel; zoals elke hostingpartij ziet Vercel welke adressen verbinding maken.
@@ -96,7 +117,68 @@ export function PrivacyView() {
               zonder iets van jou.
             </li>
           </ul>
-          <p>Geen advertenties, geen analytics, geen cookies van anderen.</p>
+          <p>
+            Geen advertenties en geen cookies, ook niet van anderen. Voor de anonieme statistieken
+            gebruiken we Vercel Web Analytics en Upstash; zie hieronder.
+          </p>
+        </Part>
+
+        <Part icon={BarChart3} title="Anonieme statistieken" id="statistieken">
+          <p>
+            Om te weten wat er gebruikt wordt en wat er stuk is, tellen we een paar dingen. Alleen
+            hoe vaak iets gebeurt, per dag. Nooit wie.
+          </p>
+          <p>
+            <strong>Wat we tellen</strong>
+          </p>
+          <ul>
+            <li>
+              <strong>Bezoeken</strong> via Vercel Web Analytics: welke pagina, uit welk land en met
+              wat voor apparaat en browser. Zonder cookies, en zonder het stuk achter ? of # in het
+              adres (daar kan je sessie in staan). Een vak in het adres wordt “[vak]”.
+            </li>
+            <li>
+              <strong>Wat er in de app gebeurt</strong>, als dagteller: de app is geopend, de
+              onboarding is gestart, afgerond of overgeslagen (en bij welke stap), de demo is
+              gestart, er is gekoppeld (met de bladwijzer of door te plakken), een koppeling is
+              verlopen of ontkoppeld, een pack of walkout is geopend of overgeslagen, er is gegokt
+              (en of dat precies goed was), er is een video gemaakt (welk formaat, wel of geen
+              mysterie), de calculator is gebruikt, of de app is geïnstalleerd.
+            </li>
+            <li>
+              <strong>Fouten</strong>: hoe vaak er iets misging, en wat voor soort fout (bijv. “het
+              netwerk”). Nooit de foutmelding zelf.
+            </li>
+            <li>
+              <strong>De proxy</strong>: aantallen, of het lukte en hoe snel Magister was (zie
+              hierboven).
+            </li>
+          </ul>
+          <p>
+            <strong>Wat we nooit tellen</strong>: je naam, je school, je cijfers, je vakken, je
+            gokken, je rooster of huiswerk, je IP-adres, een id of iets anders waarmee je te
+            herkennen bent. Ook niet in logbestanden of foutmeldingen. Er is geen enkele teller die
+            van jou is: het is “vandaag 12 walkouts”, niet “jij deed een walkout”.
+          </p>
+          <p>
+            <strong>Waar het staat en hoe lang</strong>: de bezoekcijfers bij Vercel (de partij waar
+            de site draait), de tellers in een kleine database bij Upstash. Elke dagteller wordt na
+            13 maanden vanzelf verwijderd; bij Vercel blijven bezoekcijfers op ons gratis abonnement
+            een maand zichtbaar. Om spam tegen te gaan kijkt de server een minuut lang hoeveel
+            verzoeken er van één IP-adres komen; dat staat alleen in het werkgeheugen en wordt nooit
+            bewaard.
+          </p>
+          <p>
+            <strong>Uitzetten</strong>: bij{" "}
+            <Link
+              href="/instellingen#privacy"
+              className="font-semibold text-accent-ink underline-offset-2 hover:underline"
+            >
+              Instellingen → Privacy
+            </Link>{" "}
+            zet je “Anonieme statistieken delen” uit. Staat in je browser Do Not Track of Global
+            Privacy Control aan, dan tellen we sowieso niets.
+          </p>
         </Part>
 
         <Part icon={Trash2} title="Alles wissen">

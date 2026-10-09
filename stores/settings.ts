@@ -34,6 +34,11 @@ export interface SettingsValues {
   motion: MotionPreference;
   /** Privacymodus staat bij het openen al aan. */
   privacyAuto: boolean;
+  /**
+   * Anonieme statistieken delen (Instellingen → Privacy): alleen dagtellers als
+   * "walkout gestart", nooit iets over jou. Zie lib/stats/client.ts.
+   */
+  shareStats: boolean;
   /** Globale mute: geen enkel geluid. */
   soundMuted: boolean;
   uiSounds: boolean;
@@ -84,6 +89,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   ambientMotion: true,
   motion: "system",
   privacyAuto: false,
+  shareStats: true,
   soundMuted: false,
   uiSounds: false,
   walkoutSounds: true,

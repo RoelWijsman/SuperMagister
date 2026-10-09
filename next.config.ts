@@ -22,7 +22,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  env: { NEXT_PUBLIC_APP_VERSION: version },
+  // SM_BUILD_TIME: alleen voor de build-info op het ontwikkelaarsdashboard (server).
+  env: { NEXT_PUBLIC_APP_VERSION: version, SM_BUILD_TIME: new Date().toISOString() },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

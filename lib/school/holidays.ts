@@ -9,6 +9,10 @@ import type { ISODate } from "@/lib/types";
  * een ingebouwde reserve als de bron niet bereikbaar is.
  */
 
+/** De open data van Rijksoverheid (via app/api/schoolvakanties, die bron heeft geen CORS). */
+export const HOLIDAYS_SOURCE =
+  "https://opendata.rijksoverheid.nl/v1/infotypes/schoolholidays?output=json";
+
 export type HolidayRegion = "noord" | "midden" | "zuid";
 
 export const HOLIDAY_REGIONS: readonly HolidayRegion[] = ["noord", "midden", "zuid"];

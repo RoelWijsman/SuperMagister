@@ -59,6 +59,7 @@ import {
 } from "@/lib/walkout/scene";
 import { useCalculator } from "@/stores/calculator";
 import { useGuessStore } from "@/stores/guesses";
+import { track } from "@/lib/stats/client";
 import { useReveal } from "@/stores/reveal";
 import { useSettings } from "@/stores/settings";
 import { useWalkout, type WalkoutEntry, type WalkoutSession } from "@/stores/walkout";
@@ -153,6 +154,8 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
   const holdRef = useRef(false);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipRef = useRef<() => void>(() => {});
+  /** Bij welke kaart (en welke run) "walkout overgeslagen" al geteld is. */
+  const skipCounted = useRef<string | null>(null);
   /** Zet de gok vast (of draai zonder gok om); geeft false als het nu niet kan. */
   const lockRef = useRef<(value: number | null) => boolean>(() => false);
   const viewRef = useRef<GuessView>(freshView());
@@ -207,6 +210,16 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
       close();
     }
   }, [entries.length, session.mode, step, close]);
+
+  /** Overslaan door jou (knop, tik of →): doet hetzelfde, maar telt ook één keer per kaart. */
+  const userSkip = () => {
+    const mark = `${step.kind === "card" ? step.index : step.kind}:${run}`;
+    if (skipCounted.current !== mark) {
+      skipCounted.current = mark;
+      track("walkout-overgeslagen");
+    }
+    skipRef.current();
+  };
 
   const replay = useCallback(() => {
     setResting(false);
@@ -497,6 +510,13 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
     setGuessOpen(false);
     dragRef.current = null;
     setSessionGuesses((all) => ({ ...all, [card.id]: value }));
+    track(value === null ? "gok-overgeslagen" : "gok-gebruikt");
+    if (
+      value !== null &&
+      card.grade.kind === "numeric" &&
+      guessOutcome(value, card.grade.value).kind === "exact"
+    )
+      track("gok-precies-goed");
     if (value === null) {
       setAnnouncement("Zonder gok omgedraaid.");
       return;
@@ -547,7 +567,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
       }
       if (event.key === "ArrowRight") {
         if (resting) goNext();
-        else skipRef.current();
+        else userSkip();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -598,7 +618,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
       return;
     }
     if (holdTimer.current) clearTimeout(holdTimer.current);
-    if (!holdRef.current && !resting && step.kind !== "summary") skipRef.current();
+    if (!holdRef.current && !resting && step.kind !== "summary") userSkip();
     holdRef.current = false;
     setHolding(false);
   };
@@ -745,7 +765,7 @@ function WalkoutStage({ session }: { session: WalkoutSession }) {
             variant="glass"
             size="sm"
             iconRight={FastForward}
-            onClick={() => skipRef.current()}
+            onClick={userSkip}
             className="pointer-events-auto text-white"
           >
             Overslaan

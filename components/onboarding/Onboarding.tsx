@@ -3,11 +3,12 @@
 import { AnimatePresence, motion, useReducedMotion, type PanInfo } from "framer-motion";
 import { ArrowLeft, ArrowRight, House, PackageOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { cn } from "@/lib/cn";
 import { isTypingTarget, useMediaQuery, useModalLock } from "@/lib/hooks";
+import { track } from "@/lib/stats/client";
 import { useConnection } from "@/stores/connection";
 import {
   ONBOARDING_STEPS,
@@ -71,7 +72,16 @@ export function OnboardingLayer() {
 
   useModalLock(!walkoutOpen);
 
+  // Anonieme statistieken: welke stappen bereikt worden, en waar mensen afhaken.
+  const seen = useRef(new Set<OnboardingStep>());
+  useEffect(() => {
+    if (seen.current.has(step)) return;
+    seen.current.add(step);
+    track(`onboarding-stap:${step}`);
+  }, [step]);
+
   const done = useCallback(() => {
+    track("onboarding-afgerond");
     finish();
     router.push("/vandaag");
   }, [finish, router]);
@@ -176,7 +186,14 @@ export function OnboardingLayer() {
 
       <div className="relative flex items-center justify-between gap-3 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-2 sm:px-6">
         {step === "intro" ? <span /> : <Progress step={step} />}
-        <Button variant="ghost" size="sm" onClick={finish}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            track(`onboarding-overgeslagen:${step}`);
+            finish();
+          }}
+        >
           Overslaan
         </Button>
       </div>

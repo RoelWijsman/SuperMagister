@@ -25,6 +25,7 @@ import { Disclaimer } from "@/components/legal/Disclaimer";
 import { DataCheck } from "./DataCheck";
 import { DataSettings, LinkDevTools } from "./DataSettings";
 import { HomeworkSettings } from "./HomeworkSettings";
+import { StatsSetting } from "./StatsSetting";
 import { SubjectSettings } from "./SubjectSettings";
 import { ThemePicker } from "./ThemePicker";
 import { TodaySettings } from "./TodaySettings";
@@ -253,6 +254,7 @@ export function SettingsView() {
             checked={settings.privacyAuto}
             onCheckedChange={(value) => settings.set("privacyAuto", value)}
           />
+          <StatsSetting />
         </Section>
 
         <Section

@@ -1,4 +1,5 @@
 import { clientIp, createRateLimiter, type RateLimiter } from "@/lib/security/rate-limit";
+import { proxyObserver, type ProxyObserver } from "@/lib/stats/server";
 import { SCHOOL_HOST } from "./transport";
 
 /**
@@ -11,7 +12,9 @@ import { SCHOOL_HOST } from "./transport";
  * - Geeft alleen het token (Authorization, verplicht) en Accept door: geen
  *   cookies, geen andere headers, en volgt geen doorverwijzingen.
  * - Een rem per IP-adres, zodat niemand hem als open proxy kan gebruiken.
- * - Logt nooit iets en slaat niets op.
+ * - Logt nooit iets en slaat niets op. Alleen anonieme dagtellers: hoeveel
+ *   verzoeken, welke statusgroep en hoe snel Magister was (lib/stats). Geen
+ *   IP-adres, school, pad of token.
  */
 
 export const PROXY_TIMEOUT_MS = 15_000;
@@ -80,27 +83,41 @@ export async function proxyToMagister(
   segments: readonly string[],
   doFetch: (input: string, init: RequestInit) => Promise<Response> = fetch,
   limiter: RateLimiter = LIMITER,
+  observe: ProxyObserver = proxyObserver(),
 ): Promise<Response> {
-  if (request.method !== "GET") return fail(405, "alleen-get", { headers: { Allow: "GET" } });
+  if (request.method !== "GET") {
+    observe.rejected();
+    return fail(405, "alleen-get", { headers: { Allow: "GET" } });
+  }
 
   const allowed = limiter.check(clientIp(request.headers));
-  if (!allowed.ok)
+  if (!allowed.ok) {
+    observe.rateLimited();
     return fail(429, "te-vaak", {
       headers: { "Retry-After": String(allowed.retryAfter) },
       body: { opnieuwNa: allowed.retryAfter },
     });
+  }
 
   const school = request.headers.get("x-magister-school") ?? "";
-  if (!SCHOOL_HOST.test(school)) return fail(400, "ongeldige-school");
-  if (segments.length === 0 || !segments.every((s) => SEGMENT.test(s)))
-    return fail(400, "ongeldig-pad");
   const authorization = request.headers.get("authorization") ?? "";
-  if (!BEARER.test(authorization)) return fail(401, "geen-token");
+  const invalid: ProxyErrorCode | null = !SCHOOL_HOST.test(school)
+    ? "ongeldige-school"
+    : segments.length === 0 || !segments.every((s) => SEGMENT.test(s))
+      ? "ongeldig-pad"
+      : !BEARER.test(authorization)
+        ? "geen-token"
+        : null;
+  if (invalid) {
+    observe.rejected();
+    return fail(invalid === "geen-token" ? 401 : 400, invalid);
+  }
 
   const query = new URL(request.url).searchParams.toString();
   const target = `https://${school}/api/${segments.join("/")}${query ? `?${query}` : ""}`;
 
   let upstream: Response;
+  const started = performance.now();
   try {
     upstream = await doFetch(target, {
       method: "GET",
@@ -110,9 +127,14 @@ export async function proxyToMagister(
       signal: AbortSignal.timeout(PROXY_TIMEOUT_MS),
     });
   } catch (error) {
+    observe.upstream(null, performance.now() - started);
     const timedOut = error instanceof DOMException && error.name === "TimeoutError";
     return timedOut ? fail(504, "timeout") : fail(502, "netwerk");
   }
+  observe.upstream(
+    upstream.type === "opaqueredirect" ? 302 : upstream.status,
+    performance.now() - started,
+  );
 
   if (upstream.ok) {
     return new Response(upstream.body, {

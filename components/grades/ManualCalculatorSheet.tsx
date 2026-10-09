@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTrackOpen } from "@/lib/stats/use-track";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 import { formatGrade, gradeTone, weightedAverage } from "@/lib/calc/average";
@@ -219,6 +220,7 @@ function ManualCalculator() {
 export function ManualCalculatorSheet() {
   const open = useCalculator((s) => s.manualOpen);
   const close = useCalculator((s) => s.closeManual);
+  useTrackOpen(open, "calculator-gebruikt");
   return (
     <Sheet
       open={open}

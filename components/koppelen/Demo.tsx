@@ -5,6 +5,7 @@ import { Button, LinkButton } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { useIsClient } from "@/lib/hooks";
 import { notify } from "@/lib/notify";
+import { track } from "@/lib/stats/client";
 import { useCopy } from "@/lib/use-copy";
 import { useConnection } from "@/stores/connection";
 
@@ -35,6 +36,7 @@ export function DemoButton({
       className={className}
       onClick={() => {
         useConnection.getState().startDemo();
+        track("demo-gestart");
         notify("toast.demoAan", {}, { emoji: "🎬" });
         onStart?.();
       }}

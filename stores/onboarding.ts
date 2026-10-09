@@ -32,7 +32,9 @@ export function progressOf(step: OnboardingStep): number {
 
 /** Wie al iets van SuperMagister in de browser heeft, krijgt de onboarding niet vanzelf. */
 export function isReturningUser(keys: readonly string[]): boolean {
-  return keys.some((key) => key.startsWith("sm-") && key !== STORAGE_KEYS.onboarding);
+  return keys.some(
+    (key) => key.startsWith("sm-") && key !== STORAGE_KEYS.onboarding && key !== STORAGE_KEYS.stats,
+  );
 }
 
 interface OnboardingState {

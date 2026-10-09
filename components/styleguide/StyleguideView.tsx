@@ -3,6 +3,8 @@
 import { ArrowRight, Bell, Heart, Plus, Sparkles } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { CardCanvas } from "@/components/cards/CardCanvas";
+import { BarList } from "@/components/charts/BarList";
+import { LineChart } from "@/components/charts/LineChart";
 import { useWalkoutActions } from "@/components/walkout/useWalkoutActions";
 import { CollectionSamples } from "./CollectionSamples";
 import { GradeSamples } from "./GradeSamples";
@@ -43,6 +45,8 @@ function Block({ title, note, children }: { title: string; note?: string; childr
     </GlassPanel>
   );
 }
+
+const SAMPLE_DAYS = ["3 okt", "4 okt", "5 okt", "6 okt", "7 okt", "8 okt", "9 okt"];
 
 const TOKENS = [
   ["accent", "var(--sm-accent)"],
@@ -428,6 +432,30 @@ export function StyleguideView() {
               </li>
             ))}
           </ul>
+        </Block>
+
+        <Block
+          title="Grafieken"
+          note="Lijn (met crosshair, tooltip, ← → en een tabel) en liggende balken. Blauw, oranje en aqua, gecontroleerd op de donkere achtergrond."
+        >
+          <div className="grid gap-6 md:grid-cols-2">
+            <LineChart
+              title="Voorbeeld: twee reeksen per dag"
+              labels={SAMPLE_DAYS}
+              series={[
+                { name: "Reeks A", values: [12, 18, 15, 22, 30, 26, 34] },
+                { name: "Reeks B", values: [4, 6, 5, 9, 7, 11, 10] },
+              ]}
+            />
+            <BarList
+              items={[
+                { label: "Walkout", value: 120 },
+                { label: "Gokken", value: 84, note: "70%" },
+                { label: "Video", value: 21 },
+                { label: "Calculator", value: 9 },
+              ]}
+            />
+          </div>
         </Block>
       </div>
     </>

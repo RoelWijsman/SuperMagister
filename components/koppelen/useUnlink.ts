@@ -7,6 +7,7 @@ import { getSessionStore } from "@/lib/koppelen/runtime";
 import { wipeMagisterData } from "@/lib/koppelen/wipe";
 import { notify } from "@/lib/notify";
 import { isMagisterSource } from "@/lib/sources";
+import { track } from "@/lib/stats/client";
 
 /** Ontkoppelen: token weg (in alle tabbladen) en al je Magister-data van dit apparaat. */
 export function useUnlink() {
@@ -20,5 +21,6 @@ export function useUnlink() {
     });
     useLinkFlow.getState().reset();
     notify("toast.ontkoppeld", {}, { emoji: "🧹" });
+    track("ontkoppeld");
   }, [queryClient]);
 }

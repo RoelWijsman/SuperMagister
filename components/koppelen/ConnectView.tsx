@@ -23,7 +23,7 @@ const PROMISES = [
   },
   {
     icon: ServerOff,
-    title: "Niets op een server",
+    title: "Je gegevens niet op een server",
     text: "Je gegevens blijven op dit apparaat. Je sessie zelfs alleen in dit tabblad.",
   },
 ];

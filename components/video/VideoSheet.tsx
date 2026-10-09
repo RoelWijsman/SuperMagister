@@ -12,6 +12,8 @@ import { canShareFile, downloadFile, shareFile } from "@/lib/cards/share";
 import { cn } from "@/lib/cn";
 import { copyText } from "@/lib/copy";
 import { notify } from "@/lib/notify";
+import { track } from "@/lib/stats/client";
+import { videoEvent } from "@/lib/stats/events";
 import { VideoUnsupportedError } from "@/lib/video/encode";
 import { VIDEO_FORMATS, type VideoFormat } from "@/lib/video/formats";
 import {
@@ -129,6 +131,7 @@ function VideoFlow({ request, onDone }: { request: VideoRequest; onDone: () => v
       });
       if (controller.signal.aborted) return;
       setStep({ kind: "klaar", video, url: URL.createObjectURL(video.file) });
+      track(videoEvent(format, mystery));
     } catch (error) {
       if (controller.signal.aborted) return;
       setStep({ kind: "fout", unsupported: error instanceof VideoUnsupportedError });

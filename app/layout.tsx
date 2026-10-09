@@ -12,6 +12,9 @@ import { LazyOverlays, LazyWalkout } from "@/components/shell/LazyOverlays";
 import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
 import { ConfettiRain } from "@/components/ui/ConfettiRain";
 import { Toaster } from "@/components/ui/Toaster";
+import { StatsTracker } from "@/components/stats/StatsTracker";
+import { VercelAnalytics } from "@/components/stats/VercelAnalytics";
+import { ACCESS_HEADER } from "@/lib/dev-dashboard/auth";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { buildThemeScript } from "@/lib/theme/script";
 import "./globals.css";
@@ -68,8 +71,29 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const requestHeaders = await headers();
   // De nonce van de CSP (proxy.ts): zonder nonce mag het themascript niet draaien.
-  const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const nonce = requestHeaders.get("x-nonce") ?? undefined;
+
+  // Het privé ontwikkelaarsdashboard (alleen via proxy.ts): alleen de hemel, geen app eromheen,
+  // geen onboarding en niets wat telt. Altijd donker, met de sterren aan.
+  if (requestHeaders.get(ACCESS_HEADER)) {
+    return (
+      <html
+        lang="nl"
+        data-theme="aurora"
+        data-mode="dark"
+        data-tod="nacht"
+        className={`${inter.variable} ${unbounded.variable} ${bebas.variable}`}
+      >
+        <body>
+          <Sky />
+          <div id="app-root">{children}</div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html
       lang="nl"
@@ -97,7 +121,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <AchievementWatcher />
           <ConfettiRain />
           <Toaster />
+          <StatsTracker />
         </Providers>
+        {/* Alleen op Vercel: daar bestaat /_vercel/insights. */}
+        {process.env.VERCEL && <VercelAnalytics />}
       </body>
     </html>
   );

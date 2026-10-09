@@ -639,6 +639,54 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
   in de onboarding): geen meldingen meer. Het koppelscherm heeft nu een h1, de Meer-knop een
   duidelijke naam.
 
+## Ontwikkelaarsdashboard en anonieme statistieken (9 oktober 2026)
+
+- **Niet vindbaar.** Het adres komt uit `DEV_DASHBOARD_PATH`; `proxy.ts` stuurt het intern door naar
+  `/dev-dashboard-intern` als er een geldige sessie is, of (alleen de inlogpagina en het inloggen)
+  met de juiste `?key=` uit `DEV_DASHBOARD_KEY`. Anders gebeurt er niets bijzonders en is het
+  adres een gewone, niet-bestaande pagina: getest, de 404 is byte voor byte gelijk aan die van een
+  willekeurig adres (op het pad en de nonce na). Het interne adres rechtstreeks geeft ook een 404;
+  die is wel van buiten te onderscheiden (Next.js zet er een `x-middleware-rewrite`-header bij),
+  maar de naam staat toch al in deze openbare repo. De beveiliging zit in de drie geheimen, niet
+  in de naam. Elke pagina en route controleert zelf nog een keer header en sessie
+  (`lib/dev-dashboard/guard.ts`); de toegangsheader wordt van elk binnenkomend verzoek gewist.
+- **Sessie zonder database:** een ondertekend cookie `v1.<verloopmoment>.<HMAC>`, met een sleutel
+  uit het wachtwoord (nieuw wachtwoord = alle sessies weg). Vergelijken in constante tijd (beide
+  kanten eerst door HMAC). Inlogrem: 5 per 15 minuten per IP, in het geheugen (per
+  serverinstantie). Uitloggen wist het cookie op dit apparaat; een gestolen cookie stop je door
+  het wachtwoord te veranderen.
+- **Eigen layout.** Op het dashboard rendert de root-layout alleen de hemel (donker, met sterren):
+  geen app-shell, onboarding, themascript, statistieken of Vercel Analytics. De grafieken
+  (`components/charts`) zijn zelfgebouwd SVG, volgens de dataviz-skill: 2px lijnen, één as,
+  crosshair met tooltip (ook ← en →), legenda bij twee of meer reeksen en altijd een tabel.
+  Kleuren blauw, oranje en aqua, gevalideerd op de donkere achtergrond. In de stijlgids staan ze
+  met neutrale voorbeelddata, zonder het dashboard te noemen.
+- **Tellers:** één Redis-hash per dag (`sm:dag:<datum>`, Nederlandse tijd) met alleen
+  veldnamen uit een vast alfabet (`a-z 0-9 : -`) en `EXPIREAT` op 400 dagen. Events alleen uit de
+  whitelist (`lib/stats/events.ts`); keuzes zoals de onboardingstap of het videoformaat zitten
+  in de naam zelf, dus vrije tekst kan er niet in. Tellen gaat via een buffer per serverinstantie
+  die hooguit eens per 5 seconden in één pipeline wegschrijft (scheelt Upstash-commando's), na het
+  antwoord met `after()`. Geen extra dependency: de REST-API van Upstash met `fetch`.
+- **Proxy-gezondheid** zonder dat de browser iets stuurt: aantal verzoeken dat Magister bereikte,
+  statusgroep (een doorverwijzing telt als 401: sessie weg), wat de proxy zelf weigerde, en de
+  responstijd per uur als som, aantal en histogram (zo is de p95 te benaderen zonder losse
+  metingen te bewaren). De waarschuwing komt als het aandeel 401 of 5xx vandaag minstens 10
+  procentpunt hoger én het dubbele is van de week ervoor, of boven de 40% komt (vanaf 20
+  verzoeken).
+- **Afwijking: Open-Meteo** roept de browser rechtstreeks aan (zo gaan er geen coördinaten langs
+  onze server). Fouten daarvan kunnen dus niet aan de serverkant geteld worden; de browser telt ze
+  als event `fout-open-meteo`. De vakantie-API telt wel op de server.
+- **Funnel en "eerste walkout":** er worden geen mensen gevolgd, dus de trechter is een benadering
+  van losse tellers. Om "eerste walkout" en "welkomstpack" maar één keer te tellen staan er twee
+  vinkjes in `sm-statistiek` (localStorage); die sleutel telt niet mee bij "is dit een
+  terugkerende gebruiker" voor de onboarding.
+- **Opt-out:** Instellingen → Privacy → "Anonieme statistieken delen" (standaard aan). Do Not Track
+  of Global Privacy Control: de browser stuurt niets, en de server telt ook niets als de header
+  toch binnenkomt. Vercel Analytics krijgt het adres zonder query en fragment, met `[vak]` in
+  plaats van de vakcode.
+- **Live check** vanaf de server: de eigen proxy (zonder token moet hij "geen-token" zeggen),
+  accounts.magister.net, Open-Meteo en Rijksoverheid.
+
 ## Geschrapt (besluit 6 oktober 2026)
 
 Deze onderdelen uit de opdracht gaan er helemaal uit, nu en in latere fases. Waar iets ernaar

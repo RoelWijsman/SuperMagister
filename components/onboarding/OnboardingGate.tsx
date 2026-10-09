@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useIsClient } from "@/lib/hooks";
+import { track } from "@/lib/stats/client";
 import { isReturningUser, useOnboarding } from "@/stores/onboarding";
 
 /** De laag zelf (intro, uitleg, mini-walkouts) laadt pas als de onboarding echt open gaat. */
@@ -38,7 +39,10 @@ export function OnboardingGate() {
       // Geen opslag: dan gewoon beginnen.
     }
     if (isReturningUser(keys)) state.finish();
-    else state.begin();
+    else {
+      state.begin();
+      track("onboarding-gestart");
+    }
   }, [isClient, hidden]);
 
   return isClient && !hidden && status === "bezig" ? <OnboardingLayer /> : null;
