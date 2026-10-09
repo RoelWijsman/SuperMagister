@@ -25,31 +25,136 @@ export interface DashboardConfig {
 /** Het interne adres waar de pagina's echt staan. Rechtstreeks openen geeft altijd een 404. */
 export const INTERNAL_PREFIX = "/dev-dashboard-intern";
 
-/** Het geheime adres: een slash, dan minstens 12 tekens (letters, cijfers, - en _). */
-const PATH = /^\/[A-Za-z0-9_-]{12,64}$/;
-const MIN_SECRET = 12;
+/** Minimale lengte van het pad (zonder slash), het wachtwoord en de sleutel. */
+export const MIN_LENGTH = 8;
+
+/** Tekens die zonder gedoe in een adres passen (RFC 3986 "unreserved"). */
+const PATH_CHARS = /^[A-Za-z0-9._~-]+$/;
+
+/**
+ * Een waarde zoals iemand hem in Vercel plakt: spaties, enters en
+ * aanhalingstekens eromheen halen we weg ("abc", 'abc' en ` abc ` worden abc).
+ */
+export function cleanValue(value: string | undefined): string {
+  let text = (value ?? "").trim();
+  while (text.length >= 2 && /^(["'`]).*\1$/s.test(text)) text = text.slice(1, -1).trim();
+  return text;
+}
+
+/**
+ * Het pad, netjes: met één slash vooraan, zonder slash aan het eind. Dus
+ * `dev-abc`, `/dev-abc`, `/dev-abc/` en `"/dev-abc"` worden allemaal `/dev-abc`.
+ */
+export function normalizePath(value: string | undefined): string {
+  const inner = cleanValue(value).replace(/^\/+|\/+$/g, "");
+  return inner ? `/${inner}` : "";
+}
+
+export type ConfigCheck = { ok: true; config: DashboardConfig } | { ok: false; reasons: string[] };
+
+/**
+ * Controleert de drie variabelen en zegt in gewone taal wat er mis is. De
+ * redenen bevatten nooit de waarden zelf, alleen wat er niet klopt.
+ */
+export function checkDashboardConfig(env: Record<string, string | undefined>): ConfigCheck {
+  const path = normalizePath(env.DEV_DASHBOARD_PATH);
+  const password = cleanValue(env.DEV_DASHBOARD_PASSWORD);
+  const key = cleanValue(env.DEV_DASHBOARD_KEY);
+  const reasons: string[] = [];
+
+  const inner = path.slice(1);
+  if (!inner) reasons.push("DEV_DASHBOARD_PATH ontbreekt of is leeg");
+  else {
+    if (inner.length < MIN_LENGTH)
+      reasons.push(`DEV_DASHBOARD_PATH is korter dan ${MIN_LENGTH} tekens (zonder de slash)`);
+    if (!PATH_CHARS.test(inner))
+      reasons.push(
+        "DEV_DASHBOARD_PATH mag alleen letters, cijfers en - _ . ~ bevatten (één deel, geen extra /)",
+      );
+    // Niet over de API, Next.js zelf of het interne adres heen.
+    if (/^(api|_next|dev-dashboard-intern)/i.test(inner))
+      reasons.push("DEV_DASHBOARD_PATH mag niet beginnen met api, _next of dev-dashboard-intern");
+  }
+  if (!password) reasons.push("DEV_DASHBOARD_PASSWORD ontbreekt of is leeg");
+  else if (password.length < MIN_LENGTH)
+    reasons.push(`DEV_DASHBOARD_PASSWORD is korter dan ${MIN_LENGTH} tekens`);
+  if (!key) reasons.push("DEV_DASHBOARD_KEY ontbreekt of is leeg");
+  else {
+    if (key.length < MIN_LENGTH)
+      reasons.push(`DEV_DASHBOARD_KEY is korter dan ${MIN_LENGTH} tekens`);
+    if (/[\s#&?%]/.test(key))
+      reasons.push(
+        "DEV_DASHBOARD_KEY bevat een spatie, #, &, ? of %: die breken het adres. Kies een sleutel met alleen letters, cijfers, - en _",
+      );
+  }
+  return reasons.length ? { ok: false, reasons } : { ok: true, config: { path, password, key } };
+}
 
 export function dashboardConfigFrom(
   env: Record<string, string | undefined>,
 ): DashboardConfig | null {
-  const path = env.DEV_DASHBOARD_PATH?.trim().replace(/\/+$/, "") ?? "";
-  const password = env.DEV_DASHBOARD_PASSWORD ?? "";
-  const key = env.DEV_DASHBOARD_KEY ?? "";
-  // Niet over de API, Next.js zelf of het interne adres heen.
-  if (!PATH.test(path) || /^\/(api|_next|dev-dashboard-intern)/i.test(path)) return null;
-  if (password.length < MIN_SECRET || key.length < MIN_SECRET) return null;
-  return { path, password, key };
+  const result = checkDashboardConfig(env);
+  return result.ok ? result.config : null;
 }
 
+/** Elke reden maar één keer per serverinstantie loggen. */
+let lastWarning = "";
+
+/**
+ * De configuratie van deze server, gelezen op het moment zelf (runtime, niet
+ * tijdens het bouwen). Is er wel iets ingevuld maar klopt het niet, dan komt
+ * er één regel in de serverlogs (Vercel → Logs) met wát er niet klopt, zonder
+ * de waarden. Is er niets ingevuld, dan blijft het stil: dan staat het dashboard
+ * gewoon uit.
+ */
 export function dashboardConfig(): DashboardConfig | null {
-  return dashboardConfigFrom(process.env);
+  const env = {
+    DEV_DASHBOARD_PATH: process.env.DEV_DASHBOARD_PATH,
+    DEV_DASHBOARD_PASSWORD: process.env.DEV_DASHBOARD_PASSWORD,
+    DEV_DASHBOARD_KEY: process.env.DEV_DASHBOARD_KEY,
+  };
+  const result = checkDashboardConfig(env);
+  if (result.ok) return result.config;
+  const anySet = Object.values(env).some((value) => cleanValue(value) !== "");
+  const warning = result.reasons.join("; ");
+  if (anySet && warning !== lastWarning) {
+    lastWarning = warning;
+    console.warn(`[ontwikkelaarsdashboard] staat uit: ${warning}.`);
+  }
+  return null;
 }
 
-/** Valt dit adres onder het geheime adres? Geeft dan het deel erna (bijv. "" of "/export"). */
+/** Een adres uit de adresbalk, gedecodeerd (%2D wordt -) en zonder slash aan het eind. */
+function plainPath(pathname: string): string {
+  let decoded = pathname;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    // Kapotte %-codering: dan gewoon zoals hij is.
+  }
+  return decoded.length > 1 ? decoded.replace(/\/+$/, "") : decoded;
+}
+
+/**
+ * Valt dit adres onder het geheime adres? Geeft dan het deel erna (bijv. "" of
+ * "/export"). Hoofdletters maken niet uit: /Dev-ABC is hetzelfde als /dev-abc.
+ */
 export function subPath(pathname: string, base: string): string | null {
-  if (pathname === base) return "";
-  if (pathname.startsWith(`${base}/`)) return pathname.slice(base.length);
+  const path = plainPath(pathname);
+  const lower = path.toLowerCase();
+  const target = base.toLowerCase();
+  if (lower === target) return "";
+  if (lower.startsWith(`${target}/`)) return path.slice(base.length);
   return null;
+}
+
+/**
+ * De sleutel uit ?key=… zoals hij bedoeld is: spaties eromheen weg, en een
+ * spatie in het midden was waarschijnlijk een + (zo leest een adres een +).
+ */
+export function cleanKeyParam(value: string | null): string | null {
+  if (value === null) return null;
+  return value.trim().replace(/ /g, "+");
 }
 
 export const SESSION_COOKIE = "sm-dev";

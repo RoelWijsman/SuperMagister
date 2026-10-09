@@ -650,6 +650,13 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
   maar de naam staat toch al in deze openbare repo. De beveiliging zit in de drie geheimen, niet
   in de naam. Elke pagina en route controleert zelf nog een keer header en sessie
   (`lib/dev-dashboard/guard.ts`); de toegangsheader wordt van elk binnenkomend verzoek gewist.
+- **Vergevingsgezind ingesteld** (na de eerste livegang, waar het dashboard een 404 bleef geven):
+  de variabelen worden opgeschoond (spaties en aanhalingstekens weg, het pad met precies één slash
+  vooraan en geen aan het eind), het pad wordt zonder hoofdletters vergeleken, een spatie in
+  `?key=` telt als `+`, en de minimale lengte is 8 tekens. Klopt er toch iets niet, dan logt de
+  server één regel met de reden (nooit de waarden), en `npm run dashboard:check` controleert een
+  env-bestand zonder iets te tonen. De variabelen worden runtime gelezen (gecontroleerd: ze staan
+  niet in de build), maar Vercel geeft nieuwe waarden pas mee na een nieuwe deploy.
 - **Sessie zonder database:** een ondertekend cookie `v1.<verloopmoment>.<HMAC>`, met een sleutel
   uit het wachtwoord (nieuw wachtwoord = alle sessies weg). Vergelijken in constante tijd (beide
   kanten eerst door HMAC). Inlogrem: 5 per 15 minuten per IP, in het geheugen (per

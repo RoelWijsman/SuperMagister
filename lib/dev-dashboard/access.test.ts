@@ -4,7 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { proxy } from "@/proxy";
 import {
   ACCESS_HEADER,
+  checkDashboardConfig,
   createSession,
+  dashboardConfig,
   dashboardConfigFrom,
   INTERNAL_PREFIX,
   readCookie,
@@ -26,7 +28,10 @@ const CONFIG = dashboardConfigFrom(ENV) as DashboardConfig;
 beforeEach(() => {
   for (const [key, value] of Object.entries(ENV)) vi.stubEnv(key, value);
 });
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.restoreAllMocks();
+});
 
 function req(path: string, init: { method?: string; headers?: Record<string, string> } = {}) {
   return new NextRequest(`https://supermagister.nl${path}`, init);
@@ -54,7 +59,52 @@ describe("configuratie uit de omgeving", () => {
     expect(dashboardConfigFrom({ ...ENV, DEV_DASHBOARD_KEY: undefined })).toBeNull();
     expect(dashboardConfigFrom({ ...ENV, DEV_DASHBOARD_PASSWORD: "kort" })).toBeNull();
     expect(dashboardConfigFrom({ ...ENV, DEV_DASHBOARD_PATH: "/dev" })).toBeNull();
-    expect(dashboardConfigFrom({ ...ENV, DEV_DASHBOARD_PATH: "dev-zonder-slash-123" })).toBeNull();
+  });
+
+  it("is vergevingsgezind over slashes, spaties en aanhalingstekens", () => {
+    for (const path of [
+      "dev-k3v9x7q2abcd",
+      "/dev-k3v9x7q2abcd/",
+      "  /dev-k3v9x7q2abcd  ",
+      '"/dev-k3v9x7q2abcd"',
+      "'dev-k3v9x7q2abcd'",
+      "//dev-k3v9x7q2abcd//",
+    ])
+      expect(dashboardConfigFrom({ ...ENV, DEV_DASHBOARD_PATH: path })?.path).toBe(CONFIG.path);
+    const quoted = dashboardConfigFrom({
+      ...ENV,
+      DEV_DASHBOARD_PASSWORD: ` "${ENV.DEV_DASHBOARD_PASSWORD}"\n`,
+      DEV_DASHBOARD_KEY: `'${ENV.DEV_DASHBOARD_KEY}' `,
+    });
+    expect(quoted).toEqual(CONFIG);
+  });
+
+  it("zegt wat er mis is, zonder de waarden te noemen", () => {
+    const secret = "geheim-wachtwoord-xyz";
+    const result = checkDashboardConfig({
+      DEV_DASHBOARD_PATH: "/a/b",
+      DEV_DASHBOARD_PASSWORD: "kort",
+      DEV_DASHBOARD_KEY: `${secret} met spatie`,
+    });
+    expect(result.ok).toBe(false);
+    const text = result.ok ? "" : result.reasons.join(" ");
+    expect(text).toContain("DEV_DASHBOARD_PATH is korter dan 8 tekens");
+    expect(text).toContain("DEV_DASHBOARD_PATH mag alleen");
+    expect(text).toContain("DEV_DASHBOARD_PASSWORD is korter dan 8 tekens");
+    expect(text).toContain("DEV_DASHBOARD_KEY bevat een spatie");
+    expect(text).not.toContain(secret);
+    expect(text).not.toContain("kort ");
+  });
+
+  it("logt waarom het dashboard uit staat, zonder de waarden", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("DEV_DASHBOARD_PASSWORD", "kort-1");
+    expect(dashboardConfig()).toBeNull();
+    expect(warn).toHaveBeenCalledTimes(1);
+    const logged = String(warn.mock.calls[0]?.[0]);
+    expect(logged).toContain("DEV_DASHBOARD_PASSWORD is korter");
+    for (const value of [...Object.values(ENV), "kort-1"]) expect(logged).not.toContain(value);
+    warn.mockRestore();
   });
 
   it("weigert paden over de API, Next.js of het interne adres heen", () => {
@@ -67,6 +117,10 @@ describe("configuratie uit de omgeving", () => {
     expect(subPath("/dev-k3v9x7q2abcd/export", CONFIG.path)).toBe("/export");
     expect(subPath("/dev-k3v9x7q2abcdX", CONFIG.path)).toBeNull();
     expect(subPath("/vandaag", CONFIG.path)).toBeNull();
+    // Hoofdletters, een slash aan het eind en %-codering maken niet uit.
+    expect(subPath("/DEV-K3V9X7Q2ABCD", CONFIG.path)).toBe("");
+    expect(subPath("/dev-k3v9x7q2abcd/", CONFIG.path)).toBe("");
+    expect(subPath("/dev%2Dk3v9x7q2abcd/Export", CONFIG.path)).toBe("/Export");
   });
 });
 
@@ -180,7 +234,21 @@ describe("proxy: zonder sessie een gewone 404", () => {
     expect(response.headers.get(`x-middleware-request-${ACCESS_HEADER}`)).toBeNull();
   });
 
+  it("werkt ook met andere hoofdletters, een slash aan het eind of een + in de sleutel", async () => {
+    vi.stubEnv("DEV_DASHBOARD_KEY", "sleutel+met+plus-123");
+    for (const url of [
+      `${CONFIG.path.toUpperCase()}?key=sleutel%2Bmet%2Bplus-123`,
+      `${CONFIG.path}/?key=sleutel+met+plus-123`,
+      `${CONFIG.path}?key=%20sleutel%2Bmet%2Bplus-123%20`,
+    ]) {
+      const response = await proxy(req(url));
+      expect(isRewrite(response), url).toBe(true);
+      expect(new URL(getRewrittenUrl(response)!).pathname).toBe(`${INTERNAL_PREFIX}/inloggen`);
+    }
+  });
+
   it("zonder configuratie bestaat het dashboard niet", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.stubEnv("DEV_DASHBOARD_PASSWORD", "");
     await looksLikeNormalPage(`${CONFIG.path}?key=${ENV.DEV_DASHBOARD_KEY}`);
   });

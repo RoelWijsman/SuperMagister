@@ -220,8 +220,8 @@ Zonder de variabelen werkt de app ook; dan is er alleen geen dashboard en wordt 
 | ----------------------------- | ---------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_SITE_URL`        | Het adres van de site: bladwijzer, deelafbeelding, robots.txt en sitemap.    |
 | `DEV_DASHBOARD_PATH`          | Het geheime adres van het ontwikkelaarsdashboard, bijv. `/dev-Xk3v9x7q2Lr8`. |
-| `DEV_DASHBOARD_PASSWORD`      | Het wachtwoord voor het dashboard (minstens 12 tekens).                      |
-| `DEV_DASHBOARD_KEY`           | Zonder `?key=<deze waarde>` is zelfs de inlogpagina een 404 (minstens 12).   |
+| `DEV_DASHBOARD_PASSWORD`      | Het wachtwoord voor het dashboard (minstens 8 tekens).                       |
+| `DEV_DASHBOARD_KEY`           | Zonder `?key=<deze waarde>` is zelfs de inlogpagina een 404 (minstens 8).    |
 | `DEV_DASHBOARD_ANALYTICS_URL` | Optioneel: de directe link naar Vercel Analytics van dit project.            |
 | `UPSTASH_REDIS_REST_URL`      | De opslag voor de tellers. Vult Vercel zelf in (als `KV_REST_API_URL`).      |
 | `UPSTASH_REDIS_REST_TOKEN`    | Hoort bij de opslag. Vult Vercel zelf in (als `KV_REST_API_TOKEN`).          |
@@ -309,6 +309,23 @@ knop **Test nu**, build-info, een link naar Vercel Analytics en **CSV** om alles
 6. **Eerste keer inloggen.** Open `https://supermagister.nl<DEV_DASHBOARD_PATH>?key=<DEV_DASHBOARD_KEY>`,
    vul het wachtwoord in en zet het adres zonder `?key=…` in je bladwijzers (een week lang kom je
    er dan zonder inloggen in). Verlopen? Gebruik de link met `?key=` weer.
+
+**Krijg je toch een 404?**
+
+1. Zijn de variabelen ingevuld vóór de laatste deploy? Ze gelden pas na **Redeploy**.
+2. Staan ze bij **Production** (niet alleen Preview of Development)?
+3. Kijk in Vercel bij **Logs** naar een regel `[ontwikkelaarsdashboard] staat uit: …`. Daar staat
+   wát er niet klopt (bijv. "DEV_DASHBOARD_PASSWORD is korter dan 8 tekens"), nooit de waarden.
+4. Of controleer de echte waarden op je eigen computer, zonder dat ze op het scherm komen:
+
+   ```bash
+   npx vercel env pull .env.vercel --environment=production
+   npm run dashboard:check -- .env.vercel
+   rm .env.vercel
+   ```
+
+Hoofdletters, een slash vooraan of aan het eind, en aanhalingstekens rond de waarden maken niet
+uit.
 
 Lokaal kan het ook: zet de drie `DEV_DASHBOARD_`-variabelen in `.env.local`. Zonder Upstash zegt
 het dashboard dat er nog geen opslag is gekoppeld.

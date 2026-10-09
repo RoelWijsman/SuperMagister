@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run build"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "dashboard:check": "node --experimental-strip-types --no-warnings scripts/controleer-dashboard.mjs"
   },
   "engines": {
     "node": "22.x"

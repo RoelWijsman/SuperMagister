@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
   ACCESS_HEADER,
+  cleanKeyParam,
   dashboardConfig,
   INTERNAL_PREFIX,
   readCookie,
@@ -42,7 +43,7 @@ async function dashboardAccess(request: NextRequest): Promise<{
   if (await verifySession(config, cookie)) return { access: "dashboard", target: rest };
 
   // Zonder sessie: alleen de inlogpagina (en het inloggen zelf), en alleen met de sleutel.
-  const key = request.nextUrl.searchParams.get("key");
+  const key = cleanKeyParam(request.nextUrl.searchParams.get("key"));
   if (key === null || !(await safeEqual(key, config.key))) return null;
   if (rest === "" && request.method === "GET") return { access: "inloggen", target: "/inloggen" };
   if (rest === "/sessie" && request.method === "POST")

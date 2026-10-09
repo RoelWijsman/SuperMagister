@@ -2,6 +2,7 @@ import { clientIp, createRateLimiter, type RateLimiter } from "@/lib/security/ra
 import { FIELDS } from "@/lib/stats/fields";
 import { counters, type CounterBuffer } from "@/lib/stats/store";
 import {
+  cleanKeyParam,
   clearedSessionCookie,
   createSession,
   safeEqual,
@@ -41,7 +42,7 @@ export async function handleLogin(
     now = Date.now,
   }: { limiter?: RateLimiter; buffer?: CounterBuffer; now?: () => number } = {},
 ): Promise<Response> {
-  const key = new URL(request.url).searchParams.get("key") ?? "";
+  const key = cleanKeyParam(new URL(request.url).searchParams.get("key")) ?? "";
   const back = (fout: string) =>
     redirect(`${config.path}?key=${encodeURIComponent(key)}&fout=${fout}`);
 
