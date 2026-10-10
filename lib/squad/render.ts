@@ -344,7 +344,11 @@ function drawHeader(
 
   // Rating en chemie rechts, groot (de rating alleen als je dat wilt).
   ctx.textAlign = "right";
-  const rating = options.showRatings ? String(Math.round(data.evaluation.rating * count)) : "–";
+  // Niet compleet: geen squad-rating (net als op het scherm).
+  const rating =
+    options.showRatings && data.evaluation.complete
+      ? String(Math.round(data.evaluation.rating * count))
+      : "–";
   const chemistry = String(Math.round(data.evaluation.chemistry * count));
   ctx.fillStyle = "rgba(255,255,255,0.55)";
   ctx.font = `${h * 0.13}px ${family}`;

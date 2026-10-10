@@ -23,7 +23,8 @@ import type { SquadPlayer } from "./players";
  *   of keeper op het veld en andersom) is altijd 0, zoals in Ultimate Team. De
  *   aanvoerder krijgt er 1 bij (max 10).
  * - Teamchemie: alle spelerschemie bij elkaar, geschaald naar 100 (elf keer 10 =
- *   100). Een lege plek telt als 0.
+ *   100). Een lege plek telt als 0, en ook als buurplek als 0: een gat maakt de
+ *   chemie nooit hoger.
  */
 
 export type LinkStrength = "groen" | "oranje" | "rood";
@@ -66,8 +67,8 @@ const FIT_RULES: Readonly<Record<PositionFit, { base: number; links: number }>> 
 };
 
 /**
- * Spelerschemie 0–10. `linkPoints` is het gemiddelde van de lijnen naar bezette
- * buurplekken (groen 10, oranje 5, rood 0); zonder buren is het 0. Uit positie
+ * Spelerschemie 0–10. `linkPoints` is het gemiddelde van de lijnen naar alle
+ * buurplekken (groen 10, oranje 5, rood 0, lege plek 0). Uit positie
  * altijd 0, ook als aanvoerder.
  */
 export function playerChemistry(fit: PositionFit, linkPoints: number, captain = false): number {
@@ -83,10 +84,13 @@ export function teamChemistry(chemistries: readonly number[], slots = 11): numbe
   return Math.round((total / (slots * 10)) * 100);
 }
 
-/** Squad-rating: het gemiddelde van de kaart-ratings op het veld, afgerond. */
-export function squadRating(ratings: readonly number[]): number {
+/**
+ * Squad-rating: het gemiddelde van de ratings over alle plekken, afgerond. Een
+ * lege plek telt als 0, zodat een gat je rating nooit hoger maakt.
+ */
+export function squadRating(ratings: readonly (number | null)[]): number {
   if (ratings.length === 0) return 0;
-  return Math.round(ratings.reduce((sum, r) => sum + r, 0) / ratings.length);
+  return Math.round(ratings.reduce<number>((sum, r) => sum + (r ?? 0), 0) / ratings.length);
 }
 
 export interface SlotResult {
@@ -110,15 +114,19 @@ export interface SquadEvaluation {
   formation: Formation;
   slots: SlotResult[];
   links: LinkResult[];
-  /** Gemiddelde rating van de spelers op het veld, afgerond (0 zonder spelers). */
+  /** Gemiddelde rating over alle elf plekken (lege plek = 0), afgerond. Toon hem pas bij `complete`. */
   rating: number;
+  /** Staat er op elke plek iemand? Zo niet, dan toon je "niet compleet (10/11)". */
+  complete: boolean;
   /** Onafgeronde som van de ratings, voor het automatisch bouwen. */
   ratingSum: number;
   chemistry: number;
   /** Teamchemie zonder afronding, voor het automatisch bouwen. */
   chemistryExact: number;
-  /** Gemiddelde rating per linie, of null als er niemand staat. */
+  /** Gemiddelde rating per linie, of null als er in die linie nog een plek leeg is. */
   lineRatings: Record<Line, number | null>;
+  /** Per linie: hoeveel plekken er gevuld zijn, van hoeveel. */
+  lineFill: Record<Line, { placed: number; total: number }>;
   placed: number;
 }
 
@@ -168,9 +176,10 @@ export function evaluateSquad(
     const line = slotLine(slot);
     if (!player) return { slot, line, player, fit: null, chemistry: 0, captain: false };
     const fit = fits.get(slot.id)!;
-    const points = (around.get(slot.id) ?? []).flatMap((other) => {
+    // Een lege buurplek telt als 0: een gat maakt de chemie nooit hoger.
+    const points = (around.get(slot.id) ?? []).map((other) => {
       const strength = strengthOf(slot.id, other);
-      return strength ? [LINK_POINTS[strength]] : [];
+      return strength ? LINK_POINTS[strength] : 0;
     });
     const linkPoints = points.length ? points.reduce((s, p) => s + p, 0) / points.length : 0;
     const captain = lineup.captain === player.id;
@@ -185,10 +194,17 @@ export function evaluateSquad(
   });
 
   const ratings = slots.flatMap((s) => (s.player ? [s.player.rating] : []));
+  const lineFill = Object.fromEntries(
+    LINES.map((line) => {
+      const inLine = slots.filter((s) => s.line === line);
+      return [line, { placed: inLine.filter((s) => s.player).length, total: inLine.length }];
+    }),
+  ) as Record<Line, { placed: number; total: number }>;
   const lineRatings = Object.fromEntries(
     LINES.map((line) => {
-      const inLine = slots.filter((s) => s.line === line && s.player).map((s) => s.player!.rating);
-      return [line, inLine.length ? squadRating(inLine) : null];
+      const inLine = slots.filter((s) => s.line === line);
+      const complete = inLine.length > 0 && inLine.every((s) => s.player);
+      return [line, complete ? squadRating(inLine.map((s) => s.player!.rating)) : null];
     }),
   ) as Record<Line, number | null>;
 
@@ -196,7 +212,8 @@ export function evaluateSquad(
     formation,
     slots,
     links,
-    rating: squadRating(ratings),
+    rating: squadRating(slots.map((s) => s.player?.rating ?? null)),
+    complete: ratings.length === formation.slots.length,
     ratingSum: ratings.reduce((sum, r) => sum + r, 0),
     chemistry: teamChemistry(
       slots.map((s) => s.chemistry),
@@ -205,6 +222,7 @@ export function evaluateSquad(
     chemistryExact:
       (slots.reduce((sum, s) => sum + s.chemistry, 0) / (formation.slots.length * 10)) * 100,
     lineRatings,
+    lineFill,
     placed: ratings.length,
   };
 }

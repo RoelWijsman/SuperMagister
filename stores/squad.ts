@@ -38,7 +38,15 @@ const SUGGESTED_NAMES = ["Periode 1", "Beste ooit", "Chaos XI"];
 
 interface SquadState {
   bySource: Record<string, SourceSquads>;
-  updateLineup: (sourceId: string, update: (lineup: Lineup) => Lineup) => void;
+  /** De korte uitleg in de kiezer ("elk vak is één speler") is gezien. */
+  introSeen: boolean;
+  markIntroSeen: () => void;
+  /** Past de open opstelling aan (of een bepaalde, bijv. bij ongedaan maken na een wissel). */
+  updateLineup: (
+    sourceId: string,
+    update: (lineup: Lineup) => Lineup,
+    squadId?: string,
+  ) => void;
   /** Nieuw elftal (leeg, of een kopie van het huidige). Geeft false als er al drie zijn. */
   addSquad: (sourceId: string, copy: boolean) => boolean;
   renameSquad: (sourceId: string, squadId: string, name: string) => void;
@@ -62,14 +70,16 @@ export const useSquadStore = create<SquadState>()(
 
       return {
         bySource: {},
+        introSeen: false,
+        markIntroSeen: () => set({ introSeen: true }),
 
-        updateLineup(sourceId, update) {
+        updateLineup(sourceId, update, squadId) {
           const entry = entryOf(sourceId);
-          const current = activeSquad(entry);
+          const target = squadId ?? activeSquad(entry).id;
           write(sourceId, {
             ...entry,
             squads: entry.squads.map((s) =>
-              s.id === current.id ? { ...s, lineup: update(s.lineup) } : s,
+              s.id === target ? { ...s, lineup: update(s.lineup) } : s,
             ),
           });
         },
@@ -82,7 +92,9 @@ export const useSquadStore = create<SquadState>()(
           while (taken.has(`elftal-${n}`)) n++;
           const names = new Set(entry.squads.map((s) => s.name));
           const name = SUGGESTED_NAMES.find((candidate) => !names.has(candidate)) ?? `Elftal ${n}`;
-          const lineup = copy ? activeSquad(entry).lineup : emptyLineup(activeSquad(entry).lineup.formation);
+          const lineup = copy
+            ? activeSquad(entry).lineup
+            : emptyLineup(activeSquad(entry).lineup.formation);
           const squad = { id: `elftal-${n}`, name, lineup };
           write(sourceId, { ...entry, squads: [...entry.squads, squad], active: squad.id });
           return true;
@@ -111,7 +123,8 @@ export const useSquadStore = create<SquadState>()(
 
         setActive(sourceId, squadId) {
           const entry = entryOf(sourceId);
-          if (entry.squads.some((s) => s.id === squadId)) write(sourceId, { ...entry, active: squadId });
+          if (entry.squads.some((s) => s.id === squadId))
+            write(sourceId, { ...entry, active: squadId });
         },
 
         setClub(sourceId, club) {
@@ -129,7 +142,7 @@ export const useSquadStore = create<SquadState>()(
       name: STORAGE_KEYS.squad,
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ bySource: state.bySource }),
+      partialize: (state) => ({ bySource: state.bySource, introSeen: state.introSeen }),
     },
   ),
 );

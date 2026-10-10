@@ -87,8 +87,8 @@ export function ChemistryHelp({ open, onClose }: { open: boolean; onClose: () =>
             <li>De aanvoerder (de band met de C) krijgt er 1 bij, tot 10.</li>
           </ul>
           <p className="mt-2">
-            De lijnen tellen als gemiddelde: groen 10, oranje 5, rood 0. Een lege buurplek telt niet
-            mee.
+            De lijnen tellen als gemiddelde: groen 10, oranje 5, rood 0. Een lege buurplek telt als
+            0.
           </p>
         </section>
 
@@ -96,8 +96,9 @@ export function ChemistryHelp({ open, onClose }: { open: boolean; onClose: () =>
           <h3>Teamchemie en rating</h3>
           <p>
             Teamchemie is de spelerschemie van je elf spelers bij elkaar, op 100 gezet (elf keer een
-            10 is 100). De squad-rating is het gemiddelde van de ratings op het veld. De bank telt
-            nergens mee.
+            10 is 100). De squad-rating is het gemiddelde van de ratings op het veld. Een lege plek
+            telt overal als 0, dus een gat maakt je elftal nooit beter; zolang er een gat is, staat
+            er &quot;niet compleet&quot;. De bank telt nergens mee.
           </p>
           <p className="mt-2">
             &quot;Bouw beste elftal&quot; telt één ratingpunt even zwaar als twee punten chemie.
@@ -121,11 +122,24 @@ export function ChemistryHelp({ open, onClose }: { open: boolean; onClose: () =>
         </section>
 
         <section>
-          <h3>Eén kaart per vak</h3>
+          <h3>Spelers en versies</h3>
           <p>
-            Op het veld staat elk vak maar één keer. Op de bank mag een tweede kaart van een vak
-            wel: die valt in voor dat vak.
+            Elk vak is één speler. Elke toets is een versie van die speler: goud, TOTY, In Form, …
+            Je kiest welke versie er speelt. Een speler staat maar één keer in je selectie, op het
+            veld óf op de bank.
           </p>
+          <ul className="list-disc pl-5">
+            <li>
+              Vervang je iemand, dan gaat hij naar de bank (als daar plek is), anders terug naar je
+              collectie.
+            </li>
+            <li>
+              Iemand die al meedoet, haal je erbij met &quot;Wissel met …&quot;: dan blijven beide
+              plekken gevuld.
+            </li>
+            <li>Een andere versie kiezen verandert alleen de versie; de plek blijft hetzelfde.</li>
+            <li>Elke stap kun je ongedaan maken (ook met Ctrl+Z).</li>
+          </ul>
         </section>
 
         <section className="rounded-2xl border border-line p-4">

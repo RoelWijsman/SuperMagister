@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { CARD_ASPECT } from "@/lib/squad/layout";
 import { spotKey, type Spot } from "@/lib/squad/lineup";
 import { NATURAL_LINE_LABELS, ratingNote, type SquadPlayer } from "@/lib/squad/players";
+import { DropHintBadge, type DropHint } from "./Pitch";
 import { SquadCard } from "./SquadCard";
 
 function BenchSpot({
@@ -15,6 +16,7 @@ function BenchSpot({
   player,
   selected,
   dragging,
+  hint,
   onActivate,
 }: {
   index: number;
@@ -22,6 +24,7 @@ function BenchSpot({
   player: SquadPlayer | null;
   selected: boolean;
   dragging: boolean;
+  hint: DropHint | null;
   onActivate: (spot: Spot) => void;
 }) {
   const spot: Spot = { kind: "bank", index };
@@ -53,10 +56,14 @@ function BenchSpot({
         tabIndex={0}
         className={cn(
           "block w-full rounded-[18%] outline-offset-4 transition-transform duration-200 focus-visible:outline-[3px] focus-visible:outline-[var(--sm-accent)]",
-          (selected || drop.isOver) && "scale-110 drop-shadow-[0_0_12px_var(--sm-accent)]",
+          "relative",
+          (selected || (drop.isOver && hint?.kind !== "kan-niet")) &&
+            "scale-110 drop-shadow-[0_0_12px_var(--sm-accent)]",
+          hint?.kind === "kan-niet" && "opacity-50",
           dragging && "opacity-35",
         )}
       >
+        {hint && <DropHintBadge hint={hint} over={drop.isOver} />}
         {card ? (
           <SquadCard card={card} player={player} chemistry={null} />
         ) : (
@@ -75,13 +82,19 @@ function BenchSpot({
   );
 }
 
-/** De bank: zeven wissels in een rij, zonder invloed op rating of chemie (zoals in FUT). */
+/**
+ * De bank: zeven plekken in een rij, zonder invloed op rating of chemie (zoals in
+ * FUT). Elk vak is één speler, dus op de bank staan alleen vakken die niet op het
+ * veld staan; met twaalf vakken is er één reserve.
+ */
 export function Bench({
   bench,
   cardById,
   players,
   selected,
   draggingKey,
+  hints,
+  allPlaying,
   onActivate,
 }: {
   bench: readonly (string | null)[];
@@ -89,6 +102,9 @@ export function Bench({
   players: ReadonlyMap<string, SquadPlayer>;
   selected: Spot | null;
   draggingKey: string | null;
+  hints?: ReadonlyMap<string, DropHint> | null;
+  /** Staan al je vakken al in de selectie? Dan blijft de rest van de bank leeg, en dat zeggen we. */
+  allPlaying: boolean;
   onActivate: (spot: Spot) => void;
 }) {
   return (
@@ -105,10 +121,16 @@ export function Bench({
             player={id ? (players.get(id) ?? null) : null}
             selected={selected?.kind === "bank" && selected.index === index}
             dragging={draggingKey === spotKey({ kind: "bank", index })}
+            hint={hints?.get(spotKey({ kind: "bank", index })) ?? null}
             onActivate={onActivate}
           />
         ))}
       </ul>
+      {allPlaying && bench.includes(null) && (
+        <p className="mt-2.5 text-xs text-ink-3">
+          Al je vakken staan in je selectie. Elk vak is één speler, dus meer reserves zijn er niet.
+        </p>
+      )}
     </section>
   );
 }

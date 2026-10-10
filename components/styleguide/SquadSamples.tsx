@@ -4,10 +4,20 @@ import { DndContext } from "@dnd-kit/core";
 import { Trophy, Wand2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Crest } from "@/components/squad/Crest";
-import { LINK_COLORS, LINK_LABELS, LINK_STYLE, Pitch } from "@/components/squad/Pitch";
+import {
+  DropHintBadge,
+  LINK_COLORS,
+  LINK_LABELS,
+  LINK_STYLE,
+  Pitch,
+} from "@/components/squad/Pitch";
+import { PickerRow, versionLabel } from "@/components/squad/PlayerPicker";
 import { ChemistryBar, ChemistryDot, SquadCard } from "@/components/squad/SquadCard";
 import { SquadStats, SquadToolbar } from "@/components/squad/SquadHeader";
+import { Button } from "@/components/ui/Button";
 import { Menu } from "@/components/ui/Menu";
+import { evaluateSquad } from "@/lib/squad/chemistry";
+import { toast } from "@/stores/toast";
 import type { CardData } from "@/lib/cards/model";
 import { buildBestSquad } from "@/lib/squad/build";
 import { CREST_SHAPES, CREST_LABELS } from "@/lib/squad/club";
@@ -123,6 +133,74 @@ export function SquadSamples({ deck }: { deck: readonly PracticeEntry[] }) {
           }}
         />
         <SquadStats evaluation={result.evaluation} className="border-t border-line pt-3" />
+        <SquadStats
+          evaluation={evaluateSquad(
+            { ...result.lineup, slots: { ...result.lineup.slots, sp: null } },
+            players,
+          )}
+          className="border-t border-line pt-3"
+        />
+      </div>
+
+      <div className="max-w-md space-y-1 rounded-3xl glass p-3">
+        {deck.slice(0, 3).map((entry, i) => {
+          const player = players.get(entry.card.id);
+          if (!player) return null;
+          const actions = [
+            { text: "Scheikunde 75 gaat naar de bank", tone: "plain" as const },
+            { text: "Wissel met Scheikunde", tone: "swap" as const },
+            { text: "Hierheen · SP wordt leeg", tone: "warn" as const },
+          ];
+          return (
+            <PickerRow
+              key={entry.id}
+              card={entry.card}
+              player={player}
+              title={player.subjectName}
+              detail={versionLabel(entry.card, player)}
+              action={actions[i]!.text}
+              actionTone={actions[i]!.tone}
+              chemistry={[9, 6, 3][i] ?? null}
+              effect={
+                [
+                  { rating: -1, chemistry: 4 },
+                  { rating: 0, chemistry: 0 },
+                  { rating: 2, chemistry: -6 },
+                ][i]!
+              }
+              label={player.subjectName}
+              onPick={noop}
+            />
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap gap-6 pt-4">
+        {(
+          [
+            { kind: "plaatsen", chemistry: 3 },
+            { kind: "wisselen", chemistry: -2 },
+            { kind: "kan-niet", chemistry: null },
+          ] as const
+        ).map((hint) => (
+          <span key={hint.kind} className="relative block w-16">
+            <DropHintBadge hint={hint} over />
+            <span className="block aspect-[1/1.3] rounded-[20%] bg-glass-strong" />
+          </span>
+        ))}
+        <Button
+          variant="glass"
+          size="sm"
+          onClick={() =>
+            toast({
+              id: "stijlgids-stap",
+              title: "Engels 74 staat op CM. Engels 79 naar de bank.",
+              action: { label: "Ongedaan maken", onClick: noop },
+            })
+          }
+        >
+          Melding met Ongedaan maken
+        </Button>
       </div>
 
       <Menu

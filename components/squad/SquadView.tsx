@@ -11,7 +11,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { Armchair, ArrowLeftRight, Crown, Replace, Sparkles, Wand2, X } from "lucide-react";
+import { Sparkles, Wand2, X } from "lucide-react";
 import { useEffect, useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -21,32 +21,34 @@ import type { CopyKey } from "@/content/copy";
 import { useMediaQuery } from "@/lib/hooks";
 import { track } from "@/lib/stats/client";
 import type { BuildResult } from "@/lib/squad/build";
-import { inPosition, type SquadEvaluation } from "@/lib/squad/chemistry";
+import { evaluateSquad, inPosition, type SquadEvaluation } from "@/lib/squad/chemistry";
 import { FORMATIONS, LINE_LABELS, POSITION_NAMES, type FormationId } from "@/lib/squad/formations";
 import {
+  applyMove,
   cardAt,
   parseSpotKey,
   sameSpot,
   spotKey,
-  type FieldConflict,
+  type MovePlan,
+  type Source,
   type Spot,
 } from "@/lib/squad/lineup";
-import { bestEmptySpot, type MoveAdvice, type MoveEffect } from "@/lib/squad/suggest";
+import type { MoveAdvice, MoveEffect } from "@/lib/squad/suggest";
 import { cn } from "@/lib/cn";
 import { useCopy, useCopyParts } from "@/lib/use-copy";
-import { toast } from "@/stores/toast";
 import type { SavedSquad } from "@/stores/squad";
+import { toast, useToasts } from "@/stores/toast";
 import { Bench } from "./Bench";
-import { CardList } from "./CardList";
 import { ChemistryHelp } from "./ChemistryHelp";
 import { ClubSheet } from "./ClubSheet";
 import { MatchSheet } from "./MatchSheet";
-import { Pitch } from "./Pitch";
+import { Pitch, type DropHint } from "./Pitch";
+import { PlayerPicker } from "./PlayerPicker";
 import { SquadCard } from "./SquadCard";
 import { SquadShareSheet } from "./SquadShareSheet";
 import { SquadStats, SquadToolbar } from "./SquadHeader";
 import { usePitchSize } from "./usePitchSize";
-import { useSquad, type SquadApi } from "./useSquad";
+import { STEP_TOAST, useSquad, type SquadApi } from "./useSquad";
 
 function spotName(api: SquadApi, spot: Spot): string {
   if (spot.kind === "bank") return `bank ${spot.index + 1}`;
@@ -183,11 +185,6 @@ function NoteCard({
   onBuild: (formation: FormationId) => void;
   onClose: () => void;
 }) {
-  const built = note.kind === "gebouwd" ? note.result : null;
-  const title = useCopy(built ? "elftal.gebouwd" : null, {
-    cijfer: String(built?.evaluation.rating ?? ""),
-    aantal: String(built?.evaluation.chemistry ?? ""),
-  });
   const out = outOfPosition(api.evaluation);
   const outText =
     out.length > 0
@@ -260,7 +257,8 @@ function NoteCard({
         <X size={16} aria-hidden />
       </button>
       <p className="pr-7 font-semibold text-ink">
-        {note.kind === "gebouwd" ? title : `Formatie ${note.formation}`}
+        {/* De bevestiging zelf staat onderaan in de melding (met Ongedaan maken); hier de uitleg. */}
+        {note.kind === "gebouwd" ? "Zo is er gekozen" : `Formatie ${note.formation}`}
       </p>
       <div className="mt-1">{body}</div>
     </>
@@ -356,6 +354,22 @@ function moveFocus(event: KeyboardEvent<HTMLDivElement>) {
   }
 }
 
+const dismissToast = (id: string) => useToasts.getState().dismiss(id);
+
+/** Welke plekken er zijn (veld en bank), voor de hints tijdens het slepen. */
+function allSpots(api: SquadApi): Spot[] {
+  return [
+    ...api.evaluation.formation.slots.map((s): Spot => ({ kind: "veld", slot: s.id })),
+    ...api.lineup.bench.map((_, index): Spot => ({ kind: "bank", index })),
+  ];
+}
+
+/** Of de toets in een tekstveld wordt getypt (dan is Ctrl+Z van het tekstveld). */
+function typing(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  return !!el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
+}
+
 /** Jouw Elftal: de squad builder van de collectie. */
 export function SquadView() {
   const api = useSquad();
@@ -367,9 +381,15 @@ export function SquadView() {
   const fitHeight = useMediaQuery("(min-width: 640px)");
   const { ref: pitchRef, size: pitchSize, cardWidth } = usePitchSize(fitHeight);
 
+  /** Op een computer: de plek waarvoor de kiezer naast het veld openstaat. */
   const [selected, setSelected] = useState<Spot | null>(null);
+  /** Op een telefoon of tablet: de plek waarvoor de kiezer als blad openstaat. */
   const [picker, setPicker] = useState<Spot | null>(null);
-  const [dragging, setDragging] = useState<{ key: string; cardId: string } | null>(null);
+  const [dragging, setDragging] = useState<{
+    key: string;
+    cardId: string;
+    hints: ReadonlyMap<string, DropHint>;
+  } | null>(null);
   const [note, setNote] = useState<Note | null>(null);
   const [help, setHelp] = useState(false);
   const [clubOpen, setClubOpen] = useState(false);
@@ -386,101 +406,83 @@ export function SquadView() {
   // Rating en chemie voor schermlezers, zodra ze veranderen.
   useEffect(() => {
     const id = setTimeout(
-      () => setAnnouncement(`Rating ${evaluation.rating}, chemie ${evaluation.chemistry}.`),
+      () =>
+        setAnnouncement(
+          evaluation.complete
+            ? `Rating ${evaluation.rating}, chemie ${evaluation.chemistry}.`
+            : `Elftal niet compleet, ${evaluation.placed} van de 11. Chemie ${evaluation.chemistry}.`,
+        ),
       400,
     );
     return () => clearTimeout(id);
-  }, [evaluation.rating, evaluation.chemistry]);
+  }, [evaluation.rating, evaluation.chemistry, evaluation.complete, evaluation.placed]);
 
-  // Escape: selectie weg.
+  // Escape laat de gekozen plek los; Ctrl+Z (of ⌘Z) zet de laatste stap terug.
+  const { undo } = api;
   useEffect(() => {
-    if (!selected) return;
     const onKey = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") setSelected(null);
+      const z = event.key === "z" || event.key === "Z";
+      if (z && (event.ctrlKey || event.metaKey) && !event.shiftKey && !typing(event.target)) {
+        if (undo()) {
+          event.preventDefault();
+          setAnnouncement("Laatste stap ongedaan gemaakt.");
+        }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selected]);
-
-  const nameOf = (cardId: string | null) =>
-    cardId ? (api.players.get(cardId)?.subjectName ?? "Kaart") : "Lege plek";
-  const positionOf = (slot: string) =>
-    FORMATIONS[lineup.formation].slots.find((s) => s.id === slot)?.position ?? "het veld";
+  }, [undo]);
 
   /** Een zet die niet mag: zeg waarom, en wat wel kan. */
-  const refuse = (conflict: FieldConflict) => {
-    const vak = nameOf(conflict.cardId);
-    const where = positionOf(conflict.slot);
+  const refuse = (plan: MovePlan, cardId: string | null) => {
+    if (plan.ok || plan.reason !== "vak-staat-al") return;
+    const player = cardId ? api.players.get(cardId) : undefined;
+    const where = api.positionOf(plan.at);
     toast({
       tone: "warning",
       emoji: "✋",
-      title: `${vak} staat al op ${where}`,
-      description: "Eén kaart per vak op het veld. Wissel met die kaart, of kies een ander vak.",
+      title: `${player?.subjectName ?? "Dit vak"} staat al op ${where}`,
+      description:
+        "Elk vak is één speler. Kies op die plek een andere versie, of wissel die speler hierheen.",
     });
-    setAnnouncement(`Kan niet: ${vak} staat al op het veld.`);
+    setAnnouncement(`Kan niet: ${player?.subjectName ?? "dit vak"} staat al op ${where}.`);
   };
 
-  const changed = () => setNote(null);
-
-  const placeAt = (spot: Spot, cardId: string) => {
-    const conflict = api.place(spot, cardId);
-    if (conflict) return refuse(conflict);
-    changed();
-    setAnnouncement(`${nameOf(cardId)} op ${spotName(api, spot)} gezet.`);
-  };
-
-  const swap = (a: Spot, b: Spot) => {
-    const first = cardAt(lineup, a);
-    const second = cardAt(lineup, b);
-    const conflict = api.swap(a, b);
-    if (conflict) return refuse(conflict);
-    changed();
-    setAnnouncement(`${nameOf(first)} en ${nameOf(second)} gewisseld.`);
-  };
-
-  /** Tikken (of Enter) op een plek: kiezen, selecteren of wisselen. */
+  /** Tikken, klikken of Enter op een plek: de kiezer voor die plek. */
   const activate = (spot: Spot) => {
-    if (selected) {
-      if (sameSpot(selected, spot)) {
-        setSelected(null);
-        return;
-      }
-      swap(selected, spot);
-      setSelected(null);
-      return;
-    }
-    if (cardAt(lineup, spot)) {
-      setSelected(spot);
-      setAnnouncement(
-        `${nameOf(cardAt(lineup, spot))} gekozen. Kies een andere plek om te wisselen, of kies hieronder wat je wilt doen.`,
-      );
-    } else setPicker(spot);
-  };
-
-  /** Een kaart uit de lijst (naast het veld): naar de gekozen plek, of de best passende lege plek. */
-  const pickFromList = (cardId: string) => {
-    const player = api.players.get(cardId);
-    if (!player) return;
-    const target = selected ?? bestEmptySpot(lineup, player, api.vakOf);
-    if (!target) {
-      toast({
-        title: "Alles vol",
-        description: "Kies eerst een plek om te vervangen.",
-        emoji: "🧤",
-      });
-      return;
-    }
-    placeAt(target, cardId);
-    setSelected(null);
+    // De melding van de vorige stap mag de kiezer niet bedekken (terugzetten kan nog met de knop of Ctrl+Z).
+    dismissToast(STEP_TOAST);
+    if (wide) setSelected((current) => (current && sameSpot(current, spot) ? null : spot));
+    else setPicker(spot);
   };
 
   const onDragStart = ({ active }: DragStartEvent) => {
-    const id = String(active.id);
     const fromSpot = active.data.current?.spot as Spot | undefined;
     const cardId = fromSpot
       ? cardAt(lineup, fromSpot)
       : (active.data.current?.cardId as string | undefined);
-    if (cardId) setDragging({ key: fromSpot ? spotKey(fromSpot) : id, cardId });
+    if (!cardId) return;
+    const source: Source = fromSpot ? { kind: "plek", spot: fromSpot } : { kind: "kaart", cardId };
+    // Voor elke plek: wat er gebeurt en wat het met de chemie doet.
+    const hints = new Map<string, DropHint>();
+    for (const spot of allSpots(api)) {
+      const plan = api.plan(source, spot);
+      if (!plan.ok) {
+        if (plan.reason === "vak-staat-al")
+          hints.set(spotKey(spot), { kind: "kan-niet", chemistry: null });
+        continue;
+      }
+      const result = applyMove(lineup, source, spot, api.vakOf);
+      const chemistry = result
+        ? evaluateSquad(result.lineup, api.players).chemistry - evaluation.chemistry
+        : null;
+      hints.set(spotKey(spot), {
+        kind: plan.kind === "wisselen" ? "wisselen" : "plaatsen",
+        chemistry,
+      });
+    }
+    setDragging({ key: fromSpot ? spotKey(fromSpot) : String(active.id), cardId, hints });
     setSelected(null);
   };
 
@@ -490,31 +492,35 @@ export function SquadView() {
     const fromSpot = active.data.current?.spot as Spot | undefined;
     const cardId = active.data.current?.cardId as string | undefined;
     if (over.id === "lijst") {
-      if (fromSpot) {
-        setAnnouncement(`${nameOf(cardAt(lineup, fromSpot))} uit je elftal gehaald.`);
-        api.remove(fromSpot);
-        changed();
-      }
+      if (fromSpot) api.toCollection(fromSpot);
       return;
     }
     const target = parseSpotKey(String(over.id));
     if (!target) return;
-    if (fromSpot) swap(fromSpot, target);
-    else if (cardId) placeAt(target, cardId);
+    const source: Source | null = fromSpot
+      ? { kind: "plek", spot: fromSpot }
+      : cardId
+        ? { kind: "kaart", cardId }
+        : null;
+    if (!source) return;
+    const plan = api.move(source, target);
+    if (!plan.ok) refuse(plan, cardId ?? (fromSpot ? cardAt(lineup, fromSpot) : null));
+    else setNote(null);
   };
 
   const announcements: Announcements = {
     onDragStart: ({ active }) => {
       const spot = active.data.current?.spot as Spot | undefined;
-      return `${nameOf(spot ? cardAt(lineup, spot) : (active.data.current?.cardId as string))} opgepakt.`;
+      return `${api.nameOf(spot ? cardAt(lineup, spot) : (active.data.current?.cardId as string))} opgepakt.`;
     },
     onDragOver: ({ over }) => {
       const spot = over ? parseSpotKey(String(over.id)) : null;
-      return spot
-        ? `Boven ${spotName(api, spot)}.`
-        : over
-          ? "Boven de lijst: loslaten haalt hem uit je elftal."
-          : "Nergens boven.";
+      if (!spot)
+        return over ? "Boven de lijst: loslaten zet hem terug in je collectie." : "Nergens boven.";
+      const hint = dragging?.hints.get(spotKey(spot));
+      return `Boven ${spotName(api, spot)}: ${
+        !hint ? "hier staat hij al" : hint.kind === "kan-niet" ? "kan niet" : hint.kind
+      }.`;
     },
     onDragEnd: () => "",
     onDragCancel: () => "Slepen afgebroken.",
@@ -525,14 +531,6 @@ export function SquadView() {
     track("elftal-gebouwd");
     setNote({ kind: "gebouwd", result });
     setSelected(null);
-    setAnnouncement(
-      `Beste elftal staat: rating ${result.evaluation.rating}, chemie ${result.evaluation.chemistry}.`,
-    );
-  };
-
-  const applyTip = (advice: MoveAdvice) => {
-    api.apply(advice.next);
-    setAnnouncement(`Gedaan: ${effectLabel(advice.effect)}.`);
   };
 
   if (api.isLoading) return null;
@@ -545,84 +543,12 @@ export function SquadView() {
     );
   }
 
-  const selectedCard = selected ? cardAt(lineup, selected) : null;
-  const pickerName = picker ? spotName(api, picker) : "";
   const activeSquad = api.squads.find((s) => s.id === api.activeId) ?? null;
   const dragCard = dragging ? api.cardById(dragging.cardId) : null;
-
-  /** Wat je met een gekozen kaart kunt doen. Op een computer staat "kiezen" al in de lijst ernaast. */
-  const selectionButtons = (withReplace: boolean) =>
-    selected && (
-      <>
-        {withReplace && (
-          <Button
-            size="sm"
-            variant="glass"
-            icon={Replace}
-            onClick={() => {
-              setPicker(selected);
-              setSelected(null);
-            }}
-          >
-            Vervangen
-          </Button>
-        )}
-        {selected.kind === "veld" && selectedCard && (
-          <>
-            <Button
-              size="sm"
-              variant="glass"
-              icon={Crown}
-              onClick={() => {
-                api.toggleCaptain(selectedCard);
-                setAnnouncement(
-                  lineup.captain === selectedCard
-                    ? "Aanvoerdersband weggehaald."
-                    : `${nameOf(selectedCard)} is aanvoerder.`,
-                );
-                setSelected(null);
-              }}
-            >
-              {lineup.captain === selectedCard ? "Geen aanvoerder" : "Aanvoerder"}
-            </Button>
-            {api.canBench(selected) && (
-              <Button
-                size="sm"
-                variant="glass"
-                icon={Armchair}
-                onClick={() => {
-                  const incoming = api.toBench(selected);
-                  if (incoming !== false) {
-                    setAnnouncement(
-                      incoming
-                        ? `${nameOf(selectedCard)} naar de bank, ${nameOf(incoming)} erin.`
-                        : `${nameOf(selectedCard)} naar de bank.`,
-                    );
-                    changed();
-                  }
-                  setSelected(null);
-                }}
-              >
-                Naar bank
-              </Button>
-            )}
-          </>
-        )}
-        <Button
-          size="sm"
-          variant="ghost"
-          icon={X}
-          onClick={() => {
-            api.remove(selected);
-            setAnnouncement(`${nameOf(selectedCard)} uit je elftal gehaald.`);
-            setSelected(null);
-            changed();
-          }}
-        >
-          Haal weg
-        </Button>
-      </>
-    );
+  const pickerTitle = (spot: Spot) =>
+    spot.kind === "bank"
+      ? `Kies voor bank ${spot.index + 1}`
+      : `Kies voor ${spotName(api, spot)} (${api.positionOf(spot)})`;
 
   const toolbar = (
     <SquadToolbar
@@ -660,8 +586,8 @@ export function SquadView() {
           api.clear();
           setSelected(null);
           setNote(null);
-          setAnnouncement("Elftal leeggemaakt.");
         },
+        onUndo: api.canUndo ? () => void api.undo() : undefined,
       }}
     />
   );
@@ -689,7 +615,7 @@ export function SquadView() {
         announcements,
         screenReaderInstructions: {
           draggable:
-            "Sleep met de muis naar een plek. Met het toetsenbord: pijltjes om tussen plekken te gaan, Enter om een kaart te kiezen of te wisselen.",
+            "Sleep met de muis naar een plek. Met het toetsenbord: pijltjes om tussen plekken te gaan, Enter om de kiezer voor die plek te openen.",
         },
       }}
     >
@@ -698,7 +624,7 @@ export function SquadView() {
       </p>
       <div className="space-y-4">
         {/* Boven de rest, zodat de uitklapmenu's over het veld en de kaarten vallen. */}
-        <GlassPanel padding="sm" className="relative z-30 px-4 py-3">
+        <GlassPanel padding="sm" className="relative z-10 px-4 py-3">
           {toolbar}
           {!wide && (
             <SquadStats evaluation={evaluation} className="mt-3 border-t border-line pt-3" />
@@ -714,27 +640,13 @@ export function SquadView() {
                   cardById={api.cardById}
                   size={pitchSize}
                   cardWidth={cardWidth}
-                  selected={selected}
+                  selected={wide ? selected : picker}
                   draggingKey={dragging?.key ?? null}
+                  hints={dragging?.hints ?? null}
                   onActivate={activate}
                 />
               )}
             </div>
-
-            {selected && !wide && (
-              <div
-                role="toolbar"
-                aria-label="Wat wil je met deze kaart?"
-                className="sticky bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-20 rounded-2xl border border-line-strong bg-surface p-2.5 shadow-[0_18px_44px_-14px_rgb(0_0_0/0.6)]"
-              >
-                <p className="mb-2 px-1 text-sm text-ink-2">
-                  <ArrowLeftRight size={14} aria-hidden className="mr-1 inline" />
-                  <strong className="text-ink">{nameOf(selectedCard)}</strong>: tik op een andere
-                  plek om te wisselen, of:
-                </p>
-                <div className="flex flex-wrap gap-2">{selectionButtons(true)}</div>
-              </div>
-            )}
 
             {!wide && noteCard(false)}
 
@@ -743,20 +655,22 @@ export function SquadView() {
                 bench={lineup.bench}
                 cardById={api.cardById}
                 players={api.players}
-                selected={selected}
+                selected={wide ? selected : picker}
                 draggingKey={dragging?.key ?? null}
+                hints={dragging?.hints ?? null}
+                allPlaying={api.vakkenInSquad.size >= api.vakCount}
                 onActivate={activate}
               />
             </GlassPanel>
 
-            <Analysis api={api} onApply={applyTip} />
+            <Analysis api={api} onApply={(advice) => api.applyAdvice(advice)} />
           </div>
 
           {wide && (
             <aside
               className="flex flex-col gap-3"
               style={{ height: pitchSize?.height }}
-              aria-label="Statistieken en kaarten"
+              aria-label="Statistieken en spelers"
             >
               <GlassPanel padding="md" className="max-h-[55%] shrink-0 overflow-y-auto">
                 <SquadStats evaluation={evaluation} stacked />
@@ -768,30 +682,43 @@ export function SquadView() {
                 aria-labelledby="kaarten-titel"
                 className="flex min-h-0 flex-1 flex-col"
               >
-                <h3 id="kaarten-titel" className="mb-1 font-display font-semibold text-ink">
-                  {selected ? `Kies voor ${spotName(api, selected)}` : "Je kaarten"}
-                </h3>
-                <p className="mb-2 text-xs text-ink-3">
-                  {selected
-                    ? "Per vak de beste kaart voor deze plek. Of klik een andere plek om te wisselen."
-                    : mouse
-                      ? "Sleep of klik om op te stellen."
-                      : "Tik om op te stellen."}
-                </p>
-                {selected && (
-                  <div
-                    role="toolbar"
-                    aria-label="Wat wil je met deze kaart?"
-                    className="mb-3 flex flex-wrap gap-1.5"
-                  >
-                    {selectionButtons(false)}
-                  </div>
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <h3 id="kaarten-titel" className="font-display font-semibold text-ink">
+                    {selected ? pickerTitle(selected) : "Je spelers"}
+                  </h3>
+                  {selected && (
+                    <button
+                      type="button"
+                      onClick={() => setSelected(null)}
+                      aria-label="Kiezer sluiten"
+                      className="rounded-full p-1 text-ink-3 hover:text-ink"
+                    >
+                      <X size={16} aria-hidden />
+                    </button>
+                  )}
+                </div>
+                {!selected && (
+                  <p className="text-xs text-ink-3">
+                    {mouse
+                      ? "Klik op een plek om te kiezen, of sleep een speler naar het veld."
+                      : "Tik op een plek om te kiezen."}
+                  </p>
                 )}
-                <CardList
+                <PlayerPicker
+                  key={selected ? spotKey(selected) : "overzicht"}
                   api={api}
                   target={selected}
                   draggable={mouse}
-                  onPick={pickFromList}
+                  onDone={() => {
+                    // Terug naar de plek op het veld, zodat je met het toetsenbord verder kunt.
+                    const key = selected ? spotKey(selected) : null;
+                    setSelected(null);
+                    if (key)
+                      requestAnimationFrame(() =>
+                        document.querySelector<HTMLElement>(`[data-spot="${key}"]`)?.focus(),
+                      );
+                  }}
+                  onSelectSpot={setSelected}
                   className="min-h-0 flex-1"
                 />
               </GlassPanel>
@@ -819,20 +746,17 @@ export function SquadView() {
       <Sheet
         open={picker !== null}
         onClose={() => setPicker(null)}
-        title={`Kies voor ${pickerName}`}
-        description="Per vak de beste kaart voor deze plek. Plus en min is wat je rating en chemie doen."
+        title={picker ? pickerTitle(picker) : ""}
         size="md"
       >
         {picker && (
-          <CardList
+          <PlayerPicker
+            key={spotKey(picker)}
             api={api}
             target={picker}
             draggable={false}
-            onPick={(cardId) => {
-              placeAt(picker, cardId);
-              setPicker(null);
-            }}
-            className="max-h-[62dvh]"
+            onDone={() => setPicker(null)}
+            className="max-h-[68dvh]"
           />
         )}
       </Sheet>

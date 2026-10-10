@@ -159,7 +159,7 @@ export function StyleguideView() {
 
         <Block
           title="Jouw Elftal"
-          note="Kaartjes in drie maten (rating, korte vaknaam, chemie-bolletje, aanvoerdersband, 'G' bij een vaste rating), chemiebalkjes, de drie lijnsoorten, de wapens, de balk boven het veld met statistieken, het uitklapmenu en een veld met de oefenkaarten (Bouw beste elftal)."
+          note="Kaartjes in drie maten (rating, korte vaknaam, chemie-bolletje, aanvoerdersband, 'G' bij een vaste rating), chemiebalkjes, de drie lijnsoorten, de wapens, de balk boven het veld met statistieken (ook 'niet compleet'), regels uit de kiezer, de sleep-hints (plaatsen, wisselen, kan niet), een melding met Ongedaan maken, het uitklapmenu en een veld met de oefenkaarten (Bouw beste elftal)."
         >
           <SquadSamples deck={deck} />
         </Block>

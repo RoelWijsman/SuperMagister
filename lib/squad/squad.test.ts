@@ -14,21 +14,19 @@ import {
 import { cleanClubName, clubInitials, generateClubName, isRealClubName } from "./club";
 import { FORMATION_IDS, FORMATIONS, neighbours, slotLine } from "./formations";
 import {
+  applyMove,
   cleanLineup,
   emptyLineup,
-  placeCard,
   setCaptain,
   spotOf,
   squadCardIds,
-  swapSpots,
-  toBench,
-  tryPlace,
-  trySwap,
   type Lineup,
+  type Spot,
 } from "./lineup";
 import { commentary, GOAL_BY_GROUP, MAX_GOALS, simulateMatch } from "./match";
 import { ratingNote, testKindOf, toSquadPlayer, vakKey, type SquadPlayer } from "./players";
-import { bestMove, groupByVak, rankForSpot } from "./suggest";
+import { pickerOptions } from "./picker";
+import { bestMove } from "./suggest";
 import { COPY } from "@/content/copy";
 import { fillCopy } from "@/lib/copy";
 
@@ -225,9 +223,10 @@ describe("teamchemie en squad-rating", () => {
     expect(teamChemistry([])).toBe(0);
   });
 
-  it("squad-rating is het afgeronde gemiddelde", () => {
+  it("squad-rating is het afgeronde gemiddelde, een lege plek telt als 0", () => {
     expect(squadRating([80, 81])).toBe(81);
     expect(squadRating([70, 70, 71])).toBe(70);
+    expect(squadRating([80, null])).toBe(40);
     expect(squadRating([])).toBe(0);
   });
 
@@ -263,6 +262,16 @@ describe("teamchemie en squad-rating", () => {
   });
 });
 
+/** Een kaart op een plek zetten via de gewone regels (voor de opbouw van een test). */
+function put(
+  lineup: Lineup,
+  spot: Spot,
+  cardId: string,
+  vakOf: (id: string) => string | undefined,
+) {
+  return applyMove(lineup, { kind: "kaart", cardId }, spot, vakOf)?.lineup ?? lineup;
+}
+
 describe("opstelling", () => {
   const wisA = player({ vak: "wiskunde a" });
   const wisA2 = player({ vak: "wiskunde a", rating: 90 });
@@ -270,69 +279,23 @@ describe("opstelling", () => {
   const all = [wisA, wisA2, frans];
   const vakOf = (id: string) => all.find((p) => p.id === id)?.vak;
 
-  it("op het veld één kaart per vak: ernaast zetten mag niet, en zegt waarom", () => {
-    const lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
-    const result = tryPlace(lineup, { kind: "veld", slot: "lv" }, wisA2.id, vakOf);
-    expect(result.conflict).toEqual({ cardId: wisA.id, slot: "sp" });
-    expect(result.lineup).toBe(lineup);
-  });
-
-  it("op dezelfde plek mag een andere kaart van het vak het wel overnemen", () => {
-    let lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
-    lineup = placeCard(lineup, { kind: "veld", slot: "sp" }, wisA2.id, vakOf);
-    expect(lineup.slots.sp).toBe(wisA2.id);
-    expect(squadCardIds(lineup)).toEqual([wisA2.id]);
-  });
-
-  it("op de bank mag een reserve van hetzelfde vak, die alleen voor dat vak invalt", () => {
-    let lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
-    lineup = placeCard(lineup, { kind: "veld", slot: "cm-m" }, frans.id, vakOf);
-    lineup = placeCard(lineup, { kind: "bank", index: 0 }, wisA2.id, vakOf);
-    expect(lineup.bench[0]).toBe(wisA2.id);
-    // Met wiskunde wisselen kan.
-    const swap = trySwap(lineup, { kind: "bank", index: 0 }, { kind: "veld", slot: "sp" }, vakOf);
-    expect(swap.conflict).toBeNull();
-    expect(swap.lineup.slots.sp).toBe(wisA2.id);
-    // Voor Frans invallen niet: dan staat wiskunde er twee keer.
-    const wrong = trySwap(
-      lineup,
-      { kind: "bank", index: 0 },
-      { kind: "veld", slot: "cm-m" },
-      vakOf,
-    );
-    expect(wrong.conflict).toEqual({ cardId: wisA.id, slot: "sp" });
-    expect(wrong.lineup).toBe(lineup);
-  });
-
-  it("een kaart die al in de selectie staat, wisselt van plek", () => {
-    let lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
-    lineup = placeCard(lineup, { kind: "veld", slot: "cm-m" }, frans.id, vakOf);
-    lineup = placeCard(lineup, { kind: "veld", slot: "cm-m" }, wisA.id, vakOf);
-    expect(lineup.slots["cm-m"]).toBe(wisA.id);
-    expect(lineup.slots.sp).toBe(frans.id);
-  });
-
   it("wisselen tussen veld en bank, en de aanvoerder moet op het veld staan", () => {
-    let lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
-    lineup = placeCard(lineup, { kind: "bank", index: 2 }, frans.id, vakOf);
+    let lineup = put(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
+    lineup = put(lineup, { kind: "bank", index: 2 }, frans.id, vakOf);
     lineup = setCaptain(lineup, wisA.id);
     expect(setCaptain(lineup, frans.id).captain).toBe(wisA.id); // bank kan geen aanvoerder zijn
-    lineup = swapSpots(lineup, { kind: "veld", slot: "sp" }, { kind: "bank", index: 2 }, vakOf);
+    lineup = applyMove(
+      lineup,
+      { kind: "plek", spot: { kind: "veld", slot: "sp" } },
+      { kind: "bank", index: 2 },
+      vakOf,
+    )!.lineup;
     expect(lineup.slots.sp).toBe(frans.id);
     expect(lineup.bench[2]).toBe(wisA.id);
     expect(lineup.captain).toBeNull();
   });
 
-  it("naar de bank: de eerste vrije plek, of niet als de bank vol is", () => {
-    const lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, wisA.id, vakOf);
-    const benched = toBench(lineup, { kind: "veld", slot: "sp" })!;
-    expect(benched.slots.sp).toBeNull();
-    expect(benched.bench[0]).toBe(wisA.id);
-    const full = { ...lineup, bench: Array.from({ length: 7 }, (_, i) => `bank-${i}`) };
-    expect(toBench(full, { kind: "veld", slot: "sp" })).toBeNull();
-  });
-
-  it("maakt een bewaarde opstelling weer geldig", () => {
+  it("maakt een bewaarde opstelling weer geldig: elk vak één keer, het veld gaat voor", () => {
     const stored = {
       formation: "4-3-3",
       slots: { sp: wisA.id, lv: wisA2.id, "cm-m": "weg" },
@@ -346,9 +309,9 @@ describe("opstelling", () => {
     expect(clean.slots["cm-m"]).toBeNull();
     expect(clean.bench).toHaveLength(7);
     expect(clean.bench[0]).toBe(frans.id);
-    // Een kaart staat maar op één plek; een reserve van hetzelfde vak op de bank mag.
+    // Wiskunde A staat al op het veld: ook geen andere versie op de bank.
     expect(clean.bench[1]).toBeNull();
-    expect(clean.bench[2]).toBe(wisA.id);
+    expect(clean.bench[2]).toBeNull();
     expect(clean.captain).toBeNull();
     expect(Object.keys(clean.slots)).toHaveLength(11);
   });
@@ -419,22 +382,43 @@ describe("automatisch bouwen", () => {
     expect(new Set(evaluation.slots.map((s) => s.player!.vak)).size).toBe(11);
   });
 
-  it("vult de bank met zeven wissels: eerst per linie één reserve", () => {
+  it("vult de bank met de vakken die niet spelen: eerst per linie één reserve", () => {
+    const extra = [
+      player({ vak: "frans", group: "talen", natural: "middenveld", rating: 66 }),
+      player({
+        vak: "maatschappijleer",
+        group: "mens-maatschappij",
+        natural: "verdediging",
+        rating: 64,
+      }),
+      player({ vak: "informatica", group: "exact", natural: "aanval", rating: 70 }),
+      player({ vak: "muziek", group: "kunst-cultuur", natural: "flexibel", rating: 62 }),
+    ];
+    const pool = [...demoPool(), ...extra];
+    const { lineup } = buildBestSquad(pool, "4-3-3");
+    const byId = new Map(pool.map((p) => [p.id, p]));
+    const bench = lineup.bench.filter(Boolean).map((id) => byId.get(id!)!);
+    // Zestien vakken: elf op het veld, de andere vijf op de bank.
+    const field = new Set(Object.values(lineup.slots).map((id) => byId.get(id!)!.vak));
+    const rest = [...new Set(pool.map((p) => p.vak))].filter((vak) => !field.has(vak));
+    expect(bench.map((p) => p.vak).sort()).toEqual(rest.sort());
+    // Per linie één reserve vooraan (verdediging, middenveld, aanval), dan de rest.
+    expect(bench.slice(0, 3).map((p) => p.natural)).toEqual([
+      expect.stringMatching(/verdediging|flexibel/),
+      expect.stringMatching(/middenveld|flexibel/),
+      expect.stringMatching(/aanval|flexibel/),
+    ]);
+    // Elk vak één keer in de hele selectie.
+    const vakken = squadCardIds(lineup).map((id) => byId.get(id)!.vak);
+    expect(new Set(vakken).size).toBe(vakken.length);
+  });
+
+  it("met twaalf vakken (zoals de demo) is er één reserve", () => {
     const pool = demoPool();
     const { lineup } = buildBestSquad(pool, "4-3-3");
-    const players = mapOf(pool);
-    const byId = new Map(pool.map((p) => [p.id, p]));
-    expect(lineup.bench.filter(Boolean)).toHaveLength(7);
-    const bench = lineup.bench.map((id) => byId.get(id!)!);
-    expect(bench[0]!.natural).toBe("keeper");
-    expect(bench[1]!.natural).toMatch(/verdediging|flexibel/);
-    expect(bench[2]!.natural).toMatch(/middenveld|flexibel/);
-    expect(bench[3]!.natural).toMatch(/aanval|flexibel/);
-    // Scheikunde staat niet op het veld, dus is de reserve voor de aanval.
-    expect(bench[3]!.vak).toBe("scheikunde");
-    // Niemand staat twee keer in de selectie.
-    expect(new Set(squadCardIds(lineup)).size).toBe(18);
-    expect(players.size).toBe(18);
+    const bench = lineup.bench.filter(Boolean);
+    expect(bench).toHaveLength(1);
+    expect(pool.find((p) => p.id === bench[0])!.vak).toBe("scheikunde");
   });
 
   it("is minstens zo goed als alleen op rating kiezen, en altijd hetzelfde", () => {
@@ -450,9 +434,9 @@ describe("automatisch bouwen", () => {
   it("werkt ook met weinig kaarten of helemaal geen", () => {
     expect(buildBestSquad([], "4-4-2").evaluation.placed).toBe(0);
     const few = buildBestSquad(demoPool().slice(0, 4), "4-4-2");
-    // Vier kaarten, waarvan twee keer LO en twee keer geschiedenis: twee vakken op het veld.
+    // Vier kaarten, waarvan twee keer LO en twee keer geschiedenis: twee spelers, allebei op het veld.
     expect(few.evaluation.placed).toBe(2);
-    expect(few.lineup.bench.filter(Boolean)).toHaveLength(2);
+    expect(few.lineup.bench.filter(Boolean)).toHaveLength(0);
   });
 });
 
@@ -514,7 +498,8 @@ describe("tips: alleen zetten die kunnen en echt beter zijn", () => {
     // Scheikunde (van de bank) op de plek van Duits: exact op het middenveld.
     const duits = Object.entries(lineup.slots).find(([, id]) => vakOf(id!) === "duits")![0];
     const scheikunde = pool.find((p) => p.vak === "scheikunde")!;
-    const worse = placeCard(lineup, { kind: "veld", slot: duits }, scheikunde.id, vakOf);
+    const worse = put(lineup, { kind: "veld", slot: duits }, scheikunde.id, vakOf);
+    expect(worse.slots[duits]).toBe(scheikunde.id);
     const advice = bestMove(worse, players)!;
     expect(advice).not.toBeNull();
     expect(squadScore(evaluateSquad(advice.next, players))).toBeGreaterThan(
@@ -538,16 +523,15 @@ describe("tips: alleen zetten die kunnen en echt beter zijn", () => {
   });
 
   it("noemt lege plekken alleen als er kaarten zijn om ze te vullen", () => {
-    const lineup = placeCard(emptyLineup(), { kind: "veld", slot: "sp" }, "x", () => "x");
+    const lineup = put(emptyLineup(), { kind: "veld", slot: "sp" }, "x", () => "x");
     const one = new Map([["x", player({ id: "x", subjectName: "Wiskunde", rating: 88 })]]);
     const analysis = analyseSquad(evaluateSquad(lineup, one), null, true);
-    expect(analysis.strongest).toEqual({ line: "aanval", rating: 88, subject: "Wiskunde" });
+    // Geen linie is compleet, dus geen sterkste of zwakste linie.
+    expect(analysis.strongest).toBeNull();
     expect(analysis.tip).toEqual({ kind: "leeg", open: 10 });
     expect(analyseSquad(evaluateSquad(lineup, one), null, false).tip.kind).toBe("aanvoerder");
   });
 });
-
-const spotKeyOf = (spot: { kind: string; slot?: string } | null) => spot?.slot;
 
 describe("kiezen per plek", () => {
   const pool = demoPool();
@@ -556,78 +540,33 @@ describe("kiezen per plek", () => {
   const { lineup } = buildBestSquad(pool, "4-3-3");
   const midSlot = Object.entries(lineup.slots).find(([, id]) => vakOf(id!) === "duits")![0];
 
-  it("laat per kaart zien wat er met rating en chemie gebeurt, op dezelfde manier", () => {
-    const ranked = rankForSpot(lineup, { kind: "veld", slot: midSlot }, pool, players);
+  it("laat per keuze zien wat er met rating en chemie gebeurt, precies zoals het uitpakt", () => {
+    const options = pickerOptions(lineup, { kind: "veld", slot: midSlot }, players);
     const before = evaluateSquad(lineup, players);
-    for (const s of ranked.filter((r) => !r.conflict)) {
+    const all = [
+      ...options.selected,
+      ...options.available.flatMap((g) => [g.best, ...g.others]),
+      ...(options.current?.versions ?? []),
+    ];
+    expect(all.length).toBeGreaterThan(0);
+    for (const option of all) {
       const after = evaluateSquad(
-        placeCard(lineup, { kind: "veld", slot: midSlot }, s.player.id, vakOf),
+        applyMove(lineup, option.source, { kind: "veld", slot: midSlot }, vakOf)!.lineup,
         players,
       );
-      expect(s.effect).toEqual({
+      expect(option.effect).toEqual({
         rating: after.rating - before.rating,
         chemistry: after.chemistry - before.chemistry,
       });
-      expect(s.chemistry).toBe(after.slots.find((x) => x.slot.id === midSlot)!.chemistry);
+      expect(option.chemistry).toBe(after.slots.find((x) => x.slot.id === midSlot)!.chemistry);
     }
-    // Twee kaarten van hetzelfde vak die allebei uit je kaarten komen, krijgen dezelfde chemie
-    // als ze dezelfde periode en toetssoort hebben.
-    const engels = ranked.filter((r) => r.player.vak === "engels" && !r.from);
-    expect(new Set(engels.map((r) => r.chemistry)).size).toBeLessThanOrEqual(1);
-  });
-
-  it("zegt wie er verder verschuift, en blokkeert een tweede kaart van een vak op het veld", () => {
-    const ranked = rankForSpot(lineup, { kind: "veld", slot: midSlot }, pool, players);
-    // Engels staat al op het middenveld: die kaart wisselt van plek met Duits.
-    const engelsOpVeld = ranked.find((r) => r.player.vak === "engels" && r.from?.kind === "veld")!;
-    expect(engelsOpVeld.displaced).toEqual({
-      cardId: lineup.slots[midSlot],
-      to: engelsOpVeld.from,
-    });
-    // De andere Engels-kaart mag hier niet bij: Engels staat dan twee keer op het veld.
-    const engelsReserve = ranked.find((r) => r.player.vak === "engels" && r.from?.kind !== "veld")!;
-    expect(engelsReserve.conflict).toEqual({
-      cardId: engelsOpVeld.player.id,
-      slot: spotKeyOf(engelsOpVeld.from),
-    });
-    // Een kaart uit je kaarten (lege bank): Duits gaat terug naar je kaarten.
-    const noBench = { ...lineup, bench: lineup.bench.map(() => null) };
-    const fromList = rankForSpot(noBench, { kind: "veld", slot: midSlot }, pool, players);
-    const extra = fromList.find((r) => !r.from && !r.conflict)!;
-    expect(extra.displaced).toEqual({ cardId: lineup.slots[midSlot], to: null });
-  });
-
-  it("groepeert per vak: alleen de beste kaart vooraan", () => {
-    const ranked = rankForSpot(lineup, { kind: "veld", slot: midSlot }, pool, players);
-    const groups = groupByVak(ranked);
-    expect(new Set(groups.map((g) => g.vak)).size).toBe(groups.length);
-    for (const g of groups) for (const r of g.rest) expect(r.player.vak).toBe(g.vak);
-    expect(groups.reduce((n, g) => n + 1 + g.rest.length, 0)).toBe(ranked.length);
-  });
-
-  it("naar de bank: de best passende reserve komt erin, anders een vrije plek", async () => {
-    const { substitute } = await import("./suggest");
-    // Bank vol na het bouwen: Duits eruit, de middenveld-reserve (Engels 74 mag niet: Engels
-    // speelt al) of een andere reserve die mag, erin.
-    const result = substitute(lineup, { kind: "veld", slot: midSlot }, players)!;
-    expect(result.incoming).not.toBeNull();
-    expect(result.lineup.slots[midSlot]).toBe(result.incoming);
-    expect(result.lineup.bench).toContain(lineup.slots[midSlot]);
-    const vakken = Object.values(result.lineup.slots).map((id) => vakOf(id!));
-    expect(new Set(vakken).size).toBe(11);
-    // Lege bank: de kaart gaat naar de bank en de plek blijft leeg.
-    const noBench = { ...lineup, bench: lineup.bench.map(() => null) };
-    const alone = substitute(noBench, { kind: "veld", slot: midSlot }, players)!;
-    expect(alone.incoming).toBeNull();
-    expect(alone.lineup.slots[midSlot]).toBeNull();
-    expect(alone.lineup.bench[0]).toBe(lineup.slots[midSlot]);
   });
 
   it("op de bank telt de rating", () => {
     const empty = emptyLineup("4-3-3");
-    const ranked = rankForSpot(empty, { kind: "bank", index: 0 }, pool, players);
-    expect(ranked[0]!.player.rating).toBe(97);
-    expect(ranked[0]!.chemistry).toBeNull();
+    const options = pickerOptions(empty, { kind: "bank", index: 0 }, players);
+    expect(options.available[0]!.best.player.rating).toBe(97);
+    expect(options.available[0]!.best.chemistry).toBeNull();
   });
 });
 
@@ -706,25 +645,25 @@ describe("club en oefenwedstrijd", () => {
 });
 
 it("spotOf vindt kaarten op het veld en de bank", () => {
-  const lineup = placeCard(emptyLineup(), { kind: "bank", index: 3 }, "a", () => "a");
+  const lineup = put(emptyLineup(), { kind: "bank", index: 3 }, "a", () => "a");
   expect(spotOf(lineup, "a")).toEqual({ kind: "bank", index: 3 });
   expect(spotOf(lineup, "b")).toBeNull();
 });
 
 describe("zonder plek kiezen en de video", () => {
-  it("zonder plek: de lege plek waar hij hoort, en de bank als zijn vak al speelt", async () => {
+  it("zonder plek: de lege plek waar hij hoort; niets als zijn vak al meedoet", async () => {
     const { bestEmptySpot } = await import("./suggest");
     const taal = player({ vak: "en", group: "talen", natural: "middenveld", rating: 90 });
     const taal2 = player({ vak: "en", group: "talen", natural: "middenveld", rating: 80 });
     const all = [taal, taal2];
     const vakOf = (id: string) => all.find((p) => p.id === id)?.vak;
-    const lineup = placeCard(emptyLineup("4-3-3"), { kind: "veld", slot: "cm-m" }, taal.id, vakOf);
+    const lineup = put(emptyLineup("4-3-3"), { kind: "veld", slot: "cm-m" }, taal.id, vakOf);
     expect(bestEmptySpot(emptyLineup("4-3-3"), taal, vakOf)).toEqual({
       kind: "veld",
       slot: "cm-l",
     });
-    expect(bestEmptySpot(lineup, taal2, vakOf)).toEqual({ kind: "bank", index: 0 });
-    expect(bestEmptySpot(emptyLineup(), player({ natural: "keeper" }))).toEqual({
+    expect(bestEmptySpot(lineup, taal2, vakOf)).toBeNull();
+    expect(bestEmptySpot(emptyLineup(), player({ natural: "keeper" }), () => undefined)).toEqual({
       kind: "veld",
       slot: "k",
     });

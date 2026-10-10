@@ -146,6 +146,8 @@ export function bestImprovement(
   captain: string | null,
   accept: (candidate: Improvement, current: Improvement) => boolean = (c, cur) =>
     c.score > cur.score + 1e-9,
+  /** Mag deze kaart op deze plek (bijv. niet als zijn vak al op de bank zit met een andere versie)? */
+  allowed: (player: SquadPlayer, slotId: string) => boolean = () => true,
 ): Improvement | null {
   const ids = FORMATIONS[formation].slots.map((s) => s.id);
   const startEval = evaluate(formation, slots, players, captain);
@@ -179,6 +181,7 @@ export function bestImprovement(
       if (onField.has(player.id)) continue;
       const taken = vakAt.get(player.vak);
       if (taken !== undefined && taken !== a) continue;
+      if (!allowed(player, a)) continue;
       consider({ ...slots, [a]: player.id });
     }
   }
@@ -217,48 +220,30 @@ function pickCaptain(evaluation: SquadEvaluation): string | null {
 const BENCH_LINES: readonly Line[] = ["keeper", "verdediging", "middenveld", "aanval"];
 
 /**
- * De bank: eerst per linie één reserve (keeper, verdediging, middenveld,
- * aanval), dan de beste kaarten die over zijn. Liefst vakken die nog niet in de
- * selectie staan, want die kunnen voor iedereen invallen; een tweede kaart van
- * hetzelfde vak mag ook (die valt in voor dat vak).
+ * De bank: de spelers (vakken) die niet op het veld staan, elk met zijn beste
+ * versie. Eerst per linie één reserve (keeper, verdediging, middenveld, aanval),
+ * dan de beste die over zijn. Elk vak is één speler, dus een vak dat op het veld
+ * staat, kan niet ook op de bank: met twaalf vakken is er één reserve.
  */
-export function fillBench(
-  slots: Slots,
-  allPlayers: Iterable<SquadPlayer>,
-  keep: readonly (string | null)[] = [],
-): (string | null)[] {
-  const onField = new Set(Object.values(slots).filter(Boolean));
+export function fillBench(slots: Slots, allPlayers: Iterable<SquadPlayer>): (string | null)[] {
   const players = [...allPlayers].sort(byRating);
   const byId = new Map(players.map((p) => [p.id, p]));
-  const fieldVakken = new Set(
-    [...onField].flatMap((id) => (byId.has(id!) ? [byId.get(id!)!.vak] : [])),
+  const taken = new Set(
+    Object.values(slots).flatMap((id) => (id && byId.has(id) ? [byId.get(id)!.vak] : [])),
   );
-  const bench: string[] = keep.filter((id): id is string => !!id && !onField.has(id));
-  const benchVakken = new Set(bench.flatMap((id) => (byId.has(id) ? [byId.get(id)!.vak] : [])));
-  const free = (p: SquadPlayer) => !onField.has(p.id) && !bench.includes(p.id);
-  const pick = (fits: (p: SquadPlayer) => boolean) => {
-    if (bench.length >= BENCH_SIZE) return;
-    const choice =
-      players.find(
-        (p) => free(p) && fits(p) && !fieldVakken.has(p.vak) && !benchVakken.has(p.vak),
-      ) ??
-      players.find((p) => free(p) && fits(p) && !benchVakken.has(p.vak)) ??
-      players.find((p) => free(p) && fits(p));
-    if (choice) {
-      bench.push(choice.id);
-      benchVakken.add(choice.vak);
-    }
-  };
+  const reserves = bestPerVak(players.filter((p) => !taken.has(p.vak)));
+  const bench: SquadPlayer[] = [];
   for (const line of BENCH_LINES) {
-    if (bench.some((id) => byId.get(id)?.natural === line)) continue;
-    pick((p) => p.natural === line || (line !== "keeper" && p.natural === "flexibel"));
+    const reserve =
+      reserves.find((p) => !bench.includes(p) && p.natural === line) ??
+      (line === "keeper"
+        ? undefined
+        : reserves.find((p) => !bench.includes(p) && p.natural === "flexibel"));
+    if (reserve && bench.length < BENCH_SIZE) bench.push(reserve);
   }
-  while (bench.length < BENCH_SIZE) {
-    const before = bench.length;
-    pick(() => true);
-    if (bench.length === before) break;
-  }
-  return Array.from({ length: BENCH_SIZE }, (_, i) => bench[i] ?? null);
+  for (const reserve of reserves)
+    if (bench.length < BENCH_SIZE && !bench.includes(reserve)) bench.push(reserve);
+  return Array.from({ length: BENCH_SIZE }, (_, i) => bench[i]?.id ?? null);
 }
 
 export interface BuildResult {

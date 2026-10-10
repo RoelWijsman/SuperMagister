@@ -657,10 +657,24 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
   en "niet beoordeeld" spelen niet mee. Zonder vaste rating had bijna niemand een keeper, want LO
   krijgt op de meeste scholen alleen V's en G's. Korte vaknamen op de kaartjes ("Wis A", "LO",
   `lib/subjects/short.ts`); de volledige naam in de lijst en de toegankelijke naam.
-- **Eén kaart per vak op het veld** (op `vakKey`, de vaknaam). Een zet die een vak twee keer op
-  het veld zet, gebeurt niet: je krijgt een melding welke kaart er al staat (`tryPlace`,
-  `trySwap` geven het conflict terug). Op de bank mag een tweede kaart van een vak wel: dat is een
-  reserve, die alleen voor dat vak kan invallen.
+- **Spelersmodel (10 oktober 2026, na feedback dat kiezen verwarrend was en het elftal stuk
+  maakte):** elk vak is één speler, elke kaart (toets) van dat vak een versie van die speler. Een
+  speler staat hooguit één keer in je selectie, op het veld óf op de bank. Alle zetten lopen via
+  `planMove`/`applyMove` (`lineup.ts`), en die kunnen dat niet breken (getest met 600
+  willekeurige zetten):
+  - **plaatsen:** een speler die nog niet meedoet; wie er stond, gaat naar de bank (vanaf het veld,
+    als daar plek is) of terug naar je collectie. Nooit zomaar weg;
+  - **versie:** een andere versie van de speler die er staat; de positie blijft, de band gaat mee;
+  - **wisselen:** twee spelers in je selectie ruilen. Beide plekken blijven gevuld;
+  - **verplaatsen:** een speler naar een lege plek; dan staat er expliciet "SP wordt leeg";
+  - een andere versie van een vak dat elders staat, kan niet (en staat dus ook niet in de kiezer).
+    Elke zet geeft een lijst veranderingen terug, die als zin onderaan komt ("Engels 74 staat op CM.
+    Engels 79 terug naar je collectie.").
+- **Ongedaan maken** (`history.ts`, `stores/squad-history.ts`): de stand van vóór de laatste
+  twintig stappen per opstelling, in het geheugen. Elke stap toont een melding met "Ongedaan
+  maken" (een nieuwe stap vervangt de vorige melding); ook Ctrl+Z / ⌘Z en een knop in de balk.
+  Bouwen, formatie wisselen en leegmaken zijn ook stappen. De bevestiging van "Bouw beste elftal"
+  staat alleen in die melding; het paneel ernaast legt alleen de afweging uit.
 - **Toetssoort** bestaat niet in Magister; we leiden hem af uit de omschrijving (SO, proefwerk, PO,
   mondeling, SE, toets, …). Onbekend telt nooit als "dezelfde soort". Periode = schooljaar + periode.
 - **Formaties** (`lib/squad/formations.ts`): vijf, met posities in procenten en de lijnen per
@@ -676,36 +690,38 @@ plakveld als reserve. Na ongeveer een uur koppel je opnieuw met één klik op de
   px, op een telefoon ~60 px. De spelerschemie staat als bolletje rechtsonder óp het kaartje en de
   aanvoerdersband rechtsboven, dus niets valt over een lijn of een ander kaartje.
 - **Chemie** (`lib/squad/chemistry.ts`): lijnwaarde groen 10, oranje 5, rood 0, het gemiddelde over
-  de bezette buren. Spelerschemie = basis per soort plek plus een deel van dat gemiddelde:
+  alle buren (een lege buurplek telt als 0, zodat een gat de chemie nooit hoger maakt). Spelerschemie = basis per soort plek plus een deel van dat gemiddelde:
   natuurlijk 4 + 0,6×, flexibel 3 + 0,6× (max 9). **Uit positie** (verkeerde linie, keeper ↔ veld)
   is 0, en zijn lijnen zijn rood, ook naar zijn eigen vakgroep (zoals in Ultimate Team; eerst was
   de verkeerde linie nog tot 5 waard, waardoor een exact vak op het middenveld kon blijven staan).
   Aanvoerder +1 (max 10). Teamchemie = som / 110 × 100; een lege plek telt als 0. Squad-rating =
-  afgerond gemiddelde van wie er staat. Lijnsoorten naast de kleur: groen doorgetrokken, oranje
+  afgerond gemiddelde over alle elf plekken (lege plek = 0), en zolang er een gat is, toont de app
+  "Niet compleet (10/11)" in plaats van een rating; een linie met een gat toont "2/3". Zo wordt je
+  rating nooit hoger door een gat (getest: elke plek leeghalen geeft een lagere rating). Lijnsoorten naast de kleur: groen doorgetrokken, oranje
   streepjes, rood stipjes.
 - **Beste elftal** (`lib/squad/build.ts`): score = gemiddelde rating (lege plek = 0) + ½ ×
   teamchemie, min 1 per linie afstand voor wie uit positie staat (exact op het middenveld is
   minder raar dan exact achterin). Kandidaten: per vak en per soort kaart (periode, toetssoort,
   ICON) de hoogste rating; een andere kaart van die soort wint nooit. Eerst een opstelling op
   natuurlijke linie, dan net zo lang de beste zet (omdraaien of een andere kaart erin) tot het niet
-  beter wordt, dan de aanvoerder en nog een ronde. **Bank:** eerst per linie één reserve (keeper,
-  verdediging, middenveld, aanval), dan de beste die over zijn, liefst vakken die nog niet spelen.
-- **Tips** (`bestMove` in `suggest.ts`, `analysis.ts`): alleen een zet die echt kan (geen vak twee
-  keer) en de score echt verhoogt, en die je bovenaan ziet (rating of chemie omhoog). Met een knop
+  beter wordt, dan de aanvoerder en nog een ronde. **Bank:** de vakken die niet op het veld staan
+  (met hun beste versie), eerst per linie één reserve, dan de rest. Omdat elk vak één speler is,
+  heeft iemand met twaalf vakken (zoals de demo) één reserve; de bank zegt dat er dan ook bij.
+- **Tips** (`bestMove` in `suggest.ts`, `analysis.ts`): alleen een zet die volgens de regels kan
+  (een speler van de bank alleen met zijn eigen versie) en de score echt verhoogt, en die je bovenaan ziet (rating of chemie omhoog). Met een knop
   "Doen". Na "Bouw beste elftal" is er dus geen tip-zet, want die zou het bouwen al gedaan hebben.
   Anders: lege plekken vullen, een aanvoerder kiezen, of niets op aan te merken.
-- **Kiezen voor een plek** (`rankForSpot`): per vak de beste kaart voor die plek (rating en
-  chemie samen, zoals bij het bouwen), "Nog 5 kaarten van Engels" klapt de rest uit. Per kaart:
-  de chemie die hij daar krijgt (na de zet), wat squad-rating en teamchemie doen ("+3 chemie",
-  "−1 rating"), en wie er verder verschuift ("Ruilt: Duits naar LV", "Duits gaat naar de bank").
-  Een kaart die niet mag, staat er grijs met de reden.
-- **Bediening:** tikken werkt overal: lege plek → meteen de lijst; volle plek → Vervangen,
-  Aanvoerder, Naar bank, Haal weg (of een andere plek tikken om te wisselen). "Naar bank" is een
-  wissel: de best passende reserve komt erin; is die er niet, dan naar een vrije plek op de bank.
-  Op een computer staan die knoppen in het paneel naast het veld en kun je slepen (alleen met de
-  muis, dnd-kit `MouseSensor`, zodat vegen op een telefoon gewoon scrolt). Toetsenbord: pijltjes
-  gaan naar de dichtstbijzijnde plek in die richting (veld en bank), Enter kiest of wisselt, Esc
-  laat los. Kaartjes schuiven mee bij plaatsen en wisselen (Framer Motion `layoutId`).
+- **De kiezer** (`picker.ts`, `PlayerPicker.tsx`), bij tikken, klikken of Enter op een plek:
+  bovenaan "Nu op deze plek" (andere versie, naar de bank, aanvoerder maken, haal weg), dan
+  "Beschikbaar" (vakken die nog niet meedoen, per vak één regel met de beste versie voor die plek;
+  "4 andere versies" klapt uit) en "Al in je selectie" (met waar hij staat en precies wat er
+  gebeurt: "Wissel met Scheikunde"). Per regel de chemie op die plek en wat squad-rating en
+  teamchemie doen. De eerste keer staat er één zin uitleg met een voorbeeld uit je eigen kaarten.
+  Op een computer staat de kiezer naast het veld, op een telefoon als blad.
+- **Slepen** (alleen met de muis): elke plek laat tijdens het slepen zien wat er gebeurt (groen
+  plaatsen, blauw wisselen, gedimd kan niet) en wat het met de teamchemie doet. Een kaart terug
+  naar de lijst slepen zet hem terug in je collectie. Toetsenbord: pijltjes tussen plekken, Enter
+  opent de kiezer, na een keuze staat de focus weer op die plek.
 - **Kop:** club (naam en wapen) met daaronder "Opstelling: Mijn elftal ▾" (wisselen, nieuw, kopie,
   hernoemen, verwijderen), de formatie, één hoofdknop "Bouw beste elftal" en een Meer-menu
   (`components/ui/Menu.tsx`, met pijltjes en Escape). Rating, chemie en de linies (voluit, "—"

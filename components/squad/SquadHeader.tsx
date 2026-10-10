@@ -12,6 +12,7 @@ import {
   Plus,
   Trash2,
   Trophy,
+  Undo2,
   Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -36,6 +37,8 @@ export interface ToolbarActions {
   onShare: (mode: "afbeelding" | "video") => void;
   onHelp: () => void;
   onClear: () => void;
+  /** De laatste stap terugzetten; undefined als er niets terug te zetten is. */
+  onUndo?: () => void;
 }
 
 /**
@@ -97,7 +100,7 @@ export function SquadToolbar({
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
-      <div className="flex min-w-0 flex-1 basis-56 items-center gap-2.5">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:basis-56">
         {/* Het wapen is ook aanklikbaar, maar voor toetsenbord en schermlezer is de naam de knop. */}
         <button
           type="button"
@@ -137,8 +140,29 @@ export function SquadToolbar({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
-        <label className="relative">
+      {/* Op een telefoon staat de formatie naast de clubnaam en de knoppen op een eigen regel. */}
+      <label className="relative shrink-0 sm:order-last sm:hidden">
+        <span className="sr-only">Formatie</span>
+        <select
+          id="elftal-formatie-klein"
+          value={formation}
+          onChange={(event) => actions.onFormation(event.target.value as FormationId)}
+          className="h-9 cursor-pointer appearance-none rounded-full glass pr-8 pl-3.5 font-card text-lg tracking-wider text-ink outline-offset-2"
+        >
+          {FORMATION_IDS.map((id) => (
+            <option key={id} value={id}>
+              {id}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={15}
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-ink-3"
+        />
+      </label>
+      <div className="flex w-full items-center gap-2 sm:w-auto sm:shrink-0">
+        <label className="relative max-sm:hidden">
           <span className="sr-only">Formatie</span>
           <select
             id="elftal-formatie"
@@ -158,7 +182,22 @@ export function SquadToolbar({
             className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-ink-3"
           />
         </label>
-        <Button variant="primary" size="sm" icon={Wand2} onClick={actions.onBuild}>
+        <Button
+          variant="glass"
+          size="icon-sm"
+          icon={Undo2}
+          aria-label="Ongedaan maken (Ctrl+Z)"
+          title="Ongedaan maken (Ctrl+Z)"
+          disabled={!actions.onUndo}
+          onClick={() => actions.onUndo?.()}
+        />
+        <Button
+          variant="primary"
+          size="sm"
+          icon={Wand2}
+          onClick={actions.onBuild}
+          className="max-sm:flex-1"
+        >
           Bouw beste elftal
         </Button>
         <Menu
@@ -194,12 +233,25 @@ export function SquadStats({
   return (
     <div className={cn("flex gap-x-5 gap-y-3", stacked ? "flex-col" : "items-center", className)}>
       <div className="flex shrink-0 items-end gap-4">
-        <div>
-          <p className="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-3">RATING</p>
-          <p className="sensitive font-card text-[2.6rem] leading-[0.85] text-ink tabular-nums">
-            <AnimatedNumber value={evaluation.rating} />
-          </p>
-        </div>
+        {evaluation.complete ? (
+          <div>
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-3">RATING</p>
+            <p className="sensitive font-card text-[2.6rem] leading-[0.85] text-ink tabular-nums">
+              <AnimatedNumber value={evaluation.rating} />
+            </p>
+          </div>
+        ) : (
+          // Nooit een rating die hoger is door een gat: eerst het elftal vol.
+          <div className="max-w-[6.5rem]">
+            <p className="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-3">RATING</p>
+            <p className="font-card text-[1.35rem] leading-[1.05] text-warn">
+              Niet compleet
+            </p>
+            <p className="text-xs font-semibold text-ink-2 tabular-nums">
+              {evaluation.placed}/{evaluation.formation.slots.length} spelers
+            </p>
+          </div>
+        )}
         <div className="min-w-[5.5rem]">
           <p className="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-3">CHEMIE</p>
           <p className="font-card text-[2rem] leading-[0.9] text-ink tabular-nums">
@@ -228,15 +280,24 @@ export function SquadStats({
       >
         {LINES.map((line) => {
           const rating = evaluation.lineRatings[line];
+          const fill = evaluation.lineFill[line];
           return (
             <div key={line} className="flex items-baseline justify-between gap-2">
               <dt className="truncate text-ink-3">{LINE_LABELS[line]}</dt>
               <dd className="sensitive font-semibold text-ink tabular-nums">
-                {rating ?? (
-                  <span className="font-normal text-ink-3" aria-label="leeg">
-                    —
-                  </span>
-                )}
+                {rating ??
+                  (fill.placed > 0 ? (
+                    <span
+                      className="font-normal text-warn"
+                      aria-label={`${fill.placed} van ${fill.total}, nog niet compleet`}
+                    >
+                      {fill.placed}/{fill.total}
+                    </span>
+                  ) : (
+                    <span className="font-normal text-ink-3" aria-label="leeg">
+                      —
+                    </span>
+                  ))}
               </dd>
             </div>
           );

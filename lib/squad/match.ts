@@ -43,8 +43,8 @@ export const MAX_GOALS = 6;
 
 /** Sterkte van jouw elftal: rating (75%) en chemie (25%). Een niet-volledig elftal is zwakker. */
 export function teamStrength(evaluation: SquadEvaluation): number {
-  const filled = evaluation.placed / evaluation.formation.slots.length;
-  return (evaluation.rating * 0.75 + evaluation.chemistry * 0.25) * filled;
+  // Rating en chemie tellen een lege plek al als 0: een gat maakt je vanzelf zwakker.
+  return evaluation.rating * 0.75 + evaluation.chemistry * 0.25;
 }
 
 /** Verwacht aantal doelpunten bij een verschil in sterkte: rond 1,35, tussen 0,25 en 3. */

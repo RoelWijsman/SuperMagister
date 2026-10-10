@@ -19,6 +19,11 @@ function ToastItem({ toast }: { toast: Toast }) {
   const remaining = useRef(toast.duration);
   const startedAt = useRef(0);
 
+  // Een nieuwe versie van dezelfde melding: de tijd begint opnieuw.
+  useEffect(() => {
+    remaining.current = toast.duration;
+  }, [toast.version, toast.duration]);
+
   useEffect(() => {
     if (paused) return;
     startedAt.current = Date.now();
@@ -27,7 +32,7 @@ function ToastItem({ toast }: { toast: Toast }) {
       clearTimeout(id);
       remaining.current -= Date.now() - startedAt.current;
     };
-  }, [paused, dismiss, toast.id]);
+  }, [paused, dismiss, toast.id, toast.version]);
 
   return (
     <motion.li
@@ -39,7 +44,7 @@ function ToastItem({ toast }: { toast: Toast }) {
       onPointerEnter={() => setPaused(true)}
       onPointerLeave={() => setPaused(false)}
       className={cn(
-        "pointer-events-auto flex w-full items-start gap-3 rounded-2xl border border-line-strong bg-surface py-3 pr-2 pl-4 shadow-[0_18px_44px_-14px_rgb(0_0_0/0.6)]",
+        "pointer-events-auto flex w-full flex-wrap items-start gap-x-3 gap-y-1 rounded-2xl border border-line-strong bg-surface py-3 pr-2 pl-4 shadow-[0_18px_44px_-14px_rgb(0_0_0/0.6)]",
         toneRing[toast.tone],
       )}
       role={toast.tone === "warning" ? "alert" : "status"}
@@ -61,6 +66,21 @@ function ToastItem({ toast }: { toast: Toast }) {
       >
         <X size={16} strokeWidth={2.2} />
       </button>
+      {toast.action && (
+        <div className="order-last basis-full">
+          <button
+            type="button"
+            onClick={() => {
+              // Eerst weg, dan de actie: die mag zelf een nieuwe melding met hetzelfde id tonen.
+              dismiss(toast.id);
+              toast.action!.onClick();
+            }}
+            className="rounded-full bg-glass-strong px-3 py-1.5 text-sm font-semibold whitespace-nowrap text-accent-ink transition-colors hover:bg-glass-hover"
+          >
+            {toast.action.label}
+          </button>
+        </div>
+      )}
     </motion.li>
   );
 }

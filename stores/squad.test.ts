@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { placeCard } from "@/lib/squad/lineup";
+import { applyMove } from "@/lib/squad/lineup";
 import { activeSquad, defaultSourceSquads, MAX_SQUADS, useSquadStore } from "./squad";
 
 beforeEach(() => {
@@ -12,7 +12,16 @@ const entry = (sourceId: string) =>
 describe("useSquadStore", () => {
   it("houdt elftallen per databron apart (demo en echt lopen nooit door elkaar)", () => {
     const { updateLineup } = useSquadStore.getState();
-    updateLineup("demo", (l) => placeCard(l, { kind: "veld", slot: "sp" }, "demo-kaart", () => "wi"));
+    updateLineup(
+      "demo",
+      (l) =>
+        applyMove(
+          l,
+          { kind: "kaart", cardId: "demo-kaart" },
+          { kind: "veld", slot: "sp" },
+          () => "wi",
+        )!.lineup,
+    );
     expect(activeSquad(entry("demo")).lineup.slots.sp).toBe("demo-kaart");
     expect(activeSquad(entry("magister:x:1")).lineup.slots.sp).toBeNull();
   });
